@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAE Schools Competition - Test Your Knowledge!</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap RTL CSS (for Arabic) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" id="bootstrap-rtl" disabled>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-repeat: no-repeat;
+            background-position: bottom;
+            opacity: 0.5;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-5px);
+        }
+        
+        .leaderboard-card {
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .rank-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+        
+        [dir="rtl"] .rank-badge {
+            margin-right: 0;
+            margin-left: 15px;
+        }
+        
+        .rank-1 { 
+            background: linear-gradient(135deg, #FFD700, #FFA500); 
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        .rank-2 { 
+            background: linear-gradient(135deg, #C0C0C0, #A9A9A9); 
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4);
+        }
+        
+        .rank-3 { 
+            background: linear-gradient(135deg, #CD7F32, #8B4513); 
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
+        }
+        
+        .rank-other {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+    
+   <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <i class="bi bi-mortarboard-fill fs-3 text-primary me-2"></i>
+            <span class="fw-bold" data-en="UAE Schools Competition" data-ar="مسابقة المدارس الإماراتية">UAE Schools Competition</span>
+        </a>
+        
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-primary btn-sm" id="languageToggle" onclick="toggleLanguage()">
+                <i class="bi bi-translate"></i>
+                <span id="langText">العربية</span>
+            </button>
+            
+            <!-- Dashboard Link (shown only for logged-in users) -->
+            <a href="dashboard.html" class="btn btn-success btn-sm" id="dashboardLink" style="display: none;">
+                <i class="bi bi-speedometer2 me-1"></i>
+                <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
+            </a>
+            
+            <!-- Login Button (hidden for logged-in users) -->
+            <a href="login.html" class="btn btn-primary btn-sm" id="loginBtn">
+                <i class="bi bi-box-arrow-in-right me-1"></i>
+                <span data-en="Login" data-ar="دخول">Login</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <h1 class="display-3 fw-bold mb-4" data-en="Test Your Knowledge!" data-ar="اختبر معرفتك!">
+                        Test Your Knowledge!
+                    </h1>
+                    <p class="lead mb-4" data-en="Join the UAE's biggest school competition. Compete with students across the Emirates in Math, Science, English, and Arabic!" data-ar="انضم إلى أكبر مسابقة مدرسية في الإمارات. تنافس مع الطلاب في جميع أنحاء الإمارات في الرياضيات والعلوم والإنجليزية والعربية!">
+                        Join the UAE's biggest school competition. Compete with students across the Emirates in Math, Science, English, and Arabic!
+                    </p>
+                    
+                   <!-- Replace the buttons section in hero -->
+<div class="d-flex gap-3 mb-5 flex-wrap" id="heroButtons">
+    <a href="register.html" class="btn btn-light btn-lg px-4" id="registerBtnHero">
+        <i class="bi bi-person-plus me-2"></i>
+        <span data-en="Register Now" data-ar="سجل الآن">Register Now</span>
+    </a>
+    <a href="login.html" class="btn btn-outline-light btn-lg px-4" id="loginBtnHero">
+        <i class="bi bi-box-arrow-in-right me-2"></i>
+        <span data-en="Login" data-ar="تسجيل الدخول">Login</span>
+    </a>
+    <a href="dashboard.html" class="btn btn-light btn-lg px-4" id="dashboardBtnHero" style="display: none;">
+        <i class="bi bi-speedometer2 me-2"></i>
+        <span data-en="Go to Dashboard" data-ar="انتقل إلى لوحة التحكم">Go to Dashboard</span>
+    </a>
+</div>
+                    
+                    <!-- Stats -->
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3">
+                            <div class="stats-card rounded-3 p-3 text-center">
+                                <h3 class="fw-bold mb-0" id="totalStudents">0</h3>
+                                <small class="opacity-75" data-en="Students" data-ar="طالب">Students</small>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-card rounded-3 p-3 text-center">
+                                <h3 class="fw-bold mb-0" id="totalSchools">0</h3>
+                                <small class="opacity-75" data-en="Schools" data-ar="مدرسة">Schools</small>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-card rounded-3 p-3 text-center">
+                                <h3 class="fw-bold mb-0" id="totalQuestions">0</h3>
+                                <small class="opacity-75" data-en="Questions" data-ar="سؤال">Questions</small>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="stats-card rounded-3 p-3 text-center">
+                                <h3 class="fw-bold mb-0" id="totalAttempts">0</h3>
+                                <small class="opacity-75" data-en="Attempts" data-ar="محاولة">Attempts</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="text-center">
+                        <i class="bi bi-trophy-fill" style="font-size: 15rem; opacity: 0.2;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leaderboards Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3" data-en="🏆 Top Performers" data-ar="🏆 المتصدرون">
+                    🏆 Top Performers
+                </h2>
+                <p class="text-muted" data-en="See who's leading the competition!" data-ar="شاهد من يتصدر المسابقة!">
+                    See who's leading the competition!
+                </p>
+            </div>
+            
+            <div class="row g-4">
+                
+                <!-- Top 5 Schools -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm leaderboard-card h-100">
+                        <div class="card-header bg-primary text-white py-3">
+                            <h4 class="mb-0 text-center">
+                                <i class="bi bi-building me-2"></i>
+                                <span data-en="Top 5 Schools" data-ar="أفضل 5 مدارس">Top 5 Schools</span>
+                            </h4>
+                        </div>
+                        <div class="card-body p-4" id="topSchoolsContainer">
+                            <!-- Will be populated by JavaScript -->
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top 5 Students -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm leaderboard-card h-100">
+                        <div class="card-header bg-success text-white py-3">
+                            <h4 class="mb-0 text-center">
+                                <i class="bi bi-star-fill me-2"></i>
+                                <span data-en="Top 5 Students" data-ar="أفضل 5 طلاب">Top 5 Students</span>
+                            </h4>
+                        </div>
+                        <div class="card-body p-4" id="topStudentsContainer">
+                            <!-- Will be populated by JavaScript -->
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="leaderboard.html" class="btn btn-outline-primary btn-lg">
+                    <span data-en="View Full Leaderboard" data-ar="عرض لوحة المتصدرين الكاملة">View Full Leaderboard</span>
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3" data-en="Why Join?" data-ar="لماذا تنضم؟">
+                    Why Join?
+                </h2>
+            </div>
+            
+            <div class="row g-4">
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="text-center">
+                        <div class="feature-icon bg-primary-light text-primary">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" data-en="Quick Quizzes" data-ar="اختبارات سريعة">Quick Quizzes</h5>
+                        <p class="text-muted" data-en="10 questions, 15 minutes" data-ar="10 أسئلة، 15 دقيقة">10 questions, 15 minutes</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="text-center">
+                        <div class="feature-icon bg-success-light text-success">
+                            <i class="bi bi-trophy-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" data-en="Compete & Win" data-ar="تنافس واربح">Compete & Win</h5>
+                        <p class="text-muted" data-en="Climb the leaderboards" data-ar="تسلق لوحة المتصدرين">Climb the leaderboards</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="text-center">
+                        <div class="feature-icon bg-warning-light text-warning">
+                            <i class="bi bi-book-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" data-en="4 Subjects" data-ar="4 مواد">4 Subjects</h5>
+                        <p class="text-muted" data-en="Math, Science, English, Arabic" data-ar="رياضيات، علوم، إنجليزي، عربي">Math, Science, English, Arabic</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="text-center">
+                        <div class="feature-icon bg-info-light text-info">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" data-en="Unlimited Tries" data-ar="محاولات غير محدودة">Unlimited Tries</h5>
+                        <p class="text-muted" data-en="Practice and improve" data-ar="تدرب وتحسن">Practice and improve</p>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <!-- CTA Section -->
+<section class="py-5 bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-3" data-en="Ready to Start?" data-ar="مستعد للبدء؟">
+            Ready to Start?
+        </h2>
+        <p class="lead mb-4" data-en="Join thousands of students competing across the UAE!" data-ar="انضم إلى آلاف الطلاب المتنافسين في جميع أنحاء الإمارات!">
+            Join thousands of students competing across the UAE!
+        </p>
+        <a href="register.html" class="btn btn-light btn-lg px-5" id="ctaRegisterBtn">
+            <i class="bi bi-rocket-takeoff me-2"></i>
+            <span data-en="Get Started Now" data-ar="ابدأ الآن">Get Started Now</span>
+        </a>
+        <a href="dashboard.html" class="btn btn-light btn-lg px-5" id="ctaDashboardBtn" style="display: none;">
+            <i class="bi bi-speedometer2 me-2"></i>
+            <span data-en="Go to Dashboard" data-ar="انتقل إلى لوحة التحكم">Go to Dashboard</span>
+        </a>
+    </div>
+</section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">
+                <span data-en="© 2024 UAE Schools Competition. All rights reserved." data-ar="© 2024 مسابقة المدارس الإماراتية. جميع الحقوق محفوظة.">
+                    © 2024 UAE Schools Competition. All rights reserved.
+                </span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+    <script src="js/homepage.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - UAE Schools Competition</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" id="bootstrap-rtl" disabled>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        .filter-btn {
+            border-radius: 2rem;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .leaderboard-row {
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard-row:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+            transform: translateX(5px);
+        }
+        
+        [dir="rtl"] .leaderboard-row:hover {
+            transform: translateX(-5px);
+        }
+
+
+
+        /* Inactive tab styling */
+.nav-pills .nav-link:not(.active) {
+    color: #f1f3f5; /* Change this to your desired color */
+    background-color: transparent;
+}
+
+.nav-pills .nav-link:not(.active):hover {
+    color: #495057; /* Hover color for inactive tabs */
+    background-color: rgba(102, 126, 234, 0.1);
+}
+    </style>
+</head>
+<body>
+   
+    
+
+    <!-- Navigation -->
+    <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <i class="bi bi-mortarboard-fill fs-3 text-primary me-2"></i>
+            <span class="fw-bold" data-en="UAE Schools Competition" data-ar="مسابقة المدارس الإماراتية">UAE Schools Competition</span>
+        </a>
+        
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-primary btn-sm" id="languageToggle" onclick="toggleLanguage()">
+                <i class="bi bi-translate"></i>
+                <span id="langText">العربية</span>
+            </button>
+            
+            <!-- Dashboard Link (shown only for logged-in users) -->
+            <a href="dashboard.html" class="btn btn-outline-success btn-sm" id="dashboardLink" style="display: none;">
+                <i class="bi bi-speedometer2 me-1"></i>
+                <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
+            </a>
+            
+            <!-- Login Button (hidden for logged-in users) -->
+            <a href="login.html" class="btn btn-primary btn-sm" id="loginBtn">
+                <i class="bi bi-box-arrow-in-right me-1"></i>
+                <span data-en="Login" data-ar="دخول">Login</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        
+        <!-- Page Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="bi bi-trophy-fill text-warning me-2"></i>
+                <span data-en="Leaderboard" data-ar="لوحة المتصدرين">Leaderboard</span>
+            </h1>
+            <p class="text-muted" data-en="See the top performers across all UAE schools" data-ar="شاهد أفضل الأداء في جميع مدارس الإمارات">
+                See the top performers across all UAE schools
+            </p>
+        </div>
+
+        <!-- Tabs: Students & Schools -->
+        <ul class="nav nav-pills nav-fill mb-4" id="leaderboardTabs">
+            <li class="nav-item">
+                <button class="nav-link active" id="studentsTab" onclick="switchTab('students')">
+                    <i class="bi bi-people-fill me-2"></i>
+                    <span data-en="Students" data-ar="الطلاب">Students</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="schoolsTab" onclick="switchTab('schools')">
+                    <i class="bi bi-building me-2"></i>
+                    <span data-en="Schools" data-ar="المدارس">Schools</span>
+                </button>
+            </li>
+        </ul>
+
+        <!-- Filters -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    
+                    <!-- Grade Filter -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" data-en="Filter by Grade:" data-ar="تصفية حسب الصف:">Filter by Grade:</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-primary filter-btn active" onclick="filterByGrade('all')">
+                                <span data-en="All Grades" data-ar="جميع الصفوف">All Grades</span>
+                            </button>
+                            <button class="btn btn-outline-primary filter-btn" onclick="filterByGrade('4')">4</button>
+                            <button class="btn btn-outline-primary filter-btn" onclick="filterByGrade('5')">5</button>
+                            <button class="btn btn-outline-primary filter-btn" onclick="filterByGrade('6')">6</button>
+                            <button class="btn btn-outline-primary filter-btn" onclick="filterByGrade('7')">7</button>
+                            <button class="btn btn-outline-primary filter-btn" onclick="filterByGrade('8')">8</button>
+                            <button class="btn btn-outline-primary filter-btn" onclick="filterByGrade('9')">9</button>
+                        </div>
+                    </div>
+
+                    <!-- Subject Filter -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" data-en="Filter by Subject:" data-ar="تصفية حسب المادة:">Filter by Subject:</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-success filter-btn active" onclick="filterBySubject('overall')">
+                                <span data-en="Overall" data-ar="الإجمالي">Overall</span>
+                            </button>
+                            <button class="btn btn-outline-success filter-btn" onclick="filterBySubject('math')">
+                                <span data-en="Math" data-ar="رياضيات">Math</span>
+                            </button>
+                            <button class="btn btn-outline-success filter-btn" onclick="filterBySubject('science')">
+                                <span data-en="Science" data-ar="علوم">Science</span>
+                            </button>
+                            <button class="btn btn-outline-success filter-btn" onclick="filterBySubject('english')">
+                                <span data-en="English" data-ar="إنجليزي">English</span>
+                            </button>
+                            <button class="btn btn-outline-success filter-btn" onclick="filterBySubject('arabic')">
+                                <span data-en="Arabic" data-ar="عربي">Arabic</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-0">
+                
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-3" data-en="Rank" data-ar="الترتيب">Rank</th>
+                                <th class="px-4 py-3" data-en="Name" data-ar="الاسم">Name</th>
+                                <th class="px-4 py-3 d-none d-md-table-cell" id="tableHeader3">Grade</th>
+                                <th class="px-4 py-3 text-end" data-en="Score" data-ar="النتيجة">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            <!-- Will be populated by JavaScript -->
+                            <tr>
+                                <td colspan="4" class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
+            <button class="btn btn-outline-primary" id="prevBtn" onclick="previousPage()" disabled>
+                <i class="bi bi-arrow-left me-2"></i>
+                <span data-en="Previous" data-ar="السابق">Previous</span>
+            </button>
+            
+            <span class="fw-bold" id="pageInfo">Page 1 of 1</span>
+            
+            <button class="btn btn-outline-primary" id="nextBtn" onclick="nextPage()">
+                <span data-en="Next" data-ar="التالي">Next</span>
+                <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">
+                <span data-en="© 2024 UAE Schools Competition. All rights reserved." data-ar="© 2024 مسابقة المدارس الإماراتية. جميع الحقوق محفوظة.">
+                    © 2024 UAE Schools Competition. All rights reserved.
+                </span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/leaderboard.js"></script>
+    
+</body>
+</html>
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results - UAE Schools Competition</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" id="bootstrap-rtl" disabled>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="dashboard.html">
+                <i class="bi bi-mortarboard-fill fs-3 text-primary me-2"></i>
+                <span class="fw-bold">UAE Schools Competition</span>
+            </a>
+            
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-primary btn-sm" id="languageToggle" onclick="toggleLanguage()">
+                    <i class="bi bi-translate"></i>
+                    <span id="langText">العربية</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        
+        <!-- Results Card -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <!-- Success/New Record Banner -->
+                <div class="text-center mb-4" id="resultBanner">
+                    <div class="result-icon-container mb-3" id="resultIconContainer">
+                        <i class="bi bi-trophy-fill text-warning" id="resultIcon" style="font-size: 5rem;"></i>
+                    </div>
+                    <h1 class="fw-bold mb-2" id="resultTitle" data-en="Quiz Completed!" data-ar="اكتمل الاختبار!">
+                        Quiz Completed!
+                    </h1>
+                </div>
+
+                <!-- Score Card -->
+                <div class="card shadow-lg border-0 rounded-4 mb-4">
+                    <div class="card-body p-5 text-center">
+                        
+                        <!-- Subject Name -->
+                        <h3 class="fw-bold mb-4" id="subjectName">
+                            <i class="bi bi-calculator-fill me-2" id="subjectIcon"></i>
+                            <span>Mathematics</span>
+                        </h3>
+
+                        <div class="mb-4">
+                            <div class="score-display mb-2" id="scoreDisplay">0/10</div>
+                            <div class="percentage-display mb-3" id="percentageDisplay">0%</div>
+                        </div>
+
+                        <!-- Comparison with Previous Best -->
+                        <div class="card bg-light border-0 p-4 mb-4" id="comparisonCard">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="text-muted small mb-1" data-en="Your Score" data-ar="نتيجتك">Your Score</div>
+                                    <div class="h4 fw-bold mb-0" id="currentScoreText">0/10</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small mb-1" data-en="Previous Best" data-ar="أفضل نتيجة سابقة">Previous Best</div>
+                                    <div class="h4 fw-bold mb-0" id="previousBestText">0/10</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Time Taken -->
+                        <div class="mb-4">
+                            <i class="bi bi-clock me-2"></i>
+                            <span class="text-muted" data-en="Time Taken:" data-ar="الوقت المستغرق:">Time Taken:</span>
+                            <span class="fw-bold" id="timeTaken">0:00</span>
+                        </div>
+
+                        <!-- Updated Stats -->
+                        <div class="card bg-gradient-primary text-white border-0 p-4 mb-4">
+                            <h5 class="mb-3" data-en="Updated Statistics" data-ar="إحصائياتك المحدثة">Updated Statistics</h5>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="opacity-75 small mb-1" data-en="Total Best Score" data-ar="مجموع أفضل النتائج">Total Best Score</div>
+                                    <div class="h4 fw-bold mb-0" id="totalBestScore">0/40</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="opacity-75 small mb-1" data-en="Overall Percentage" data-ar="النسبة المئوية">Overall Percentage</div>
+                                    <div class="h4 fw-bold mb-0" id="overallPercentage">0%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="dashboard.html" class="btn btn-outline-primary w-100 btn-lg">
+                            <i class="bi bi-house-door me-2"></i>
+                            <span data-en="Dashboard" data-ar="الرئيسية">Dashboard</span>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success w-100 btn-lg" onclick="retryQuiz()">
+                            <i class="bi bi-arrow-repeat me-2"></i>
+                            <span data-en="Try Again" data-ar="حاول مرة أخرى">Try Again</span>
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="leaderboard.html" class="btn btn-warning w-100 btn-lg">
+                            <i class="bi bi-trophy me-2"></i>
+                            <span data-en="Leaderboard" data-ar="لوحة المتصدرين">Leaderboard</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Encouragement Message -->
+                <div class="text-center mt-4">
+                    <p class="text-muted" id="encouragementMessage">
+                        <!-- Will be set by JavaScript -->
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Confetti Animation for New Record -->
+    <canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none;"></canvas>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">
+                <span data-en="© 2024 UAE Schools Competition. All rights reserved." data-ar="© 2024 مسابقة المدارس الإماراتية. جميع الحقوق محفوظة.">
+                    © 2024 UAE Schools Competition. All rights reserved.
+                </span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/results.js"></script>
+</body>
+</html>

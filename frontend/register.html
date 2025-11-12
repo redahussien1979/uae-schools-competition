@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - UAE Schools Competition</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" id="bootstrap-rtl" disabled>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="bi bi-mortarboard-fill fs-3 text-primary me-2"></i>
+                <span class="fw-bold" data-en="UAE Schools Competition" data-ar="مسابقة المدارس الإماراتية">UAE Schools Competition</span>
+            </a>
+            <button class="btn btn-outline-primary btn-sm" id="languageToggle" onclick="toggleLanguage()">
+                <i class="bi bi-translate"></i>
+                <span id="langText">العربية</span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="text-center mb-4">
+                            <div class="login-icon">
+                                <i class="bi bi-person-plus-fill text-success"></i>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-center mb-4 fw-bold" data-en="Create Account" data-ar="إنشاء حساب">Create Account</h2>
+                        
+                        <form id="registerForm" onsubmit="handleRegister(event)">
+                            <!-- Full Name -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-person-fill me-2 text-primary"></i><span data-en="Full Name" data-ar="الاسم الكامل">Full Name</span>
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="fullName" required 
+                                       data-en-placeholder="Enter your full name" 
+                                       data-ar-placeholder="أدخل اسمك الكامل"
+                                       placeholder="Enter your full name">
+                            </div>
+
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-at me-2 text-primary"></i><span data-en="Username" data-ar="اسم المستخدم">Username</span>
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="username" required 
+                                       data-en-placeholder="Choose a username" 
+                                       data-ar-placeholder="اختر اسم مستخدم"
+                                       placeholder="Choose a username">
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-envelope-fill me-2 text-primary"></i><span data-en="Email" data-ar="البريد الإلكتروني">Email</span>
+                                </label>
+                                <input type="email" class="form-control form-control-lg" id="email" required 
+                                       data-en-placeholder="your.email@example.com" 
+                                       data-ar-placeholder="بريدك.الإلكتروني@example.com"
+                                       placeholder="your.email@example.com">
+                            </div>
+
+                            <!-- Grade -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-book-fill me-2 text-primary"></i><span data-en="Grade" data-ar="الصف">Grade</span>
+                                </label>
+                                <select class="form-select form-select-lg" id="grade" required>
+                                    <option value="" data-en="Select Your Grade" data-ar="اختر صفك">Select Your Grade</option>
+                                    <option value="4" data-en="Grade 4" data-ar="الصف 4">Grade 4</option>
+                                    <option value="5" data-en="Grade 5" data-ar="الصف 5">Grade 5</option>
+                                    <option value="6" data-en="Grade 6" data-ar="الصف 6">Grade 6</option>
+                                    <option value="7" data-en="Grade 7" data-ar="الصف 7">Grade 7</option>
+                                    <option value="8" data-en="Grade 8" data-ar="الصف 8">Grade 8</option>
+                                    <option value="9" data-en="Grade 9" data-ar="الصف 9">Grade 9</option>
+                                </select>
+                            </div>
+
+                            <!-- School -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-building me-2 text-primary"></i><span data-en="School Name" data-ar="اسم المدرسة">School Name</span>
+                                </label>
+                                <div class="position-relative">
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="schoolSearch" 
+                                           placeholder="Type to search your school..."
+                                           autocomplete="off"
+                                           data-en-placeholder="Type to search your school..."
+                                           data-ar-placeholder="اكتب للبحث عن مدرستك...">
+                                    <select class="form-select d-none" id="school" required>
+                                        <option value="" data-en="Select Your School" data-ar="اختر مدرستك">Select Your School</option>
+                                    </select>
+                                    <div id="schoolDropdown" class="position-absolute w-100 bg-white border rounded shadow-lg school-dropdown" style="max-height: 250px; overflow-y: auto; z-index: 1000; display: none; top: 100%; margin-top: 2px;">
+                                        <!-- School options will be populated here -->
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span data-en="Start typing to search from 60+ UAE schools" data-ar="ابدأ الكتابة للبحث من بين 60+ مدرسة إماراتية">Start typing to search from 60+ UAE schools</span>
+                                </small>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-lock-fill me-2 text-primary"></i><span data-en="Password" data-ar="كلمة المرور">Password</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-control-lg" id="password" required 
+                                           data-en-placeholder="Minimum 6 characters" 
+                                           data-ar-placeholder="6 أحرف على الأقل"
+                                           placeholder="Minimum 6 characters">
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword" onclick="togglePasswordVisibility('password', this)">
+                                        <i class="bi bi-eye" id="passwordToggleIcon"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    <span data-en="Must be at least 6 characters" data-ar="يجب أن تكون 6 أحرف على الأقل">Must be at least 6 characters</span>
+                                </small>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-lock-fill me-2 text-primary"></i><span data-en="Confirm Password" data-ar="تأكيد كلمة المرور">Confirm Password</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-control-lg" id="confirmPassword" required 
+                                           data-en-placeholder="Re-enter your password" 
+                                           data-ar-placeholder="أعد إدخال كلمة المرور"
+                                           placeholder="Re-enter your password">
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword" onclick="togglePasswordVisibility('confirmPassword', this)">
+                                        <i class="bi bi-eye" id="confirmPasswordToggleIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Register Button -->
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-success btn-lg fw-semibold py-3 register-btn">
+                                    <span class="btn-content">
+                                        <span data-en="Create Account" data-ar="إنشاء حساب">Create Account</span>
+                                        <i class="bi bi-arrow-right ms-2"></i>
+                                    </span>
+                                    <span class="btn-loading d-none">
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span data-en="Creating Account..." data-ar="جاري إنشاء الحساب...">Creating Account...</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-4">
+                            <p class="mb-0">
+                                <span class="text-muted" data-en="Already have an account?" data-ar="لديك حساب بالفعل؟">Already have an account?</span>
+                            </p>
+                            <a href="login.html" class="btn btn-outline-primary fw-semibold mt-2">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>
+                                <span data-en="Login" data-ar="تسجيل الدخول">Login</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- API Configuration (must load first) -->
+    <script src="js/config.js"></script>
+    
+    <!-- Schools List -->
+    <script src="js/schools.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+    
+    <!-- Initialize Schools Dropdown & Form Enhancements -->
+    <script>
+        let selectedSchool = '';
+        
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+        
+        // Populate schools dropdown when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const schoolSelect = document.getElementById('school');
+            const schoolSearch = document.getElementById('schoolSearch');
+            const schoolDropdown = document.getElementById('schoolDropdown');
+            
+            if (!window.UAE_SCHOOLS) {
+                console.error('Schools list not loaded');
+                return;
+            }
+            
+            // Add all schools to hidden select (for form submission)
+            window.UAE_SCHOOLS.forEach(school => {
+                const option = document.createElement('option');
+                option.value = school;
+                option.textContent = school;
+                schoolSelect.appendChild(option);
+            });
+            
+            // Function to filter and display schools
+            function filterSchools(searchTerm) {
+                if (!schoolDropdown) return;
+                
+                const filtered = window.UAE_SCHOOLS.filter(school => 
+                    school.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                
+                schoolDropdown.innerHTML = '';
+                
+                const noResultsText = (typeof currentLanguage !== 'undefined' && currentLanguage === 'ar') 
+                    ? 'لم يتم العثور على مدارس' 
+                    : 'No schools found';
+                
+                if (filtered.length === 0 && searchTerm.length > 0) {
+                    schoolDropdown.innerHTML = `<div class="p-3 text-muted text-center"><i class="bi bi-search me-2"></i>${noResultsText}</div>`;
+                } else if (filtered.length > 0) {
+                    filtered.slice(0, 10).forEach(school => {
+                        const div = document.createElement('div');
+                        div.className = 'p-3 border-bottom school-option';
+                        div.style.cursor = 'pointer';
+                        div.innerHTML = `<i class="bi bi-building me-2 text-primary"></i>${school}`;
+                        div.addEventListener('mouseenter', function() {
+                            this.style.backgroundColor = '#f8f9fa';
+                        });
+                        div.addEventListener('mouseleave', function() {
+                            this.style.backgroundColor = 'white';
+                        });
+                        div.addEventListener('click', function() {
+                            selectedSchool = school;
+                            schoolSearch.value = school;
+                            schoolSelect.value = school;
+                            schoolDropdown.style.display = 'none';
+                            schoolSearch.classList.add('is-valid');
+                        });
+                        schoolDropdown.appendChild(div);
+                    });
+                }
+                
+                schoolDropdown.style.display = searchTerm.length > 0 ? 'block' : 'none';
+            }
+            
+            // Search input event
+            if (schoolSearch) {
+                schoolSearch.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value;
+                    filterSchools(searchTerm);
+                    
+                    // Update hidden select
+                    if (window.UAE_SCHOOLS.includes(searchTerm)) {
+                        schoolSelect.value = searchTerm;
+                        selectedSchool = searchTerm;
+                        schoolSearch.classList.add('is-valid');
+                    } else {
+                        schoolSelect.value = '';
+                        selectedSchool = '';
+                        schoolSearch.classList.remove('is-valid');
+                    }
+                });
+                
+                schoolSearch.addEventListener('focus', function() {
+                    if (this.value.length > 0) {
+                        filterSchools(this.value);
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!schoolSearch.contains(e.target) && !schoolDropdown.contains(e.target)) {
+                        schoolDropdown.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Update placeholder on language change
+            if (schoolSearch) {
+                const updatePlaceholder = () => {
+                    const lang = typeof currentLanguage !== 'undefined' ? currentLanguage : 'en';
+                    const placeholder = lang === 'ar' 
+                        ? schoolSearch.getAttribute('data-ar-placeholder')
+                        : schoolSearch.getAttribute('data-en-placeholder');
+                    schoolSearch.placeholder = placeholder || 'Type to search schools...';
+                };
+                
+                updatePlaceholder();
+                
+                // Update on language toggle
+                const originalToggle = window.toggleLanguage;
+                if (originalToggle) {
+                    window.toggleLanguage = function() {
+                        originalToggle();
+                        updatePlaceholder();
+                        // Update all placeholders
+                        if (typeof updatePlaceholders === 'function') {
+                            updatePlaceholders();
+                        }
+                        // Update grade select options
+                        updateGradeSelectOptions();
+                    };
+                }
+            }
+            
+            // Function to update grade select options
+            function updateGradeSelectOptions() {
+                const gradeSelect = document.getElementById('grade');
+                if (gradeSelect) {
+                    const options = gradeSelect.querySelectorAll('option[data-en], option[data-ar]');
+                    options.forEach(option => {
+                        if (typeof currentLanguage !== 'undefined') {
+                            if (currentLanguage === 'ar') {
+                                option.textContent = option.getAttribute('data-ar') || option.textContent;
+                            } else {
+                                option.textContent = option.getAttribute('data-en') || option.textContent;
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Update all placeholders on page load
+            if (typeof updatePlaceholders === 'function') {
+                updatePlaceholders();
+            }
+            updateGradeSelectOptions();
+            
+            // Form validation feedback
+            const form = document.getElementById('registerForm');
+            const inputs = form.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() !== '') {
+                        this.classList.add('is-valid');
+                    } else {
+                        this.classList.remove('is-valid');
+                    }
+                });
+            });
+            
+            // Listen for language changes and update everything
+            document.addEventListener('languageChanged', function() {
+                updatePlaceholder();
+                updateGradeSelectOptions();
+                if (typeof updatePlaceholders === 'function') {
+                    updatePlaceholders();
+                }
+                // Re-filter schools if search has value
+                if (schoolSearch && schoolSearch.value.length > 0) {
+                    filterSchools(schoolSearch.value);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
