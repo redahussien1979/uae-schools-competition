@@ -20,7 +20,8 @@ const PRODUCTION_API_URL = 'https://uae-schools-backend.onrender.com'; // ✅ Up
 const DEVELOPMENT_API_URL = 'http://localhost:5000';
 
 // Set API URL based on environment
-window.API_URL = isLocalhost ? DEVELOPMENT_API_URL : PRODUCTION_API_URL;
+// Force production API for now since backend is on Render.com
+window.API_URL = PRODUCTION_API_URL;
 
 // Force set for production (override any cached values)
 if (!isLocalhost && window.location.hostname.includes('onrender.com')) {
