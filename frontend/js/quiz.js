@@ -338,17 +338,19 @@ async function submitQuiz(autoSubmit = false) {
     
     try {
         const token = localStorage.getItem('token');
+
+        // ADD THE DEBUG LINES HERE ↓↓↓
+    console.log('📤 Submitting to backend:');
+    console.log('Subject:', currentQuizData.subject);
+    console.log('Answers:', currentQuizData.answers);
+    console.log('Number of answers:', Object.keys(currentQuizData.answers).length);
+    // ↑↑↑ ADD ABOVE THIS LINE
         const response = await fetch(`${API_URL}/quiz/submit`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-
-           console.log('📤 Submitting to backend:');
-console.log('Subject:', currentQuizData.subject);
-console.log('Answers:', currentQuizData.answers);
-console.log('Number of answers:', Object.keys(currentQuizData.answers).length);
             body: JSON.stringify({
                 subject: currentQuizData.subject,
                 answers: currentQuizData.answers,
