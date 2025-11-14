@@ -2,7 +2,8 @@
    Leaderboard Page JavaScript
    ============================================ */
 
-const API_URL = 'http://localhost:5000';
+// Use API_URL from config.js (set globally)
+const API_URL = window.API_URL || 'http://localhost:5000';
 
 // Current state
 let currentState = {
