@@ -336,9 +336,16 @@ async function submitQuiz(autoSubmit = false) {
     
     showLoading(true);
     
-    try {
-        const token = localStorage.getItem('token');
-// Strip LaTeX delimiters from answers
+  try {
+    const token = localStorage.getItem('token');
+    
+    // Debug logs
+    console.log('📤 Submitting to backend:');
+    console.log('Subject:', currentQuizData.subject);
+    console.log('Answers:', currentQuizData.answers);
+    console.log('Number of answers:', Object.keys(currentQuizData.answers).length);
+    
+    // Strip LaTeX delimiters from answers
     const cleanedAnswers = {};
     Object.keys(currentQuizData.answers).forEach(key => {
         let answer = currentQuizData.answers[key];
@@ -348,23 +355,19 @@ async function submitQuiz(autoSubmit = false) {
         }
         cleanedAnswers[key] = answer;
     });
-        // ADD THE DEBUG LINES HERE ↓↓↓
-    console.log('📤 Submitting to backend:');
-    console.log('Subject:', currentQuizData.subject);
-    console.log('Answers:', currentQuizData.answers);
-    console.log('Number of answers:', Object.keys(currentQuizData.answers).length);
-    // ↑↑↑ ADD ABOVE THIS LINE
-        const response = await fetch(`${API_URL}/quiz/submit`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-    body: JSON.stringify({
-    subject: currentQuizData.subject,
-    answers: cleanedAnswers,
-    timeTaken: timeTaken
-});
+    
+    const response = await fetch(`${API_URL}/quiz/submit`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            subject: currentQuizData.subject,
+            answers: cleanedAnswers,
+            timeTaken: timeTaken
+        })
+    });
         
         const data = await response.json();
         console.log('🔍 Backend response:', data);  // ADD THIS LINE
