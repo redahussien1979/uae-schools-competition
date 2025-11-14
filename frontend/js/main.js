@@ -224,7 +224,8 @@ async function handleLogin(event) {
     showLoading(true);
     
     try {
-        const apiUrl = window.API_URL || 'http://localhost:5000';
+       // const apiUrl = window.API_URL || 'http://localhost:5000';
+       const apiUrl = window.API_URL;
         const response = await fetch(`${apiUrl}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -380,7 +381,8 @@ async function handleRegister(event) {
     showLoading(true);
     
     try {
-        const apiUrl = window.API_URL || 'http://localhost:5000';
+      //  const apiUrl = window.API_URL || 'http://localhost:5000';
+       const apiUrl = window.API_URL;
         const response = await fetch(`${apiUrl}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
