@@ -16,7 +16,7 @@ const isLocalhost = window.location.hostname === 'localhost' ||
                     window.location.protocol === 'file:';
 
 // Set API URL based on environment
-const PRODUCTION_API_URL = 'https://your-backend-url.com'; // ⚠️ UPDATE THIS with your Render.com backend URL!
+const PRODUCTION_API_URL = 'https://uae-schools-backend.onrender.com'; // ✅ Updated with Render.com backend URL
 const DEVELOPMENT_API_URL = 'http://localhost:5000';
 
 window.API_URL = isLocalhost ? DEVELOPMENT_API_URL : PRODUCTION_API_URL;
