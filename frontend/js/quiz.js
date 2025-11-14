@@ -338,7 +338,16 @@ async function submitQuiz(autoSubmit = false) {
     
     try {
         const token = localStorage.getItem('token');
-
+// Strip LaTeX delimiters from answers
+    const cleanedAnswers = {};
+    Object.keys(currentQuizData.answers).forEach(key => {
+        let answer = currentQuizData.answers[key];
+        // Remove LaTeX $ delimiters
+        if (typeof answer === 'string') {
+            answer = answer.replace(/^\$/, '').replace(/\$$/, '').trim();
+        }
+        cleanedAnswers[key] = answer;
+    });
         // ADD THE DEBUG LINES HERE ↓↓↓
     console.log('📤 Submitting to backend:');
     console.log('Subject:', currentQuizData.subject);
@@ -351,18 +360,7 @@ async function submitQuiz(autoSubmit = false) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-          // Strip LaTeX delimiters from answers
-const cleanedAnswers = {};
-Object.keys(currentQuizData.answers).forEach(key => {
-    let answer = currentQuizData.answers[key];
-    // Remove LaTeX $ delimiters
-    if (typeof answer === 'string') {
-        answer = answer.replace(/^\$/, '').replace(/\$$/, '').trim();
-    }
-    cleanedAnswers[key] = answer;
-});
-
-body: JSON.stringify({
+    body: JSON.stringify({
     subject: currentQuizData.subject,
     answers: cleanedAnswers,
     timeTaken: timeTaken
