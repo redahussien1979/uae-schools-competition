@@ -352,7 +352,8 @@ async function submitQuiz(autoSubmit = false) {
         });
         
         const data = await response.json();
-        
+        console.log('🔍 Backend response:', data);  // ADD THIS LINE
+
         showLoading(false);
         
         if (data.success) {
