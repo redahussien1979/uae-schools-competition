@@ -338,12 +338,24 @@ async function submitQuiz(autoSubmit = false) {
     
   try {
     const token = localStorage.getItem('token');
+
+
+     // Debug logs
+    console.log('📤 Submitting to backend:');
+    console.log('Subject:', currentQuizData.subject);
+    console.log('Answers:', currentQuizData.answers);
+    console.log('Number of answers:', Object.keys(currentQuizData.answers).length);
     
-    // Debug logs
-   // console.log('📤 Submitting to backend:');
-   // console.log('Subject:', currentQuizData.subject);
-   // console.log('Answers:', currentQuizData.answers);
-    //console.log('Number of answers:', Object.keys(currentQuizData.answers).length);
+    // Strip LaTeX delimiters from answers
+    const cleanedAnswers = {};
+    Object.keys(currentQuizData.answers).forEach(key => {
+        let answer = currentQuizData.answers[key];
+        // Remove LaTeX $ delimiters
+        if (typeof answer === 'string') {
+            answer = answer.replace(/^\$/, '').replace(/\$$/, '').trim();
+        }
+        cleanedAnswers[key] = answer;
+    });
     
       const response = await fetch(`${API_URL}/quiz/submit`, {
         method: 'POST',
