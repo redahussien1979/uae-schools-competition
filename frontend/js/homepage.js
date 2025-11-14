@@ -3,8 +3,8 @@
    ============================================ */
 
 // Use API_URL from config.js (set globally)
-const API_URL = window.API_URL || 'http://localhost:5000';
-
+//const API_URL = window.API_URL || 'http://localhost:5000';
+const API_URL = window.API_URL
 // Load everything when page loads
 // Load everything when page loads
 window.addEventListener('DOMContentLoaded', function() {
