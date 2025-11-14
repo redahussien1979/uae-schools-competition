@@ -351,12 +351,22 @@ async function submitQuiz(autoSubmit = false) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                subject: currentQuizData.subject,
-                answers: currentQuizData.answers,
-                timeTaken: timeTaken
-            })
-        });
+          // Strip LaTeX delimiters from answers
+const cleanedAnswers = {};
+Object.keys(currentQuizData.answers).forEach(key => {
+    let answer = currentQuizData.answers[key];
+    // Remove LaTeX $ delimiters
+    if (typeof answer === 'string') {
+        answer = answer.replace(/^\$/, '').replace(/\$$/, '').trim();
+    }
+    cleanedAnswers[key] = answer;
+});
+
+body: JSON.stringify({
+    subject: currentQuizData.subject,
+    answers: cleanedAnswers,
+    timeTaken: timeTaken
+});
         
         const data = await response.json();
         console.log('🔍 Backend response:', data);  // ADD THIS LINE
