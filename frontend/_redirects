@@ -1,0 +1,7 @@
+# Redirects and headers for Render.com static site
+# This ensures proper MIME types for static files
+
+/*.css /css/*.css 200
+/*.js /js/*.js 200
+/*.html / 200
+

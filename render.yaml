@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: uae-schools-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: NODE_ENV
+        value: production
+
+  - type: static
+    name: uae-schools-frontend
+    buildCommand: ""
+    staticPublishPath: ./frontend
+    headers:
+      - path: /*
+        name: Content-Type
+        value: text/html
+      - path: /*.css
+        name: Content-Type
+        value: text/css
+      - path: /*.js
+        name: Content-Type
+        value: application/javascript
+      - path: /*.json
+        name: Content-Type
+        value: application/json
+      - path: /*.png
+        name: Content-Type
+        value: image/png
+      - path: /*.jpg
+        name: Content-Type
+        value: image/jpeg
+      - path: /*.svg
+        name: Content-Type
+        value: image/svg+xml
+
