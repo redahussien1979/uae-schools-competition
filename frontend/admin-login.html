@@ -62,7 +62,7 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            const apiUrl = window.API_URL || 'http://localhost:5000';
+            const apiUrl = window.API_URL;
             
             try {
                 const response = await fetch(`${apiUrl}/admin/login`, {
