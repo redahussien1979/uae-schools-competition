@@ -3,7 +3,7 @@
    ============================================ */
 
 // Use API_URL from config.js (set globally)
-const API_URL = window.API_URL || 'http://localhost:5000';
+//const API_URL = window.API_URL || 'http://localhost:5000';
 
 let currentQuizData = {
     subject: '',
@@ -336,23 +336,47 @@ async function submitQuiz(autoSubmit = false) {
     
     showLoading(true);
     
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/quiz/submit`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                subject: currentQuizData.subject,
-                answers: currentQuizData.answers,
-                timeTaken: timeTaken
-            })
-        });
+  try {
+    const token = localStorage.getItem('token');
+
+
+     // Debug logs
+    console.log('📤 Submitting to backend:');
+    console.log('Subject:', currentQuizData.subject);
+    console.log('Answers:', currentQuizData.answers);
+    console.log('Number of answers:', Object.keys(currentQuizData.answers).length);
+    
+   // Strip LaTeX delimiters from answers
+const cleanedAnswers = {};
+Object.keys(currentQuizData.answers).forEach(key => {
+    let answer = currentQuizData.answers[key];
+    // Remove LaTeX delimiters: $...$ and \(...\)
+    if (typeof answer === 'string') {
+        answer = answer.replace(/^\$/, '').replace(/\$$/, '');  // Remove $
+        answer = answer.replace(/^\\\(/, '').replace(/\\\)$/, '');  // Remove \( and \)
+        answer = answer.trim();
+    }
+    cleanedAnswers[key] = answer;
+});
+
+console.log('🧹 Cleaned answers:', cleanedAnswers);  // DEBUG
+    
+      const response = await fetch(`${API_URL}/quiz/submit`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            subject: currentQuizData.subject,
+            answers: cleanedAnswers,
+            timeTaken: timeTaken
+        })
+    });
         
         const data = await response.json();
-        
+        console.log('🔍 Backend response:', data);  // ADD THIS LINE
+
         showLoading(false);
         
         if (data.success) {
