@@ -1320,6 +1320,191 @@ app.get('/admin/questions/:id', protectAdmin, async (req, res) => {
         });
     }
 });
+
+// ========================================
+// IMPORT QUESTIONS FROM EXCEL (ADMIN ONLY)
+// ========================================
+const multer = require('multer');
+const XLSX = require('xlsx');
+const fs = require('fs');
+const path = require('path');
+
+// Create uploads directory if it doesn't exist
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
+
+// Configure multer for file upload
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        // Accept only xlsx and xls files
+        if (file.originalname.match(/\.(xlsx|xls)$/)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only Excel files are allowed'), false);
+        }
+    }
+});
+
+app.post('/admin/import-questions', protectAdmin, upload.single('file'), async (req, res) => {
+    try {
+        console.log('[ADMIN] Starting Excel import...');
+
+        if (!req.file) {
+            return res.json({ success: false, message: 'No file uploaded' });
+        }
+
+        // Read Excel file
+        const workbook = XLSX.readFile(req.file.path);
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet);
+
+        console.log(`[ADMIN] Found ${data.length} rows in Excel`);
+
+        let successCount = 0;
+        let errorCount = 0;
+        const errors = [];
+
+        // Optional: Clear existing questions (comment out if you want to keep them)
+        // await Question.deleteMany({});
+        // console.log('[ADMIN] Cleared existing questions');
+
+        // Process each row
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            const rowNumber = i + 2; // Excel row number (accounting for header)
+
+            try {
+                // Validate required fields
+                if (!row.subject || !row.grade || !row.questionType ||
+                    !row.questionTextEn || !row.questionTextAr || !row.correctAnswer) {
+                    throw new Error('Missing required fields');
+                }
+
+                // Prepare options for multiple choice
+                let options = [];
+                if (row.questionType.toLowerCase() === 'multiple_choice') {
+                    // Keep LaTeX formatting in options
+                    options = [
+                        row.option1,
+                        row.option2,
+                        row.option3,
+                        row.option4
+                    ].filter(opt => opt && opt.toString().trim() !== '');
+
+                    if (options.length < 2) {
+                        throw new Error('Multiple choice needs at least 2 options');
+                    }
+                }
+
+                // IMPORTANT: Clean correctAnswer - STRIP ALL LATEX DELIMITERS
+                let cleanAnswer = row.correctAnswer.toString().trim();
+
+                // Remove $ delimiters
+                cleanAnswer = cleanAnswer.replace(/^\$+/, '').replace(/\$+$/, '');
+
+                // Remove \( and \) delimiters
+                cleanAnswer = cleanAnswer.replace(/^\\\(+/, '').replace(/\\\)+$/, '');
+
+                // Remove \[ and \] delimiters (display math)
+                cleanAnswer = cleanAnswer.replace(/^\\\[+/, '').replace(/\\\]+$/, '');
+
+                // Final trim
+                cleanAnswer = cleanAnswer.trim();
+
+                console.log(`[ADMIN] Row ${rowNumber}: Original answer="${row.correctAnswer}" -> Clean answer="${cleanAnswer}"`);
+
+                // Validate subject
+                const validSubjects = ['math', 'science', 'english', 'arabic'];
+                const subject = row.subject.toLowerCase().trim();
+                if (!validSubjects.includes(subject)) {
+                    throw new Error(`Invalid subject: ${subject}`);
+                }
+
+                // Validate grade
+                const grade = parseInt(row.grade);
+                if (grade < 4 || grade > 9) {
+                    throw new Error(`Invalid grade: ${grade}`);
+                }
+
+                // Validate question type
+                const validTypes = ['multiple_choice', 'true_false', 'text_input'];
+                const questionType = row.questionType.toLowerCase().trim();
+                if (!validTypes.includes(questionType)) {
+                    throw new Error(`Invalid question type: ${questionType}`);
+                }
+
+                // Create question (KEEP LaTeX in question text, but CLEAN in correctAnswer)
+                await Question.create({
+                    subject: subject,
+                    grade: grade,
+                    questionType: questionType,
+                    questionTextEn: row.questionTextEn.trim(), // Keep LaTeX formatting
+                    questionTextAr: row.questionTextAr.trim(), // Keep LaTeX formatting
+                    options: options, // Keep LaTeX formatting in options
+                    correctAnswer: cleanAnswer, // CLEANED - no LaTeX delimiters
+                    imageUrl: row.imageUrl || null,
+                    points: 1
+                });
+
+                successCount++;
+
+                // Log progress every 50 questions
+                if (successCount % 50 === 0) {
+                    console.log(`[ADMIN] Imported ${successCount} questions...`);
+                }
+
+            } catch (error) {
+                errorCount++;
+                errors.push({
+                    row: rowNumber,
+                    question: row.questionTextEn?.substring(0, 50) + '...',
+                    error: error.message
+                });
+                console.error(`[ADMIN] Error on row ${rowNumber}:`, error.message);
+            }
+        }
+
+        // Delete uploaded file
+        fs.unlinkSync(req.file.path);
+
+        console.log(`[ADMIN] Import complete: ${successCount} success, ${errorCount} errors`);
+
+        res.json({
+            success: true,
+            message: `Import completed: ${successCount} questions imported, ${errorCount} errors`,
+            successCount,
+            errorCount,
+            errors: errors.slice(0, 20) // Return first 20 errors
+        });
+
+    } catch (error) {
+        console.error('[ADMIN] Import failed:', error);
+
+        // Clean up file if exists
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+
+        res.json({
+            success: false,
+            message: 'Import failed: ' + error.message
+        });
+    }
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
