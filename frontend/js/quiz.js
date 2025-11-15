@@ -354,6 +354,7 @@ Object.keys(currentQuizData.answers).forEach(key => {
     if (typeof answer === 'string') {
         answer = answer.replace(/^\$/, '').replace(/\$$/, '');  // Remove $
         answer = answer.replace(/^\\\(/, '').replace(/\\\)$/, '');  // Remove \( and \)
+        answer = answer.replace(/\\\\/g, '\\');  // Convert double backslashes to single
         answer = answer.trim();
     }
     cleanedAnswers[key] = answer;
