@@ -20,7 +20,6 @@
             }
         };
     </script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         .sidebar {
@@ -124,19 +123,19 @@
                     </h4>
                     
                     <nav class="nav flex-column">
-                        <a class="nav-link active" href="#" onclick="showSection('overview')">
+                        <a class="nav-link active" href="#" onclick="showSection('overview', event)">
                             <i class="bi bi-speedometer2 me-2"></i>
                             Overview
                         </a>
-                        <a class="nav-link" href="#" onclick="showSection('users')">
+                        <a class="nav-link" href="#" onclick="showSection('users', event)">
                             <i class="bi bi-people me-2"></i>
                             Users
                         </a>
-                        <a class="nav-link" href="#" onclick="showSection('attempts')">
+                        <a class="nav-link" href="#" onclick="showSection('attempts', event)">
                             <i class="bi bi-clipboard-check me-2"></i>
                             Quiz Attempts
                         </a>
-                        <a class="nav-link" href="#" onclick="showSection('questions')">
+                        <a class="nav-link" href="#" onclick="showSection('questions', event)">
                             <i class="bi bi-question-circle me-2"></i>
                             Questions
                         </a>

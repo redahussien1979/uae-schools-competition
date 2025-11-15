@@ -47,22 +47,24 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // Show section
-function showSection(section) {
+function showSection(section, event) {
     // Hide all sections
     document.querySelectorAll('.content-section').forEach(el => {
         el.classList.remove('active');
     });
-    
+
     // Remove active from all nav links
     document.querySelectorAll('.sidebar .nav-link').forEach(link => {
         link.classList.remove('active');
     });
-    
+
     // Show selected section
     document.getElementById(section + '-section').classList.add('active');
-    
+
     // Set active nav link
-    event?.target?.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
     
     // Load data based on section
     if (section === 'users') {
