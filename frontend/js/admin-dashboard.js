@@ -1368,3 +1368,105 @@ function wrapInLatex(fieldId) {
     field.focus();
     showToast('Wrapped in LaTeX delimiters', 'success');
 }
+// ========================================
+// EXCEL IMPORT FUNCTIONS
+// ========================================
+
+function openUploadModal() {
+    const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+    document.getElementById('excelFile').value = '';
+    document.getElementById('uploadResult').innerHTML = '';
+    document.getElementById('uploadProgress').style.display = 'none';
+    modal.show();
+}
+
+async function uploadExcel() {
+    const fileInput = document.getElementById('excelFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert('Please select an Excel file');
+        return;
+    }
+
+    // Validate file type
+    if (!file.name.match(/\.(xlsx|xls)$/)) {
+        alert('Please select a valid Excel file (.xlsx or .xls)');
+        return;
+    }
+
+    const token = checkAdminAuth();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Show progress
+    document.getElementById('uploadProgress').style.display = 'block';
+    document.getElementById('uploadResult').innerHTML = '';
+
+    try {
+        const response = await fetch(`${API_URL}/admin/import-questions`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        // Hide progress
+        document.getElementById('uploadProgress').style.display = 'none';
+
+        if (data.success) {
+            let resultHTML = `
+                <div class="alert alert-success">
+                    <h6 class="alert-heading"><i class="bi bi-check-circle me-2"></i>Import Successful!</h6>
+                    <p class="mb-2">${data.message}</p>
+                    <hr>
+                    <p class="mb-0">
+                        <strong>✅ Successfully imported:</strong> ${data.successCount} questions<br>
+                        ${data.errorCount > 0 ? `<strong>❌ Errors:</strong> ${data.errorCount} questions` : ''}
+                    </p>
+                </div>
+            `;
+
+            // Show errors if any
+            if (data.errors && data.errors.length > 0) {
+                resultHTML += `
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">Errors Found:</h6>
+                        <ul class="mb-0 small">
+                `;
+                data.errors.forEach(err => {
+                    resultHTML += `<li>Row ${err.row}: ${err.error}${err.question ? ' - ' + err.question : ''}</li>`;
+                });
+                resultHTML += `</ul></div>`;
+            }
+
+            document.getElementById('uploadResult').innerHTML = resultHTML;
+
+            // Refresh questions list and statistics
+            if (currentPage.questions) {
+                currentPage.questions = 1;
+                loadQuestions();
+            }
+            loadStatistics();
+
+        } else {
+            document.getElementById('uploadResult').innerHTML = `
+                <div class="alert alert-danger">
+                    <strong><i class="bi bi-x-circle me-2"></i>Import Failed:</strong> ${data.message}
+                </div>
+            `;
+        }
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        document.getElementById('uploadProgress').style.display = 'none';
+        document.getElementById('uploadResult').innerHTML = `
+            <div class="alert alert-danger">
+                <strong><i class="bi bi-x-circle me-2"></i>Connection Error:</strong> Failed to upload file. Please try again.
+            </div>
+        `;
+    }
+}
