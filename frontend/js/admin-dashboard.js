@@ -1138,20 +1138,21 @@ function convertToLatex(fieldId) {
 
     const originalText = text;
     
-    // **NEW: Check if this is the correct answer field**
+    // Check if this is the correct answer field
     const isCorrectAnswerField = (fieldId === 'correctAnswer');
 
     // === Common Mathematical Conversions ===
     const conversions = [
-        // Implicit multiplication: (-10) (-6) → (-10) \times (-6)
-    [/(\([^)]+\))\s+(\([^)]+\))/g, '$1 \\times $2'],
-    
-    // Number times parentheses: 3 (x+2) → 3 \times (x+2)
-    [/(\d+)\s+(\([^)]+\))/g, '$1 \\times $2'],
-        // Fractions: 3/4 → \frac{3}{4}
-        [/(\d+)\/(\d+)/g, '\\frac{$1}{$2}'],
-
-        // Exponents: 2^3 → 2^{3}, x^2 → x^{2}
+        // Absolute values: |-150| → |150| (keep the bars)
+        [/\|([^|]+)\|/g, '|$1|'],
+        
+        // Fractions: 3/4 → \frac{3}{4}, -8/9 → -\frac{8}{9}
+        [/(-?\d+)\/(\d+)/g, '\\frac{$1}{$2}'],
+        
+        // Repeating decimals: -0.(8) → -0.\overline{8}
+        [/(-?\d+)\.\((\d+)\)/g, '$1.\\overline{$2}'],
+        
+        // Exponents: 2^3 → 2^{3}
         [/\^(\d+)/g, '^{$1}'],
         [/\^([a-zA-Z])/g, '^{$1}'],
 
@@ -1159,14 +1160,14 @@ function convertToLatex(fieldId) {
         [/sqrt\(([^)]+)\)/gi, '\\sqrt{$1}'],
 
         // Multiplication: * or × → \times
-        [/(\d+|\w)\s*\*\s*(\d+|\w)/g, '$1 \\times $2'],
-        [/(\d+|\w)\s*×\s*(\d+|\w)/g, '$1 \\times $2'],
+        [/\*/g, '\\times'],
+        [/×/g, '\\times'],
 
         // Division: ÷ → \div
-        [/(\d+|\w)\s*÷\s*(\d+|\w)/g, '$1 \\div $2'],
+        [/÷/g, '\\div'],
 
         // Plus-minus: ± or +- → \pm
-        [/\±/g, '\\pm'],
+        [/±/g, '\\pm'],
         [/\+\-/g, '\\pm'],
 
         // Inequalities
@@ -1206,90 +1207,70 @@ function convertToLatex(fieldId) {
         [/₉/g, '_{9}']
     ];
 
-    // Apply conversions safely
+    // Apply conversions
     conversions.forEach(([pattern, replacement]) => {
         text = text.replace(pattern, replacement);
     });
 
-    // === Detect if there's any math ===
-    const mathPatterns = [
-        /[a-zA-Z]\s*[\+\-\×\÷\*\/]\s*[a-zA-Z0-9]/,
-        /\d+\s*[\+\-\×\÷\*\/\=]\s*\d+/,
-        /[a-zA-Z]\s*=\s*-?\d+/,
-        /\d*[a-zA-Z]\d*/,
-        /-?\d+(?:\.\d+)?/
-    ];
-
-    const hasMath = mathPatterns.some(pattern => pattern.test(text));
-    const hasLatexCommands = /\\(frac|sqrt|times|div|pm|leq|geq|neq|circ|pi|sin|cos|tan|log)/.test(text);
-
-    if (!hasMath && !hasLatexCommands && text === originalText) {
+    // === Check if any conversions were made ===
+    const hasLatexCommands = /\\(frac|sqrt|times|div|pm|leq|geq|neq|circ|pi|overline)/.test(text);
+    const hasNumbers = /-?\d+/.test(text);
+    
+    if (!hasLatexCommands && !hasNumbers && text === originalText) {
         showToast('No mathematical expressions found to convert', 'info');
         return;
     }
 
-    // === Avoid double LaTeX wrapping ===
-    const wrapLatex = (str) => {
-        if (!str.includes('\\(') && !str.includes('\\)')) {
-            return `\\(${str}\\)`;
-        }
-        return str;
-    };
-
-    // **NEW: For correct answer field, only do basic conversions without auto-wrapping**
+    // === Wrap math expressions in $ $ ===
+    
+    // For correct answer field, don't auto-wrap (user will use wrap button)
     if (isCorrectAnswerField) {
         field.value = text;
         showToast('Converted to LaTeX format (use Wrap button to add delimiters)', 'success');
         return;
     }
 
-    // === STEP 1: Wrap full math expressions ===
+    // 1. Wrap math expressions with operators: -10 - (-4) → $-10 - (-4)$
     text = text.replace(
-        /((?:\d+(?:\.\d+)?|[a-zA-Z])(?:\s*[\+\-\×\÷\*\/\=\^]\s*(?:-?\d+(?:\.\d+)?|[a-zA-Z]))+)/g,
-        (match) => wrapLatex(match)
+        /(?<!\$)(-?\d+(?:\.\d+)?(?:\\overline\{\d+\})?)(\s*[\+\-×÷\\times\\div]\s*\(?-?\d+(?:\.\d+)?(?:\\overline\{\d+\})?\)?)+(?!\$)/g,
+        (match) => `$${match}$`
     );
 
-// **NEW: Wrap expressions with \times that weren't caught above**
-text = text.replace(
-    /(\([^)]+\)\s*\\times\s*\([^)]+\))/g,
-    (match) => wrapLatex(match)
-);
-    // === STEP 2: Wrap variables with coefficients ===
-    text = text.replace(/\b(-?\d+)([a-zA-Z])\b/g, (match) => wrapLatex(match));
-
-    // === STEP 3: Wrap LaTeX command groups (e.g., \frac{3}{4}) ===
-    text = text.replace(/(\\[a-z]+\{[^}]+\}(?:\s*[\+\-\×\÷\*\/\=]\s*\\?[a-z]*\{?[^}]*\}?)*)/g,
-        (match) => wrapLatex(match)
+    // 2. Wrap absolute value expressions: |-150| + |-15| → $|-150| + |-15|$
+    text = text.replace(
+        /(?<!\$)\|[^|]+\|(\s*[\+\-×÷\\times\\div]\s*\|[^|]+\|)*(?!\$)/g,
+        (match) => `$${match}$`
     );
 
-    // === STEP 4: Wrap numbers + units ===
-    text = text.replace(/\b(-?\d+(?:\.\d+)?)\s+([a-zA-Z]+(?:\/[a-zA-Z]+)?)\b/g,
-        (match, number, unit) => {
-            const commonUnits = /^(m|km|cm|mm|g|kg|s|h|min|mi|ft|lb|oz|mph|kmh|m\/s|km\/h|mi\/h|ft\/s|°C|°F|K)$/i;
-            if (commonUnits.test(unit)) {
-                return `\\(${number}\\) ${unit}`;
-            }
-            return match;
-        }
+    // 3. Wrap fractions: \frac{3}{4} → $\frac{3}{4}$
+    text = text.replace(
+        /(?<!\$)\\frac\{[^}]+\}\{[^}]+\}(?!\$)/g,
+        (match) => `$${match}$`
     );
 
-    // === STEP 5: Wrap standalone numbers (skip if followed by unit) ===
-    text = text.replace(/\b(-?\d+(?:\.\d+)?)\b/g, (match, number, offset) => {
-        const before = text.substring(Math.max(0, offset - 20), offset);
-        const after = text.substring(offset + match.length, Math.min(text.length, offset + match.length + 20));
+    // 4. Wrap square roots: \sqrt{25} → $\sqrt{25}$
+    text = text.replace(
+        /(?<!\$)\\sqrt\{[^}]+\}(?!\$)/g,
+        (match) => `$${match}$`
+    );
 
-        if (
-            (before.includes('\\(') && !before.includes('\\)')) ||
-            after.match(/^\s*\)/) ||
-            after.match(/^\s+[a-zA-Z]+/) ||
-            /Grade\s*$/i.test(before) ||
-            /\s*years?/i.test(after)
-        ) {
-            return match;
-        }
+    // 5. Wrap equations: I = prt → $I = prt$
+    text = text.replace(
+        /(?<!\$)([a-zA-Z])\s*=\s*([a-zA-Z0-9\+\-\\times\\div\s]+)(?=\s*$|[.?!,])/g,
+        (match) => `$${match.trim()}$`
+    );
 
-        return wrapLatex(match);
-    });
+    // 6. Wrap standalone numbers with LaTeX (like overline): -0.\overline{8} → $-0.\overline{8}$
+    text = text.replace(
+        /(?<!\$)(-?\d+(?:\.\d+)?\\overline\{\d+\})(?!\$)/g,
+        (match) => `$${match}$`
+    );
+
+    // 7. **NEW: Wrap ALL remaining standalone numbers: 6000 → $6000$, -6000 → $-6000$**
+    text = text.replace(
+        /(?<!\$)(?<!\w)(-?\d+(?:\.\d+)?)(?!\w)(?!\$)/g,
+        (match) => `$${match}$`
+    );
 
     // Update field
     field.value = text;
