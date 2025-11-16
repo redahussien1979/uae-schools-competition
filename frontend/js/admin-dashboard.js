@@ -1468,8 +1468,9 @@ async function uploadExcel() {
 // ========================================
 // EXPORT QUESTIONS TO EXCEL
 // ========================================
-async function exportQuestions() {
+async function exportQuestions(event) {
     const token = checkAdminAuth();
+
     
     // Get current filters
     const subject = document.getElementById('filterSubject')?.value || '';
