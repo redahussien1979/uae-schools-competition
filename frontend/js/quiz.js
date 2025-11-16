@@ -347,19 +347,19 @@ async function submitQuiz(autoSubmit = false) {
     console.log('Number of answers:', Object.keys(currentQuizData.answers).length);
     
    // Strip LaTeX delimiters from answers
-const cleanedAnswers = {};
-Object.keys(currentQuizData.answers).forEach(key => {
-    let answer = currentQuizData.answers[key];
+//const cleanedAnswers = {};
+//Object.keys(currentQuizData.answers).forEach(key => {
+ //   let answer = currentQuizData.answers[key];
     // Remove LaTeX delimiters: $...$ and \(...\)
-    if (typeof answer === 'string') {
-        answer = answer.replace(/^\$/, '').replace(/\$$/, '');  // Remove $
-        answer = answer.replace(/^\\\(/, '').replace(/\\\)$/, '');  // Remove \( and \)
-        answer = answer.trim();
-    }
-    cleanedAnswers[key] = answer;
-});
+ //   if (typeof answer === 'string') {
+//        answer = answer.replace(/^\$/, '').replace(/\$$/, '');  // Remove $
+//        answer = answer.replace(/^\\\(/, '').replace(/\\\)$/, '');  // Remove \( and \)
+ //       answer = answer.trim();
+//    }
+//    cleanedAnswers[key] = answer;
+//});
 
-console.log('🧹 Cleaned answers:', cleanedAnswers);  // DEBUG
+//console.log('🧹 Cleaned answers:', cleanedAnswers);  // DEBUG
     
       const response = await fetch(`${API_URL}/quiz/submit`, {
         method: 'POST',
