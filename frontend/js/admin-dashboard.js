@@ -1269,17 +1269,17 @@ function convertToLatex(fieldId) {
         (match) => `$${match}$`
     );
 
-   // 7. Wrap standalone numbers AND percentages: 40% → $40\%$
+  // 7a. Wrap numbers WITH units using \text{}: 0.35 mi/min → $0.35 \text{ mi/min}$
+text = text.replace(
+    /(?<!\$)(?<!\w)(-?\d+(?:\.\d+)?(?:\\%)?)\s+([a-zA-Z]+(?:\/[a-zA-Z]+)?)(?!\$)/g,
+    (match, number, unit) => `$${number} \\text{ ${unit}}$`
+);
+
+// 7b. Wrap remaining standalone numbers: 6000 → $6000$, -6000 → $-6000$, 40\% → $40\%$
 text = text.replace(
     /(?<!\$)(?<!\w)(-?\d+(?:\.\d+)?(?:\\%)?)(?!\w)(?!\$)/g,
     (match) => `$${match}$`
 );
-
-    // 7. **NEW: Wrap ALL remaining standalone numbers: 6000 → $6000$, -6000 → $-6000$**
-    text = text.replace(
-        /(?<!\$)(?<!\w)(-?\d+(?:\.\d+)?)(?!\w)(?!\$)/g,
-        (match) => `$${match}$`
-    );
 
     // Update field
     field.value = text;
