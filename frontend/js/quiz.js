@@ -369,7 +369,7 @@ async function submitQuiz(autoSubmit = false) {
         },
         body: JSON.stringify({
             subject: currentQuizData.subject,
-            answers: cleanedAnswers,
+            answers: currentQuizData.answers,
             timeTaken: timeTaken
         })
     });
