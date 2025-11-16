@@ -1462,3 +1462,80 @@ async function uploadExcel() {
         `;
     }
 }
+
+
+
+// ========================================
+// EXPORT QUESTIONS TO EXCEL
+// ========================================
+async function exportQuestions() {
+    const token = checkAdminAuth();
+    
+    // Get current filters
+    const subject = document.getElementById('filterSubject')?.value || '';
+    const grade = document.getElementById('filterGrade')?.value || '';
+    
+    // Build query string
+    let queryParams = [];
+    if (subject) queryParams.push(`subject=${subject}`);
+    if (grade) queryParams.push(`grade=${grade}`);
+    const queryString = queryParams.length > 0 ? '?' + queryParams.join('&') : '';
+    
+    try {
+        // Show loading indicator
+        const originalText = event.target.innerHTML;
+        event.target.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Exporting...';
+        event.target.disabled = true;
+        
+        const response = await fetch(`${API_URL}/admin/export-questions${queryString}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            // Get the blob from response
+            const blob = await response.blob();
+            
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            // Get filename from response headers or generate one
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'questions_export.xlsx';
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                if (filenameMatch) filename = filenameMatch[1];
+            }
+            
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            // Show success message
+            showToast('Questions exported successfully!', 'success');
+        } else {
+            const error = await response.json();
+            showToast('Export failed: ' + error.message, 'error');
+        }
+        
+        // Restore button
+        event.target.innerHTML = originalText;
+        event.target.disabled = false;
+        
+    } catch (error) {
+        console.error('Export error:', error);
+        showToast('Export failed. Please try again.', 'error');
+        
+        // Restore button
+        event.target.innerHTML = '<i class="bi bi-download me-2"></i>Export to Excel';
+        event.target.disabled = false;
+    }
+}

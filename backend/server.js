@@ -1505,6 +1505,94 @@ app.post('/admin/import-questions', protectAdmin, upload.single('file'), async (
     }
 });
 
+
+
+
+
+
+
+
+
+
+
+// ========================================
+// EXPORT QUESTIONS TO EXCEL (ADMIN ONLY)
+// ========================================
+app.get('/admin/export-questions', protectAdmin, async (req, res) => {
+    try {
+        console.log('[ADMIN] Starting Excel export...');
+        
+        const { subject, grade } = req.query;
+        
+        // Build query filter
+        let query = {};
+        if (subject) query.subject = subject.toLowerCase();
+        if (grade) query.grade = parseInt(grade);
+        
+        // Get all questions
+        const questions = await Question.find(query).sort({ subject: 1, grade: 1, createdAt: 1 });
+        
+        console.log(`[ADMIN] Found ${questions.length} questions to export`);
+        
+        // Format data for Excel
+        const excelData = questions.map(q => ({
+            subject: q.subject,
+            grade: q.grade,
+            questionType: q.questionType,
+            questionTextEn: q.questionTextEn,
+            questionTextAr: q.questionTextAr,
+            option1: q.options[0] || '',
+            option2: q.options[1] || '',
+            option3: q.options[2] || '',
+            option4: q.options[3] || '',
+            correctAnswer: q.correctAnswer,
+            imageUrl: q.imageUrl || '',
+            createdAt: q.createdAt
+        }));
+        
+        // Create workbook
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Questions');
+        
+        // Generate Excel file buffer
+        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+        
+        // Set headers for file download
+        const filename = `questions_${subject || 'all'}_${grade || 'all'}_${Date.now()}.xlsx`;
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        
+        // Send file
+        res.send(buffer);
+        
+        console.log(`[ADMIN] Export completed: ${filename}`);
+        
+    } catch (error) {
+        console.error('[ADMIN] Export failed:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Export failed: ' + error.message
+        });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
