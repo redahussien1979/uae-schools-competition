@@ -1148,7 +1148,10 @@ function convertToLatex(fieldId) {
         
         // Fractions: 3/4 → \frac{3}{4}, -8/9 → -\frac{8}{9}
         [/(-?\d+)\/(\d+)/g, '\\frac{$1}{$2}'],
-        
+
+        // Percentages: 40% → 40\% (escape the percent sign)
+    [/(\d+)%/g, '$1\\%'],
+       
         // Repeating decimals: -0.(8) → -0.\overline{8}
         [/(-?\d+)\.\((\d+)\)/g, '$1.\\overline{$2}'],
         
@@ -1265,6 +1268,12 @@ function convertToLatex(fieldId) {
         /(?<!\$)(-?\d+(?:\.\d+)?\\overline\{\d+\})(?!\$)/g,
         (match) => `$${match}$`
     );
+
+   // 7. Wrap standalone numbers AND percentages: 40% → $40\%$
+text = text.replace(
+    /(?<!\$)(?<!\w)(-?\d+(?:\.\d+)?(?:\\%)?)(?!\w)(?!\$)/g,
+    (match) => `$${match}$`
+);
 
     // 7. **NEW: Wrap ALL remaining standalone numbers: 6000 → $6000$, -6000 → $-6000$**
     text = text.replace(
