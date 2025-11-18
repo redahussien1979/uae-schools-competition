@@ -14,7 +14,19 @@ let currentQuizData = {
     timerInterval: null,
     timeLimit: 900 // 15 minutes in seconds
 };
+// Activity and page visibility tracking
+let lastActivityTime = Date.now();
+let idleCheckInterval = null;
+let pageHiddenTime = 0;
+let pageHiddenStart = null;
+let focusLostCount = 0;
+let timerPaused = false;
+let pausedTimeRemaining = 0;
 
+// Configuration constants
+const MAX_IDLE_TIME = 300; // 5 minutes of inactivity
+const MAX_HIDDEN_TIME = 60; // Maximum 60 seconds page can be hidden
+const MAX_FOCUS_LOSS = 3; // Maximum focus losses allowed
 // Start quiz when page loads
 window.addEventListener('DOMContentLoaded', function() {
     checkAuth();
@@ -74,7 +86,9 @@ async function loadQuiz(subject) {
             
             // Start timer
             startTimer(data.timeLimit);
-            
+              // Start activity monitoring
+           startActivityMonitoring();
+            lastActivityTime = Date.now();
         } else {
             alert(data.message || 'Failed to load quiz');
             window.location.href = 'dashboard.html';
@@ -312,6 +326,112 @@ function startTimer(seconds) {
     currentQuizData.timerInterval = setInterval(updateTimer, 1000);
 }
 
+// ADD THIS AFTER LINE 313:
+
+// Pause quiz timer
+function pauseQuizTimer() {
+    if (!timerPaused && currentQuizData.timerInterval) {
+        timerPaused = true;
+        clearInterval(currentQuizData.timerInterval);
+        // Store remaining time
+        const timerText = document.getElementById('timer').textContent;
+        const [mins, secs] = timerText.split(':').map(Number);
+        pausedTimeRemaining = mins * 60 + secs;
+    }
+}
+
+// Resume quiz timer
+function resumeQuizTimer() {
+    if (timerPaused) {
+        timerPaused = false;
+        startTimer(pausedTimeRemaining);
+    }
+}
+
+// Show warning message to user
+function showWarningMessage(message) {
+    let warningDiv = document.getElementById('quiz-warning');
+    if (!warningDiv) {
+        warningDiv = document.createElement('div');
+        warningDiv.id = 'quiz-warning';
+        warningDiv.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            z-index: 10000;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 90%;
+            text-align: center;
+        `;
+        document.body.appendChild(warningDiv);
+    }
+    warningDiv.textContent = message;
+    warningDiv.style.display = 'block';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        if (warningDiv) {
+            warningDiv.style.display = 'none';
+        }
+    }, 5000);
+}
+
+// Reset activity timer on user interaction
+function resetActivityTimer() {
+    lastActivityTime = Date.now();
+}
+
+// Start monitoring user activity
+function startActivityMonitoring() {
+    // Track user interactions
+    document.addEventListener('mousemove', resetActivityTimer);
+    document.addEventListener('keypress', resetActivityTimer);
+    document.addEventListener('click', resetActivityTimer);
+    document.addEventListener('scroll', resetActivityTimer);
+    
+    // Check for idle every 30 seconds
+    idleCheckInterval = setInterval(() => {
+        const idleTime = Math.floor((Date.now() - lastActivityTime) / 1000);
+        
+        if (idleTime > MAX_IDLE_TIME) {
+            clearInterval(idleCheckInterval);
+            const msg = currentLanguage === 'ar' 
+                ? 'تم إرسال الاختبار تلقائياً بسبب عدم النشاط'
+                : 'Quiz auto-submitted due to inactivity';
+            alert(msg);
+            submitQuiz(true);
+        } else if (idleTime > MAX_IDLE_TIME - 60) {
+            // Warning 1 minute before auto-submit
+            const remaining = MAX_IDLE_TIME - idleTime;
+            const msg = currentLanguage === 'ar'
+                ? `تحذير: سيتم إرسال الاختبار تلقائياً خلال ${remaining} ثانية بسبب عدم النشاط`
+                : `Warning: You will be auto-submitted in ${remaining} seconds due to inactivity`;
+            showWarningMessage(msg);
+        }
+    }, 30000); // Check every 30 seconds
+}
+
+// Stop monitoring on quiz completion
+function stopActivityMonitoring() {
+    document.removeEventListener('mousemove', resetActivityTimer);
+    document.removeEventListener('keypress', resetActivityTimer);
+    document.removeEventListener('click', resetActivityTimer);
+    document.removeEventListener('scroll', resetActivityTimer);
+    if (idleCheckInterval) {
+        clearInterval(idleCheckInterval);
+    }
+}
+
+
+
+
+
 // Submit quiz
 //............
 async function submitQuiz(autoSubmit = false) {
@@ -330,7 +450,7 @@ async function submitQuiz(autoSubmit = false) {
     if (currentQuizData.timerInterval) {
         clearInterval(currentQuizData.timerInterval);
     }
-    
+     stopActivityMonitoring();
     // Calculate time taken
     const timeTaken = Math.floor((Date.now() - currentQuizData.startTime) / 1000);
     
@@ -407,7 +527,66 @@ window.addEventListener('beforeunload', function(e) {
     }
 });
 
+// ADD THIS AFTER LINE 408:
 
+// Page visibility detection (tab switching/minimizing)
+document.addEventListener('visibilitychange', function() {
+    if (currentQuizData.questions.length === 0) return; // Quiz not active
+    
+    if (document.hidden) {
+        // User switched tabs or minimized
+        pageHiddenStart = Date.now();
+        pauseQuizTimer();
+        
+        const msg = currentLanguage === 'ar'
+            ? 'تحذير: لقد قمت بتبديل التبويب. عد إلى الاختبار فوراً'
+            : 'Warning: You have switched tabs. Return to the quiz immediately';
+        showWarningMessage(msg);
+        
+    } else {
+        // User returned
+        if (pageHiddenStart) {
+            const hiddenDuration = Math.floor((Date.now() - pageHiddenStart) / 1000);
+            pageHiddenTime += hiddenDuration;
+            
+            if (pageHiddenTime > MAX_HIDDEN_TIME) {
+                // Auto-submit if hidden too long
+                const msg = currentLanguage === 'ar'
+                    ? 'تم إرسال الاختبار تلقائياً بسبب الوقت الطويل بعيداً عن الصفحة'
+                    : 'Quiz auto-submitted due to excessive time away from page';
+                alert(msg);
+                submitQuiz(true);
+            } else {
+                resumeQuizTimer();
+                const msg = currentLanguage === 'ar'
+                    ? `لقد كنت بعيداً ${hiddenDuration} ثانية. إجمالي الوقت المسموح: ${MAX_HIDDEN_TIME} ثانية`
+                    : `You were away for ${hiddenDuration} seconds. Total allowed: ${MAX_HIDDEN_TIME} seconds`;
+                showWarningMessage(msg);
+            }
+            pageHiddenStart = null;
+        }
+    }
+});
+
+// Window focus/blur detection
+window.addEventListener('blur', function() {
+    if (currentQuizData.questions.length === 0) return; // Quiz not active
+    
+    focusLostCount++;
+    
+    if (focusLostCount >= MAX_FOCUS_LOSS) {
+        const msg = currentLanguage === 'ar'
+            ? 'تم اكتشاف العديد من حالات فقدان التركيز. سيتم إرسال الاختبار تلقائياً'
+            : 'Too many focus losses detected. Quiz will be auto-submitted';
+        alert(msg);
+        submitQuiz(true);
+    } else {
+        const msg = currentLanguage === 'ar'
+            ? `تحذير: فقدان التركيز ${focusLostCount}/${MAX_FOCUS_LOSS} مرات`
+            : `Warning: Focus lost ${focusLostCount}/${MAX_FOCUS_LOSS} times`;
+        showWarningMessage(msg);
+    }
+});
 
 
 
