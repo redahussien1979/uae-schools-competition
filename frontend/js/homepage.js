@@ -9,18 +9,12 @@
 // Load everything when page loads
 window.addEventListener('DOMContentLoaded', function() {
     console.log('Homepage loading...');
-    
+
     // Check authentication status first
     checkAuthStatus();
-    
+
     loadStatistics();
     loadTop5Leaderboards();
-    
-    // Update language if saved
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage && savedLanguage === 'ar' && typeof currentLanguage !== 'undefined' && currentLanguage === 'en') {
-        toggleLanguage();
-    }
 });
 
 // Check authentication status and update UI

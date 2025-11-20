@@ -255,14 +255,6 @@
    // Initialize when page loads
    window.addEventListener('DOMContentLoaded', function() {
        console.log('Dashboard loading...');
-       
+
        loadUserInfo();
-       
-       // Update language
-       const savedLanguage = localStorage.getItem('preferredLanguage');
-       if (savedLanguage && savedLanguage === 'ar' && typeof currentLanguage !== 'undefined' && currentLanguage === 'en') {
-           if (typeof toggleLanguage === 'function') {
-               toggleLanguage();
-           }
-       }
    });

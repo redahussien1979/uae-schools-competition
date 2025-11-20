@@ -18,17 +18,11 @@ let currentState = {
 // Load leaderboard when page loads
 window.addEventListener('DOMContentLoaded', function() {
     console.log('Leaderboard loading...');
-    
+
     // Check if user is logged in
     checkAuthStatus();
-    
+
     loadLeaderboard();
-    
-    // Update language if saved
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage && savedLanguage === 'ar' && typeof currentLanguage !== 'undefined' && currentLanguage === 'en') {
-        toggleLanguage();
-    }
 });
 
 // Check authentication status and update navigation

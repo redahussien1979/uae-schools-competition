@@ -4,7 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول | Login - UAE Schools Competition</title>
-    
+
+    <!-- Apply language BEFORE page renders (prevents flash) -->
+    <script>
+        (function() {
+            var savedLang = localStorage.getItem('preferredLanguage');
+            if (savedLang === 'ar') {
+                document.documentElement.setAttribute('lang', 'ar');
+                document.documentElement.setAttribute('dir', 'rtl');
+                // Enable RTL CSS after DOM loads
+                document.addEventListener('DOMContentLoaded', function() {
+                    var rtlCSS = document.getElementById('bootstrap-rtl');
+                    if (rtlCSS) rtlCSS.disabled = false;
+                });
+            } else {
+                document.documentElement.setAttribute('lang', 'en');
+                document.documentElement.setAttribute('dir', 'ltr');
+            }
+        })();
+    </script>
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     

@@ -3,7 +3,8 @@
    ============================================ */
 
 // ===== Global Variables =====
-let currentLanguage = 'en'; // Default language
+// Initialize language from localStorage immediately (syncs with inline script in HTML)
+let currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
 
 
 
@@ -318,15 +319,17 @@ function showLoading(show) {
 
 // ===== Initialize on Page Load =====
 document.addEventListener('DOMContentLoaded', function() {
-    // Load saved language preference
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage && savedLanguage !== currentLanguage) {
-        toggleLanguage();
-    }
-    
-    // Update placeholders
+    // Language is already applied by inline script in HTML head
+    // Just update bilingual text and placeholders
+    updateBilingualText();
     updatePlaceholders();
-    
+
+    // Update language toggle button text
+    const langText = document.getElementById('langText');
+    if (langText) {
+        langText.textContent = currentLanguage === 'ar' ? 'English' : 'العربية';
+    }
+
     console.log('UAE Schools Competition - System Ready');
 });
 // ===== Handle Registration =====
