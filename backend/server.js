@@ -1237,7 +1237,9 @@ app.post('/admin/questions', protectAdmin, async (req, res) => {
             questionTextAr,
             options,
             correctAnswer,
-            imageUrl
+            imageUrl,
+            imagePosition          // ← ADD THIS LINE
+
         } = req.body;
         
         // Validate required fields
@@ -1258,6 +1260,8 @@ app.post('/admin/questions', protectAdmin, async (req, res) => {
             options: options || [],
             correctAnswer,
             imageUrl: imageUrl || null,
+                        imagePosition: imagePosition || 'below',    // ← ADD THIS LINE
+
             points: 1
         });
         
@@ -1289,7 +1293,9 @@ app.put('/admin/questions/:id', protectAdmin, async (req, res) => {
             questionTextAr,
             options,
             correctAnswer,
-            imageUrl
+            imageUrl,
+            imagePosition          // ← ADD THIS LINE
+
         } = req.body;
         
         const question = await Question.findByIdAndUpdate(
@@ -1302,7 +1308,9 @@ app.put('/admin/questions/:id', protectAdmin, async (req, res) => {
                 questionTextAr,
                 options: options || [],
                 correctAnswer,
-                imageUrl: imageUrl || null
+                imageUrl: imageUrl || null,
+                                imagePosition: imagePosition || 'below'    // ← ADD THIS LINE
+
             },
             { new: true, runValidators: true }
         );
