@@ -703,7 +703,9 @@ async function saveQuestion() {
         questionTextAr,
         options,
         correctAnswer,
-        imageUrl: imageUrl || null
+        imageUrl: imageUrl || null,
+        imagePosition: imagePosition || 'below'
+
     };
     
     try {
