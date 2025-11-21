@@ -41,6 +41,18 @@ const UserSchema = new mongoose.Schema({
         english: { type: Number, default: 0 },
         arabic: { type: Number, default: 0 }
     },
+    // Stars earned per subject (cumulative from all attempts)
+    starsPerSubject: {
+        math: { type: Number, default: 0 },
+        science: { type: Number, default: 0 },
+        english: { type: Number, default: 0 },
+        arabic: { type: Number, default: 0 }
+    },
+    // Total stars (sum of all subjects)
+    totalStars: {
+        type: Number,
+        default: 0
+    },
     // Total statistics
     totalBestScore: {
         type: Number,
@@ -76,13 +88,19 @@ UserSchema.methods.comparePassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Calculate total best score automatically
+// Calculate total best score and total stars automatically
 UserSchema.pre('save', function(next) {
-    this.totalBestScore = 
-        this.bestScores.math + 
-        this.bestScores.science + 
-        this.bestScores.english + 
+    this.totalBestScore =
+        this.bestScores.math +
+        this.bestScores.science +
+        this.bestScores.english +
         this.bestScores.arabic;
+
+    this.totalStars =
+        this.starsPerSubject.math +
+        this.starsPerSubject.science +
+        this.starsPerSubject.english +
+        this.starsPerSubject.arabic;
     next();
 });
 

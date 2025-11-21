@@ -43,34 +43,46 @@ function loadResults() {
 
 // Display results
 function displayResults() {
-    const { score, totalQuestions, percentage, isNewBest, previousBest, timeTaken, totalBestScore } = resultsData;
-    
+    const { score, totalQuestions, percentage, isNewBest, previousBest, timeTaken, totalBestScore, starsEarned, totalStars } = resultsData;
+
     // Set subject info
     setSubjectInfo(currentSubject);
-    
+
     // Display score
     document.getElementById('scoreDisplay').textContent = `${score}/${totalQuestions}`;
     document.getElementById('percentageDisplay').textContent = `${percentage}%`;
-    
+
+    // Display stars earned
+    const starsEarnedEl = document.getElementById('starsEarned');
+    if (starsEarnedEl) {
+        starsEarnedEl.textContent = `+${starsEarned || 0} ⭐`;
+    }
+
+    // Display total stars
+    const totalStarsEl = document.getElementById('totalStarsResult');
+    if (totalStarsEl) {
+        totalStarsEl.textContent = `${totalStars || 0} ⭐`;
+    }
+
     // Display comparison
     document.getElementById('currentScoreText').textContent = `${score}/${totalQuestions}`;
     document.getElementById('previousBestText').textContent = `${previousBest}/${totalQuestions}`;
-    
+
     // Display time taken
     document.getElementById('timeTaken').textContent = formatTime(timeTaken);
-    
+
     // Display total best score
     document.getElementById('totalBestScore').textContent = `${totalBestScore}/40`;
     const overallPercentage = Math.round((totalBestScore / 40) * 100);
     document.getElementById('overallPercentage').textContent = `${overallPercentage}%`;
-    
+
     // Handle new record
     if (isNewBest) {
         showNewRecordCelebration();
     } else {
         showRegularResults();
     }
-    
+
     // Show encouragement message
     showEncouragementMessage(percentage, isNewBest);
 }

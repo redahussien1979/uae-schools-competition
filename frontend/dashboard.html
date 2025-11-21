@@ -166,6 +166,23 @@
             </div>
         </div>
 
+        <!-- Total Stars Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
+                    <div class="card-body text-center p-4">
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+                            <div class="display-1">⭐</div>
+                            <div>
+                                <h2 class="fw-bold mb-0 text-warning" id="totalStars">0</h2>
+                                <p class="text-muted mb-0" data-en="Total Stars Earned" data-ar="مجموع النجوم المكتسبة">Total Stars Earned</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Subjects Section -->
         <div class="row mb-4">
             <div class="col-12">
@@ -214,8 +231,9 @@
                                 <span data-en="Attempts:" data-ar="المحاولات:">Attempts:</span>
                                 <strong id="mathAttempts">0</strong>
                             </small>
+                            <small class="text-warning fw-bold" id="mathStars">0 ⭐</small>
                         </div>
-                        
+
                         <button class="btn btn-primary w-100 fw-semibold btn-quiz" onclick="event.stopPropagation(); startQuiz('math');">
                             <i class="bi bi-play-fill me-2"></i>
                             <span data-en="Start Quiz" data-ar="ابدأ الاختبار">Start Quiz</span>
@@ -253,8 +271,9 @@
                                 <span data-en="Attempts:" data-ar="المحاولات:">Attempts:</span>
                                 <strong id="scienceAttempts">0</strong>
                             </small>
+                            <small class="text-warning fw-bold" id="scienceStars">0 ⭐</small>
                         </div>
-                        
+
                         <button class="btn btn-success w-100 fw-semibold btn-quiz" onclick="event.stopPropagation(); startQuiz('science');">
                             <i class="bi bi-play-fill me-2"></i>
                             <span data-en="Start Quiz" data-ar="ابدأ الاختبار">Start Quiz</span>
@@ -292,8 +311,9 @@
                                 <span data-en="Attempts:" data-ar="المحاولات:">Attempts:</span>
                                 <strong id="englishAttempts">0</strong>
                             </small>
+                            <small class="text-warning fw-bold" id="englishStars">0 ⭐</small>
                         </div>
-                        
+
                         <button class="btn btn-danger w-100 fw-semibold btn-quiz" onclick="event.stopPropagation(); startQuiz('english');">
                             <i class="bi bi-play-fill me-2"></i>
                             <span data-en="Start Quiz" data-ar="ابدأ الاختبار">Start Quiz</span>
@@ -331,8 +351,9 @@
                                 <span data-en="Attempts:" data-ar="المحاولات:">Attempts:</span>
                                 <strong id="arabicAttempts">0</strong>
                             </small>
+                            <small class="text-warning fw-bold" id="arabicStars">0 ⭐</small>
                         </div>
-                        
+
                         <button class="btn btn-warning w-100 fw-semibold btn-quiz" onclick="event.stopPropagation(); startQuiz('arabic');">
                             <i class="bi bi-play-fill me-2"></i>
                             <span data-en="Start Quiz" data-ar="ابدأ الاختبار">Start Quiz</span>
