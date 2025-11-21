@@ -71,12 +71,19 @@
        // Calculate and display overall score with animation
        const totalBestScore = user.totalBestScore || 0;
        const overallPercentage = Math.round((totalBestScore / 40) * 100);
-       
+
        const totalScoreEl = document.getElementById('totalScore');
        if (totalScoreEl) {
            animateNumber(totalScoreEl, 0, overallPercentage, '%', 1000);
        }
-       
+
+       // Update total stars display
+       const totalStars = user.totalStars || 0;
+       const totalStarsEl = document.getElementById('totalStars');
+       if (totalStarsEl) {
+           animateNumber(totalStarsEl, 0, totalStars, ' ⭐', 1000);
+       }
+
        // Update total attempts with animation
        const totalAttemptsEl = document.getElementById('totalAttempts');
        if (totalAttemptsEl) {
@@ -94,28 +101,35 @@
    // Update subject scores on dashboard
    function updateSubjectScores(user) {
        const subjects = ['math', 'science', 'english', 'arabic'];
-       
+
        subjects.forEach(subject => {
            const score = user.bestScores?.[subject] || 0;
            const attempts = user.subjectAttempts?.[subject] || 0;
+           const stars = user.starsPerSubject?.[subject] || 0;
            const percentage = (score / 10) * 100;
-           
-           console.log(`${subject}: score=${score}, attempts=${attempts}, percentage=${percentage}%`);
-           
+
+           console.log(`${subject}: score=${score}, attempts=${attempts}, stars=${stars}, percentage=${percentage}%`);
+
            // Update score display with animation
            const scoreEl = document.getElementById(`${subject}Score`);
            if (scoreEl) {
                const currentScore = parseInt(scoreEl.textContent.split('/')[0]) || 0;
                animateNumber(scoreEl, currentScore, score, '/10', 600);
            }
-           
+
+           // Update stars display
+           const starsEl = document.getElementById(`${subject}Stars`);
+           if (starsEl) {
+               starsEl.textContent = `${stars} ⭐`;
+           }
+
            // Update progress bar with animation
            const progressEl = document.getElementById(`${subject}Progress`);
            if (progressEl) {
                const currentWidth = parseFloat(progressEl.style.width) || 0;
                animateProgress(progressEl, currentWidth, percentage, 800);
            }
-           
+
            // Update attempts with animation
            const attemptsEl = document.getElementById(`${subject}Attempts`);
            if (attemptsEl) {
@@ -255,14 +269,6 @@
    // Initialize when page loads
    window.addEventListener('DOMContentLoaded', function() {
        console.log('Dashboard loading...');
-       
+
        loadUserInfo();
-       
-       // Update language
-       const savedLanguage = localStorage.getItem('preferredLanguage');
-       if (savedLanguage && savedLanguage === 'ar' && typeof currentLanguage !== 'undefined' && currentLanguage === 'en') {
-           if (typeof toggleLanguage === 'function') {
-               toggleLanguage();
-           }
-       }
    });
