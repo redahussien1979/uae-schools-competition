@@ -179,7 +179,7 @@ app.get('/me', protect, async (req, res) => {
     try {
         // req.user is set by the protect middleware
         const user = req.user;
-        
+
         res.json({
             success: true,
             user: {
@@ -190,6 +190,8 @@ app.get('/me', protect, async (req, res) => {
                 school: user.school,
                 bestScores: user.bestScores,
                 subjectAttempts: user.subjectAttempts,
+                starsPerSubject: user.starsPerSubject || { math: 0, science: 0, english: 0, arabic: 0 },
+                totalStars: user.totalStars || 0,
                 totalBestScore: user.totalBestScore,
                 totalAttempts: user.totalAttempts,
                 lastLogin: user.lastLogin
@@ -197,9 +199,9 @@ app.get('/me', protect, async (req, res) => {
         });
     } catch (error) {
         console.error('Get user error:', error);
-        res.json({ 
-            success: false, 
-            message: 'Failed to get user info' 
+        res.json({
+            success: false,
+            message: 'Failed to get user info'
         });
     }
 });
@@ -338,11 +340,15 @@ app.post('/quiz/submit', protect, async (req, res) => {
             await user.save();
         }
         
-        // Increment attempts
+        // Calculate stars earned for this attempt
+        const starsEarned = calculateStars(score);
+
+        // Increment attempts and add stars
         user.subjectAttempts[subject] = (user.subjectAttempts[subject] || 0) + 1;
         user.totalAttempts += 1;
+        user.starsPerSubject[subject] = (user.starsPerSubject[subject] || 0) + starsEarned;
         await user.save();
-        
+
         // Save quiz attempt
         const quizAttempt = await QuizAttempt.create({
             user: userId,
@@ -355,15 +361,16 @@ app.post('/quiz/submit', protect, async (req, res) => {
             timeTaken: timeTaken || 0,
             isBestScore: isNewBest
         });
-        
+
         res.json({
             success: true,
             score: score,
             totalQuestions: totalQuestions,
-           // percentage: Math.round((score / totalQuestions) * 100),
-               percentage: percentage,  // ← Use the variable we calculated above
-
-           isNewBest: isNewBest,
+            percentage: percentage,
+            starsEarned: starsEarned,
+            totalStarsSubject: user.starsPerSubject[subject],
+            totalStars: user.totalStars,
+            isNewBest: isNewBest,
             previousBest: currentBest,
             timeTaken: timeTaken,
             totalBestScore: user.totalBestScore,
@@ -398,6 +405,17 @@ function checkAnswer(questionType, userAnswer, correctAnswer, alternativeAnswers
     }
     
     return false;
+}
+
+
+// Helper function to calculate stars based on score
+function calculateStars(score) {
+    if (score === 10) return 5;      // 100% = 5 stars
+    if (score >= 8) return 4;        // 80-90% = 4 stars
+    if (score >= 6) return 3;        // 60-70% = 3 stars
+    if (score >= 4) return 2;        // 40-50% = 2 stars
+    if (score >= 1) return 1;        // 10-30% = 1 star
+    return 0;                        // 0% = 0 stars
 }
 
 // ========================================
@@ -556,39 +574,43 @@ app.post('/update-score', protect, async (req, res) => {
 // ========================================
 app.get('/leaderboard/top5', async (req, res) => {
     try {
-        // Get Top 5 Students (by total best score)
+        // Get Top 5 Students (by total stars)
         const topStudents = await User.find()
-            .select('fullName grade school totalBestScore')
-            .sort({ totalBestScore: -1, createdAt: 1 })
+            .select('fullName grade school totalBestScore totalStars')
+            .sort({ totalStars: -1, totalAttempts: 1, createdAt: 1 })
             .limit(5);
-        
-        // Get Top 5 Schools (by average score)
+
+        // Get Top 5 Schools (by average stars)
         const schoolStats = await User.aggregate([
             {
                 $group: {
                     _id: '$school',
+                    averageStars: { $avg: '$totalStars' },
+                    totalStars: { $sum: '$totalStars' },
                     averageScore: { $avg: '$totalBestScore' },
-                    studentCount: { $sum: 1 },
-                    totalScore: { $sum: '$totalBestScore' }
+                    studentCount: { $sum: 1 }
                 }
             },
-            { $sort: { averageScore: -1 } },
+            { $sort: { totalStars: -1 } },
             { $limit: 5 }
         ]);
-        
+
         // Format response
         const formattedStudents = topStudents.map((student, index) => ({
             rank: index + 1,
             name: student.fullName,
             grade: student.grade,
             school: student.school,
-            score: student.totalBestScore,
+            stars: student.totalStars || 0,
+            bestScore: student.totalBestScore,
             percentage: Math.round((student.totalBestScore / 40) * 100)
         }));
-        
+
         const formattedSchools = schoolStats.map((school, index) => ({
             rank: index + 1,
             name: school._id,
+            totalStars: school.totalStars || 0,
+            averageStars: Math.round(school.averageStars * 10) / 10,
             averageScore: Math.round(school.averageScore * 10) / 10,
             percentage: Math.round((school.averageScore / 40) * 100),
             studentCount: school.studentCount
@@ -608,6 +630,7 @@ app.get('/leaderboard/top5', async (req, res) => {
         });
     }
 });
+
 
 // ========================================
 // GET TOTAL STATISTICS (PUBLIC)
@@ -648,45 +671,52 @@ app.get('/stats', async (req, res) => {
 app.get('/leaderboard/students', async (req, res) => {
     try {
         const { grade, subject, page = 1, limit = 20 } = req.query;
-        
+
         let query = {};
-        
+
         // Filter by grade if provided
         if (grade && grade !== 'all') {
             query.grade = parseInt(grade);
         }
-        
-        // Determine sort field based on subject
-        let sortField = 'totalBestScore';
+
+        // Sort by total stars (primary), then by total attempts ascending (fewer attempts = better)
+        let sortField = 'totalStars';
+        let starField = 'totalStars';
         if (subject && subject !== 'overall') {
-            sortField = `bestScores.${subject}`;
+            sortField = `starsPerSubject.${subject}`;
+            starField = `starsPerSubject.${subject}`;
         }
-        
+
         // Get total count for pagination
         const totalCount = await User.countDocuments(query);
-        
-        // Get students with pagination
+
+        // Get students with pagination - sorted by stars
         const students = await User.find(query)
-            .select('fullName grade school bestScores totalBestScore')
-            .sort({ [sortField]: -1, createdAt: 1 })
+            .select('fullName grade school bestScores totalBestScore starsPerSubject totalStars totalAttempts')
+            .sort({ [sortField]: -1, totalAttempts: 1, createdAt: 1 })
             .limit(parseInt(limit))
             .skip((parseInt(page) - 1) * parseInt(limit));
-        
+
         // Format response
         const formattedStudents = students.map((student, index) => {
-            const score = subject && subject !== 'overall' 
+            const stars = subject && subject !== 'overall'
+                ? (student.starsPerSubject ? student.starsPerSubject[subject] : 0) || 0
+                : student.totalStars || 0;
+
+            const bestScore = subject && subject !== 'overall'
                 ? student.bestScores[subject] || 0
                 : student.totalBestScore || 0;
-            
+
             const maxScore = subject && subject !== 'overall' ? 10 : 40;
-            const percentage = Math.round((score / maxScore) * 100);
-            
+            const percentage = Math.round((bestScore / maxScore) * 100);
+
             return {
                 rank: ((parseInt(page) - 1) * parseInt(limit)) + index + 1,
                 name: student.fullName,
                 grade: student.grade,
                 school: student.school,
-                score: score,
+                stars: stars,
+                bestScore: bestScore,
                 maxScore: maxScore,
                 percentage: percentage
             };
