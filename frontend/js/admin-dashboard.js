@@ -670,7 +670,8 @@ async function saveQuestion() {
     const questionTextAr = document.getElementById('questionTextAr').value;
     const correctAnswer = document.getElementById('correctAnswer').value;
     const imageUrl = document.getElementById('imageUrl').value;
-    
+        const imagePosition = document.getElementById('imagePosition').value;
+
     // Validate required fields
     if (!subject || !grade || !questionType || !questionTextEn || !questionTextAr || !correctAnswer) {
         alert('Please fill in all required fields');
