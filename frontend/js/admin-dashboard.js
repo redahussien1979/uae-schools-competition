@@ -670,6 +670,7 @@ async function saveQuestion() {
     const questionTextAr = document.getElementById('questionTextAr').value;
     const correctAnswer = document.getElementById('correctAnswer').value;
     const imageUrl = document.getElementById('imageUrl').value;
+    const imagePosition = document.getElementById('imagePosition').value;
     
     // Validate required fields
     if (!subject || !grade || !questionType || !questionTextEn || !questionTextAr || !correctAnswer) {
@@ -702,7 +703,8 @@ async function saveQuestion() {
         questionTextAr,
         options,
         correctAnswer,
-        imageUrl: imageUrl || null
+        imageUrl: imageUrl || null,
+        imagePosition: imagePosition || 'below'
     };
     
     try {
@@ -777,6 +779,7 @@ async function editQuestion(questionId) {
             document.getElementById('questionTextAr').value = question.questionTextAr;
             document.getElementById('correctAnswer').value = question.correctAnswer;
             document.getElementById('imageUrl').value = question.imageUrl || '';
+            document.getElementById('imagePosition').value = question.imagePosition || 'below';
             
             // Handle question type
             handleQuestionTypeChange();

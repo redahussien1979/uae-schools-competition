@@ -153,12 +153,28 @@ function displayQuestion(index) {
     const questionText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
     questionTextEl.innerHTML = questionText;
 
-    // Show/hide image
+    // Show/hide image based on position
+    const imageAboveContainer = document.getElementById('questionImageContainerAbove');
+    const imageBelowContainer = document.getElementById('questionImageContainerBelow');
+    const imageAbove = document.getElementById('questionImageAbove');
+    const imageBelow = document.getElementById('questionImageBelow');
+
+    // Hide both containers first
+    imageAboveContainer.classList.add('d-none');
+    imageBelowContainer.classList.add('d-none');
+
     if (question.imageUrl) {
-        document.getElementById('questionImageContainer').classList.remove('d-none');
-        document.getElementById('questionImage').src = question.imageUrl;
-    } else {
-        document.getElementById('questionImageContainer').classList.add('d-none');
+        const position = question.imagePosition || 'below'; // Default to 'below' if not specified
+
+        if (position === 'above') {
+            // Show image above question text
+            imageAboveContainer.classList.remove('d-none');
+            imageAbove.src = question.imageUrl;
+        } else {
+            // Show image below question text
+            imageBelowContainer.classList.remove('d-none');
+            imageBelow.src = question.imageUrl;
+        }
     }
 
     // Display answer options based on question type

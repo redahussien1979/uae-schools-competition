@@ -30,6 +30,12 @@ const QuestionSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    // Image position (above or below question text)
+    imagePosition: {
+        type: String,
+        enum: ['above', 'below'],
+        default: 'below'
+    },
     // For multiple choice questions
     options: {
         type: [String],

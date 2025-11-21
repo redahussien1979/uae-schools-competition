@@ -127,14 +127,19 @@
                 <div class="card shadow-sm border-0 rounded-4 question-card">
                     <div class="card-body p-4 p-md-5">
                         
+                        <!-- Question Image Above (if position is 'above') -->
+                        <div id="questionImageContainerAbove" class="d-none mb-4">
+                            <img id="questionImageAbove" src="" alt="Question Image" class="question-image">
+                        </div>
+
                         <!-- Question Text -->
                         <div class="mb-4">
                             <h4 class="fw-bold mb-3" id="questionText">Loading question...</h4>
-                            
-                            <!-- Question Image (if exists) -->
-                            <div id="questionImageContainer" class="d-none mb-4">
-                                <img id="questionImage" src="" alt="Question Image" class="question-image">
-                            </div>
+                        </div>
+
+                        <!-- Question Image Below (if position is 'below') -->
+                        <div id="questionImageContainerBelow" class="d-none mb-4">
+                            <img id="questionImageBelow" src="" alt="Question Image" class="question-image">
                         </div>
 
                         <!-- Answer Options Container -->

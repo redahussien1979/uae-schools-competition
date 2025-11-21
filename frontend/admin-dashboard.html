@@ -611,6 +611,18 @@
                             <label class="form-label fw-semibold">Image URL (Optional)</label>
                             <input type="text" class="form-control" id="imageUrl" placeholder="https://example.com/image.jpg">
                         </div>
+
+                        <!-- Image Position (Optional) -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Image Position (if image provided)</label>
+                            <select class="form-select" id="imagePosition">
+                                <option value="below">Below Question (Default)</option>
+                                <option value="above">Above Question</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                Choose where the image should appear relative to the question text
+                            </small>
+                        </div>
                     </div>
                 </form>
             </div>
