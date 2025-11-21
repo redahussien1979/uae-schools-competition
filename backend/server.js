@@ -758,8 +758,10 @@ app.get('/leaderboard/schools', async (req, res) => {
         
         // Determine score field based on subject
         let scoreField = '$totalBestScore';
+        let starsField = '$totalStars';
         if (subject && subject !== 'overall') {
             scoreField = `$bestScores.${subject}`;
+            starsField = `$starsPerSubject.${subject}`;
         }
         
         // Aggregate schools
@@ -770,10 +772,12 @@ app.get('/leaderboard/schools', async (req, res) => {
                     _id: '$school',
                     averageScore: { $avg: scoreField },
                     totalScore: { $sum: scoreField },
+                    totalStars: { $sum: starsField },
+                    averageStars: { $avg: starsField },
                     studentCount: { $sum: 1 }
                 }
             },
-            { $sort: { averageScore: -1 } }
+            { $sort: { totalStars: -1 } }
         ];
         
         const allSchools = await User.aggregate(pipeline);
@@ -792,6 +796,8 @@ app.get('/leaderboard/schools', async (req, res) => {
             return {
                 rank: startIndex + index + 1,
                 name: school._id,
+                totalStars: school.totalStars || 0,
+                averageStars: Math.round((school.averageStars || 0) * 10) / 10,
                 averageScore: Math.round(school.averageScore * 10) / 10,
                 percentage: percentage,
                 studentCount: school.studentCount,
