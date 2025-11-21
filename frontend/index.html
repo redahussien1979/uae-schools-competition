@@ -4,26 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAE Schools Competition - Test Your Knowledge!</title>
-
-    <!-- Apply language BEFORE page renders (prevents flash) -->
-    <script>
-        (function() {
-            var savedLang = localStorage.getItem('preferredLanguage');
-            if (savedLang === 'ar') {
-                document.documentElement.setAttribute('lang', 'ar');
-                document.documentElement.setAttribute('dir', 'rtl');
-                // Enable RTL CSS after DOM loads
-                document.addEventListener('DOMContentLoaded', function() {
-                    var rtlCSS = document.getElementById('bootstrap-rtl');
-                    if (rtlCSS) rtlCSS.disabled = false;
-                });
-            } else {
-                document.documentElement.setAttribute('lang', 'en');
-                document.documentElement.setAttribute('dir', 'ltr');
-            }
-        })();
-    </script>
-
+    
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -40,24 +21,15 @@
     <link rel="stylesheet" href="css/style.css">
     
     <style>
-        /* UAE Theme Colors */
-        :root {
-            --uae-red: #FF0000;
-            --uae-green: #00732F;
-            --uae-black: #000000;
-            --uae-gold: #D4AF37;
-        }
-
-        /* Hero Section - UAE Flag Inspired */
+        /* Hero Section */
         .hero-section {
-            background: linear-gradient(135deg, var(--uae-green) 0%, #005a25 50%, var(--uae-black) 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 100px 0 80px 0;
             position: relative;
             overflow: hidden;
         }
-
-        /* Arabic Geometric Pattern Overlay */
+        
         .hero-section::before {
             content: '';
             position: absolute;
@@ -65,21 +37,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image:
-                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px),
-                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px);
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-repeat: no-repeat;
+            background-position: bottom;
             opacity: 0.5;
-        }
-
-        /* Gold accent line at top */
-        .hero-section::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--uae-red) 0%, var(--uae-gold) 50%, var(--uae-green) 100%);
         }
         
         .hero-content {
@@ -90,54 +51,24 @@
         .stats-card {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
-            border: 2px solid var(--uae-gold);
-            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
-
-        .stats-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
-        }
-
+        
         .stats-card:hover {
             background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-5px) scale(1.05);
-            border-color: var(--uae-red);
-            box-shadow: 0 10px 30px rgba(212,175,55,0.3);
+            transform: translateY(-5px);
         }
         
         .leaderboard-card {
             transition: all 0.3s ease;
-            border: 2px solid transparent;
-            border-radius: 20px;
-            overflow: hidden;
         }
-
-        .leaderboard-card .card-header {
-            background: linear-gradient(135deg, var(--uae-green), var(--uae-black)) !important;
-            border-bottom: 3px solid var(--uae-gold);
-        }
-
+        
         .leaderboard-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(212,175,55,0.25);
-            border-color: var(--uae-gold);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
-
+        
         .rank-badge {
             width: 50px;
             height: 50px;
@@ -148,37 +79,34 @@
             font-weight: bold;
             font-size: 1.2rem;
             margin-right: 15px;
-            border: 3px solid var(--uae-gold);
         }
-
+        
         [dir="rtl"] .rank-badge {
             margin-right: 0;
             margin-left: 15px;
         }
-
-        .rank-1 {
-            background: linear-gradient(135deg, var(--uae-gold), #FFD700);
-            color: var(--uae-black);
-            box-shadow: 0 6px 20px rgba(212,175,55,0.6);
-            font-size: 1.5rem;
-        }
-
-        .rank-2 {
-            background: linear-gradient(135deg, #C0C0C0, #E8E8E8);
-            color: var(--uae-black);
-            box-shadow: 0 4px 15px rgba(192,192,192,0.4);
-        }
-
-        .rank-3 {
-            background: linear-gradient(135deg, #CD7F32, #B87333);
+        
+        .rank-1 { 
+            background: linear-gradient(135deg, #FFD700, #FFA500); 
             color: #fff;
-            box-shadow: 0 4px 15px rgba(205,127,50,0.4);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
         }
-
+        
+        .rank-2 { 
+            background: linear-gradient(135deg, #C0C0C0, #A9A9A9); 
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4);
+        }
+        
+        .rank-3 { 
+            background: linear-gradient(135deg, #CD7F32, #8B4513); 
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
+        }
+        
         .rank-other {
-            background: linear-gradient(135deg, var(--uae-green), var(--uae-black));
-            color: var(--uae-gold);
-            border-color: var(--uae-red);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
         }
         
         .feature-icon {
@@ -190,77 +118,6 @@
             justify-content: center;
             margin: 0 auto 20px;
             font-size: 2rem;
-            border: 3px solid var(--uae-gold);
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .feature-icon:hover {
-            transform: rotate(360deg) scale(1.1);
-            box-shadow: 0 10px 30px rgba(212,175,55,0.4);
-        }
-
-        /* UAE Decorative Corner Elements */
-        .uae-corner-decoration {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            opacity: 0.1;
-        }
-
-        .uae-corner-decoration.top-left {
-            top: 0;
-            left: 0;
-            background: linear-gradient(135deg, var(--uae-red) 0%, transparent 100%);
-        }
-
-        .uae-corner-decoration.top-right {
-            top: 0;
-            right: 0;
-            background: linear-gradient(225deg, var(--uae-green) 0%, transparent 100%);
-        }
-
-        /* Navbar enhancement */
-        nav.navbar {
-            border-bottom: 3px solid transparent;
-            border-image: linear-gradient(90deg, var(--uae-red) 0%, var(--uae-gold) 25%, var(--uae-green) 50%, var(--uae-gold) 75%, var(--uae-black) 100%) 1;
-        }
-
-        /* Section headers with UAE accent */
-        .display-5::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--uae-red), var(--uae-gold), var(--uae-green));
-            margin: 15px auto 0;
-            border-radius: 2px;
-        }
-
-        /* CTA Button Enhancement */
-        .btn-light:hover {
-            background: var(--uae-gold) !important;
-            color: var(--uae-black) !important;
-            border-color: var(--uae-gold) !important;
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(212,175,55,0.4);
-        }
-
-        /* Background patterns for sections */
-        .bg-light {
-            position: relative;
-            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-        }
-
-        /* Trophy icon enhancement */
-        .hero-section .bi-trophy-fill {
-            filter: drop-shadow(0 0 30px rgba(212,175,55,0.5));
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
         }
     </style>
 </head>
@@ -326,39 +183,35 @@
                     <!-- Stats -->
                     <div class="row g-3">
                         <div class="col-6 col-md-3">
-                            <div class="stats-card rounded-3 p-3 text-center" style="position: relative; z-index: 1;">
-                                <h3 class="fw-bold mb-0" id="totalStudents" style="color: var(--uae-gold); font-size: 2rem;">0</h3>
-                                <small class="opacity-90 fw-semibold" data-en="Students" data-ar="طالب">Students</small>
+                            <div class="stats-card rounded-3 p-3 text-center">
+                                <h3 class="fw-bold mb-0" id="totalStudents">0</h3>
+                                <small class="opacity-75" data-en="Students" data-ar="طالب">Students</small>
                             </div>
                         </div>
                         <div class="col-6 col-md-3">
-                            <div class="stats-card rounded-3 p-3 text-center" style="position: relative; z-index: 1;">
-                                <h3 class="fw-bold mb-0" id="totalSchools" style="color: var(--uae-gold); font-size: 2rem;">0</h3>
-                                <small class="opacity-90 fw-semibold" data-en="Schools" data-ar="مدرسة">Schools</small>
+                            <div class="stats-card rounded-3 p-3 text-center">
+                                <h3 class="fw-bold mb-0" id="totalSchools">0</h3>
+                                <small class="opacity-75" data-en="Schools" data-ar="مدرسة">Schools</small>
                             </div>
                         </div>
                         <div class="col-6 col-md-3">
-                            <div class="stats-card rounded-3 p-3 text-center" style="position: relative; z-index: 1;">
-                                <h3 class="fw-bold mb-0" id="totalQuestions" style="color: var(--uae-gold); font-size: 2rem;">0</h3>
-                                <small class="opacity-90 fw-semibold" data-en="Questions" data-ar="سؤال">Questions</small>
+                            <div class="stats-card rounded-3 p-3 text-center">
+                                <h3 class="fw-bold mb-0" id="totalQuestions">0</h3>
+                                <small class="opacity-75" data-en="Questions" data-ar="سؤال">Questions</small>
                             </div>
                         </div>
                         <div class="col-6 col-md-3">
-                            <div class="stats-card rounded-3 p-3 text-center" style="position: relative; z-index: 1;">
-                                <h3 class="fw-bold mb-0" id="totalAttempts" style="color: var(--uae-gold); font-size: 2rem;">0</h3>
-                                <small class="opacity-90 fw-semibold" data-en="Attempts" data-ar="محاولة">Attempts</small>
+                            <div class="stats-card rounded-3 p-3 text-center">
+                                <h3 class="fw-bold mb-0" id="totalAttempts">0</h3>
+                                <small class="opacity-75" data-en="Attempts" data-ar="محاولة">Attempts</small>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-lg-6">
-                    <div class="text-center" style="position: relative;">
-                        <div style="font-size: 12rem; margin-bottom: 20px;">🇦🇪</div>
-                        <i class="bi bi-trophy-fill" style="font-size: 10rem; opacity: 0.9; color: var(--uae-gold);"></i>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem;">
-                            ⭐
-                        </div>
+                    <div class="text-center">
+                        <i class="bi bi-trophy-fill" style="font-size: 15rem; opacity: 0.2;"></i>
                     </div>
                 </div>
             </div>
@@ -366,10 +219,8 @@
     </section>
 
     <!-- Leaderboards Section -->
-    <section class="py-5 bg-light" style="position: relative;">
-        <div class="uae-corner-decoration top-left"></div>
-        <div class="uae-corner-decoration top-right"></div>
-        <div class="container" style="position: relative; z-index: 1;">
+    <section class="py-5 bg-light">
+        <div class="container">
             
             <div class="text-center mb-5">
                 <h2 class="display-5 fw-bold mb-3" data-en="🏆 Top Performers" data-ar="🏆 المتصدرون">
@@ -490,9 +341,9 @@
     </section>
 
     <!-- CTA Section -->
-<section class="py-5 bg-gradient text-white" style="background: linear-gradient(135deg, var(--uae-red) 0%, var(--uae-black) 50%, var(--uae-green) 100%); position: relative; overflow: hidden;">
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(212,175,55,.1) 35px, rgba(212,175,55,.1) 70px); opacity: 0.3;"></div>
-    <div class="container text-center" style="position: relative; z-index: 1;">
+    <!-- CTA Section -->
+<section class="py-5 bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-center">
         <h2 class="display-5 fw-bold mb-3" data-en="Ready to Start?" data-ar="مستعد للبدء؟">
             Ready to Start?
         </h2>
@@ -511,10 +362,9 @@
 </section>
 
     <!-- Footer -->
-    <footer class="text-white py-4" style="background: linear-gradient(135deg, var(--uae-black) 0%, var(--uae-green) 100%); border-top: 3px solid var(--uae-gold); position: relative;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--uae-red) 0%, var(--uae-gold) 50%, var(--uae-green) 100%);"></div>
+    <footer class="bg-dark text-white py-4">
         <div class="container text-center">
-            <p class="mb-0" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+            <p class="mb-0">
                 <span data-en="© 2024 UAE Schools Competition. All rights reserved." data-ar="© 2024 مسابقة المدارس الإماراتية. جميع الحقوق محفوظة.">
                     © 2024 UAE Schools Competition. All rights reserved.
                 </span>
