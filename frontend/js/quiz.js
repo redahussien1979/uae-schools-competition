@@ -24,6 +24,7 @@ let focusLostCount = 0;
 let timerPaused = false;
 let pausedTimeRemaining = 0;
 let blurTimeout = null;
+let isSubmitting = false; // Flag to prevent blur during submit
 
 // Configuration constants
 const MAX_IDLE_TIME = 300; // 5 minutes of inactivity
@@ -438,6 +439,9 @@ function stopActivityMonitoring() {
 
 // Submit quiz
 async function submitQuiz(autoSubmit = false) {
+    // Set flag to prevent blur warnings during confirm dialog
+    isSubmitting = true;
+
     // Confirm submission
     if (!autoSubmit) {
         const confirmMsg = currentLanguage === 'ar'
@@ -445,6 +449,7 @@ async function submitQuiz(autoSubmit = false) {
             : 'Are you sure you want to submit?';
 
         if (!confirm(confirmMsg)) {
+            isSubmitting = false; // Reset flag if cancelled
             return;
         }
     }
@@ -519,6 +524,7 @@ window.addEventListener('beforeunload', function(e) {
 // Page visibility detection (tab switching/minimizing)
 document.addEventListener('visibilitychange', function() {
     if (currentQuizData.questions.length === 0) return; // Quiz not active
+    if (isSubmitting) return; // Don't trigger during submit
 
     if (document.hidden) {
         // User switched tabs or minimized
@@ -558,6 +564,7 @@ document.addEventListener('visibilitychange', function() {
 // Window focus/blur detection with debounce
 window.addEventListener('blur', function() {
     if (currentQuizData.questions.length === 0) return; // Quiz not active
+    if (isSubmitting) return; // Don't trigger during submit confirmation
 
     // Debounce to prevent multiple rapid fires
     if (blurTimeout) return;
