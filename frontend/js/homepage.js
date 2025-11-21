@@ -9,18 +9,12 @@
 // Load everything when page loads
 window.addEventListener('DOMContentLoaded', function() {
     console.log('Homepage loading...');
-    
+
     // Check authentication status first
     checkAuthStatus();
-    
+
     loadStatistics();
     loadTop5Leaderboards();
-    
-    // Update language if saved
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage && savedLanguage === 'ar' && typeof currentLanguage !== 'undefined' && currentLanguage === 'en') {
-        toggleLanguage();
-    }
 });
 
 // Check authentication status and update UI
@@ -159,13 +153,13 @@ function displayTop5Schools(schools) {
                     </small>
                 </div>
                 <div class="text-end">
-                    <div class="fw-bold text-primary fs-5">${school.percentage}%</div>
-                    <small class="text-muted">${school.averageScore}/40</small>
+                    <div class="fw-bold text-warning fs-5">${school.totalStars || 0} ⭐</div>
+                    <small class="text-muted">Avg: ${school.averageStars || school.averageScore || 0}</small>
                 </div>
             </div>
         `;
     });
-    
+
     html += '</div>';
     container.innerHTML = html;
 }
@@ -204,13 +198,13 @@ function displayTop5Students(students) {
                     </small>
                 </div>
                 <div class="text-end">
-                    <div class="fw-bold text-success fs-5">${student.percentage}%</div>
-                    <small class="text-muted">${student.score}/40</small>
+                    <div class="fw-bold text-warning fs-5">${student.stars || 0} ⭐</div>
+                    <small class="text-muted">Best: ${student.bestScore || student.score}/40</small>
                 </div>
             </div>
         `;
     });
-    
+
     html += '</div>';
     container.innerHTML = html;
 }
