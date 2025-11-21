@@ -602,7 +602,7 @@ app.get('/leaderboard/top5', async (req, res) => {
             grade: student.grade,
             school: student.school,
             stars: student.totalStars || 0,
-            bestScore: student.totalBestScore,
+            bestScore: student.totalBestScore || 0,
             percentage: Math.round((student.totalBestScore / 40) * 100)
         }));
 
