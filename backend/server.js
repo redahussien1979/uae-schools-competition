@@ -1229,9 +1229,10 @@ app.post('/admin/questions', protectAdmin, async (req, res) => {
             questionTextAr,
             options,
             correctAnswer,
-            imageUrl
+            imageUrl,
+            imagePosition
         } = req.body;
-        
+
         // Validate required fields
         if (!subject || !grade || !questionType || !questionTextEn || !questionTextAr || !correctAnswer) {
             return res.json({
@@ -1239,7 +1240,7 @@ app.post('/admin/questions', protectAdmin, async (req, res) => {
                 message: 'Missing required fields'
             });
         }
-        
+
         // Create question
         const question = await Question.create({
             subject: subject.toLowerCase(),
@@ -1250,6 +1251,7 @@ app.post('/admin/questions', protectAdmin, async (req, res) => {
             options: options || [],
             correctAnswer,
             imageUrl: imageUrl || null,
+            imagePosition: imagePosition || 'below',
             points: 1
         });
         
@@ -1281,9 +1283,10 @@ app.put('/admin/questions/:id', protectAdmin, async (req, res) => {
             questionTextAr,
             options,
             correctAnswer,
-            imageUrl
+            imageUrl,
+            imagePosition
         } = req.body;
-        
+
         const question = await Question.findByIdAndUpdate(
             req.params.id,
             {
@@ -1294,7 +1297,8 @@ app.put('/admin/questions/:id', protectAdmin, async (req, res) => {
                 questionTextAr,
                 options: options || [],
                 correctAnswer,
-                imageUrl: imageUrl || null
+                imageUrl: imageUrl || null,
+                imagePosition: imagePosition || 'below'
             },
             { new: true, runValidators: true }
         );
