@@ -780,7 +780,8 @@ async function editQuestion(questionId) {
             document.getElementById('questionTextAr').value = question.questionTextAr;
             document.getElementById('correctAnswer').value = question.correctAnswer;
             document.getElementById('imageUrl').value = question.imageUrl || '';
-            
+                        document.getElementById('imagePosition').value = question.imagePosition || 'below';
+
             // Handle question type
             handleQuestionTypeChange();
             
