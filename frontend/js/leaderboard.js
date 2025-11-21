@@ -18,17 +18,11 @@ let currentState = {
 // Load leaderboard when page loads
 window.addEventListener('DOMContentLoaded', function() {
     console.log('Leaderboard loading...');
-    
+
     // Check if user is logged in
     checkAuthStatus();
-    
+
     loadLeaderboard();
-    
-    // Update language if saved
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage && savedLanguage === 'ar' && typeof currentLanguage !== 'undefined' && currentLanguage === 'en') {
-        toggleLanguage();
-    }
 });
 
 // Check authentication status and update navigation
@@ -183,16 +177,16 @@ function displayStudents(students) {
                     <span class="badge bg-primary">Grade ${student.grade}</span>
                 </td>
                 <td class="px-4 py-4 text-end">
-                    <div class="fw-bold text-success score-display-cell">${student.percentage}%</div>
+                    <div class="fw-bold text-warning score-display-cell">${student.stars || 0} ⭐</div>
                     <small class="text-muted d-flex align-items-center justify-content-end mt-1">
-                        <i class="bi bi-star-fill text-warning me-1"></i>
-                        ${student.score}/${student.maxScore}
+                        <i class="bi bi-trophy-fill text-success me-1"></i>
+                        Best: ${student.bestScore || student.score}/${student.maxScore}
                     </small>
                 </td>
             </tr>
         `;
     });
-    
+
     tbody.innerHTML = html;
 }
 
@@ -236,16 +230,16 @@ function displaySchools(schools) {
                     <span class="badge bg-info">${school.studentCount}</span>
                 </td>
                 <td class="px-4 py-4 text-end">
-                    <div class="fw-bold text-primary score-display-cell">${school.percentage}%</div>
+                    <div class="fw-bold text-warning score-display-cell">${school.totalStars || 0} ⭐</div>
                     <small class="text-muted d-flex align-items-center justify-content-end mt-1">
-                        <i class="bi bi-star-fill text-warning me-1"></i>
-                        ${school.averageScore}/${school.maxScore}
+                        <i class="bi bi-graph-up text-success me-1"></i>
+                        Avg: ${school.averageStars || school.averageScore || 0}
                     </small>
                 </td>
             </tr>
         `;
     });
-    
+
     tbody.innerHTML = html;
 }
 
