@@ -517,6 +517,23 @@
             <i class="bi bi-code-square me-1"></i>
             Wrap Selection in \( \)
         </button>
+        
+         <!-- COLOR BUTTONS - ADD THESE -->
+        <button type="button" class="btn btn-sm btn-danger latex-btn" onclick="colorizeText('questionTextEn', 'red')" title="Red">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary latex-btn" onclick="colorizeText('questionTextEn', 'blue')" title="Blue">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-success latex-btn" onclick="colorizeText('questionTextEn', 'green')" title="Green">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-warning latex-btn" onclick="colorizeText('questionTextEn', 'orange')" title="Orange">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-dark latex-btn" onclick="colorizeText('questionTextEn', 'black')" title="Black">
+            <i class="bi bi-circle-fill"></i>
+        </button>
     </div>
 </div>
 
@@ -533,55 +550,108 @@
             <i class="bi bi-code-square me-1"></i>
             Wrap Selection in \( \)
         </button>
+         <!-- COLOR BUTTONS - ADD THESE -->
+        <button type="button" class="btn btn-sm btn-danger latex-btn" onclick="colorizeText('questionTextAr', 'red')" title="Red">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary latex-btn" onclick="colorizeText('questionTextAr', 'blue')" title="Blue">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-success latex-btn" onclick="colorizeText('questionTextAr', 'green')" title="Green">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-warning latex-btn" onclick="colorizeText('questionTextAr', 'orange')" title="Orange">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-dark latex-btn" onclick="colorizeText('questionTextAr', 'black')" title="Black">
+            <i class="bi bi-circle-fill"></i>
+        </button>
     </div>
 </div>
                       <!-- Options (for Multiple Choice) -->
 <div class="col-12" id="optionsContainer" style="display: none;">
     <label class="form-label fw-semibold">Options *</label>
-    <div class="mb-2">
-        <input type="text" class="form-control" id="option1" placeholder="Option 1">
-        <div class="latex-btn-group">
-            <button type="button" class="btn btn-sm btn-outline-primary latex-btn" onclick="convertToLatex('option1')">
-                <i class="bi bi-calculator"></i> LaTeX
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary latex-btn" onclick="wrapInLatex('option1')">
-                <i class="bi bi-code-square"></i> Wrap
-            </button>
-        </div>
+   <div class="mb-2">
+    <input type="text" class="form-control" id="option1" placeholder="Option 1">
+    <div class="latex-btn-group">
+        <button type="button" class="btn btn-sm btn-outline-primary latex-btn" onclick="convertToLatex('option1')">
+            <i class="bi bi-calculator"></i> LaTeX
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary latex-btn" onclick="wrapInLatex('option1')">
+            <i class="bi bi-code-square"></i> Wrap
+        </button>
+        <button type="button" class="btn btn-sm btn-danger latex-btn" onclick="colorizeText('option1', 'red')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary latex-btn" onclick="colorizeText('option1', 'blue')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-success latex-btn" onclick="colorizeText('option1', 'green')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
     </div>
-    <div class="mb-2">
-        <input type="text" class="form-control" id="option2" placeholder="Option 2">
-        <div class="latex-btn-group">
-            <button type="button" class="btn btn-sm btn-outline-primary latex-btn" onclick="convertToLatex('option2')">
-                <i class="bi bi-calculator"></i> LaTeX
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary latex-btn" onclick="wrapInLatex('option2')">
-                <i class="bi bi-code-square"></i> Wrap
-            </button>
-        </div>
+</div>
+    
+   <div class="mb-2">
+    <input type="text" class="form-control" id="option2" placeholder="Option 2">
+    <div class="latex-btn-group">
+        <button type="button" class="btn btn-sm btn-outline-primary latex-btn" onclick="convertToLatex('option2')">
+            <i class="bi bi-calculator"></i> LaTeX
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary latex-btn" onclick="wrapInLatex('option2')">
+            <i class="bi bi-code-square"></i> Wrap
+        </button>
+        <button type="button" class="btn btn-sm btn-danger latex-btn" onclick="colorizeText('option2', 'red')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary latex-btn" onclick="colorizeText('option2', 'blue')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-success latex-btn" onclick="colorizeText('option2', 'green')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
     </div>
-    <div class="mb-2">
-        <input type="text" class="form-control" id="option3" placeholder="Option 3">
-        <div class="latex-btn-group">
-            <button type="button" class="btn btn-sm btn-outline-primary latex-btn" onclick="convertToLatex('option3')">
-                <i class="bi bi-calculator"></i> LaTeX
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary latex-btn" onclick="wrapInLatex('option3')">
-                <i class="bi bi-code-square"></i> Wrap
-            </button>
-        </div>
+</div>
+   <div class="mb-2">
+    <input type="text" class="form-control" id="option3" placeholder="Option 3">
+    <div class="latex-btn-group">
+        <button type="button" class="btn btn-sm btn-outline-primary latex-btn" onclick="convertToLatex('option3')">
+            <i class="bi bi-calculator"></i> LaTeX
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary latex-btn" onclick="wrapInLatex('option3')">
+            <i class="bi bi-code-square"></i> Wrap
+        </button>
+        <button type="button" class="btn btn-sm btn-danger latex-btn" onclick="colorizeText('option3', 'red')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary latex-btn" onclick="colorizeText('option3', 'blue')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-success latex-btn" onclick="colorizeText('option3', 'green')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
     </div>
-    <div class="mb-2">
-        <input type="text" class="form-control" id="option4" placeholder="Option 4">
-        <div class="latex-btn-group">
-            <button type="button" class="btn btn-sm btn-outline-primary latex-btn" onclick="convertToLatex('option4')">
-                <i class="bi bi-calculator"></i> LaTeX
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary latex-btn" onclick="wrapInLatex('option4')">
-                <i class="bi bi-code-square"></i> Wrap
-            </button>
-        </div>
+</div>
+  <div class="mb-2">
+    <input type="text" class="form-control" id="option4" placeholder="Option 4">
+    <div class="latex-btn-group">
+        <button type="button" class="btn btn-sm btn-outline-primary latex-btn" onclick="convertToLatex('option4')">
+            <i class="bi bi-calculator"></i> LaTeX
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary latex-btn" onclick="wrapInLatex('option4')">
+            <i class="bi bi-code-square"></i> Wrap
+        </button>
+        <button type="button" class="btn btn-sm btn-danger latex-btn" onclick="colorizeText('option4', 'red')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary latex-btn" onclick="colorizeText('option4', 'blue')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-success latex-btn" onclick="colorizeText('option4', 'green')">
+            <i class="bi bi-circle-fill"></i>
+        </button>
     </div>
+</div>
 </div>
                         
                         <!-- Correct Answer -->
