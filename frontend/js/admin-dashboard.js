@@ -1592,3 +1592,64 @@ function colorizeText(fieldId, color) {
     field.focus();
     showToast(`Text colored ${color}`, 'success');
 }
+
+
+/**
+ * Make selected text bold
+ */
+function boldText(fieldId) {
+    const field = document.getElementById(fieldId);
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    const selectedText = field.value.substring(start, end);
+    
+    if (!selectedText) {
+        alert('Please select some text first');
+        return;
+    }
+    
+    // Wrap selected text in strong tag
+    const before = field.value.substring(0, start);
+    const after = field.value.substring(end);
+    const boldedText = `<strong>${selectedText}</strong>`;
+    
+    field.value = before + boldedText + after;
+    
+    // Restore cursor position
+    const newCursorPos = start + boldedText.length;
+    field.selectionStart = newCursorPos;
+    field.selectionEnd = newCursorPos;
+    
+    field.focus();
+    showToast('Text made bold', 'success');
+}
+
+/**
+ * Underline selected text
+ */
+function underlineText(fieldId) {
+    const field = document.getElementById(fieldId);
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    const selectedText = field.value.substring(start, end);
+    
+    if (!selectedText) {
+        alert('Please select some text first');
+        return;
+    }
+    
+    // Wrap selected text in u tag
+    const before = field.value.substring(0, start);
+    const after = field.value.substring(end);
+    const underlinedText = `<u>${selectedText}</u>`;
+    
+    field.value = before + underlinedText + after;
+    
+    // Restore cursor position
+    const newCursorPos = start + underlinedText.length;
+    field.selectionStart = newCursorPos;
+    field.selectionEnd = newCursorPos;
+    
+    field.focus();
+    showToast('Text underlined', 'success');
+}
