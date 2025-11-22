@@ -233,16 +233,57 @@ app.get('/quiz/start/:subject', protect, async (req, res) => {
             });
         }
         
-        // Get 10 random questions for this subject and grade
-        const questions = await Question.aggregate([
-            { 
-                $match: { 
-                    subject: subject,
-                    grade: userGrade
-                } 
-            },
-            { $sample: { size: 10 } }
-        ]);
+        // Helper function to extract group ID from question text
+        function extractGroupId(text) {
+            const groupRegex = /\[GROUP:([^\]]+)\]/i;
+            const match = text.match(groupRegex);
+            return match ? match[1].trim() : null;
+        }
+
+        // Get all questions for this subject and grade
+        let allQuestions = await Question.find({ 
+            subject: subject,
+            grade: userGrade
+        });
+
+        console.log(`[QUIZ] Found ${allQuestions.length} total questions for ${subject} grade ${userGrade}`);
+
+        // Check if any question has a group ID (paragraph-based questions)
+        let selectedQuestions = [];
+
+        for (let q of allQuestions) {
+            const groupId = extractGroupId(q.questionTextEn) || extractGroupId(q.questionTextAr);
+            if (groupId) {
+                console.log(`[QUIZ] Found grouped question with ID: ${groupId}`);
+                
+                // Find all questions with this group ID
+                const groupQuestions = allQuestions.filter(question => {
+                    const qGroupId = extractGroupId(question.questionTextEn) || extractGroupId(question.questionTextAr);
+                    return qGroupId === groupId;
+                });
+                
+                console.log(`[QUIZ] Found ${groupQuestions.length} questions in group ${groupId}`);
+                
+                // If we have at least 10 questions in this group, use them
+                if (groupQuestions.length >= 10) {
+                    selectedQuestions = groupQuestions.slice(0, 10);
+                    console.log(`[QUIZ] Selected 10 questions from group ${groupId}`);
+                    break;
+                }
+            }
+        }
+
+        // If no grouped questions found, use random selection (normal mode)
+        if (selectedQuestions.length === 0) {
+            console.log(`[QUIZ] No grouped questions found, using random selection`);
+            const randomQuestions = await Question.aggregate([
+                { $match: { subject: subject, grade: userGrade } },
+                { $sample: { size: 10 } }
+            ]);
+            selectedQuestions = randomQuestions;
+        }
+
+        const questions = selectedQuestions;
         
         if (questions.length === 0) {
             return res.json({ 
@@ -251,17 +292,46 @@ app.get('/quiz/start/:subject', protect, async (req, res) => {
             });
         }
         
-        // Format questions (remove correct answers)
-        const formattedQuestions = questions.map(q => ({
-            id: q._id,
-            questionType: q.questionType,
-            questionTextEn: q.questionTextEn,
-            questionTextAr: q.questionTextAr,
-            imageUrl: q.imageUrl,
-                imagePosition: q.imagePosition,    // ← ADD THIS LINE
+        // Helper function to extract paragraph and clean group tags from question text
+        function extractParagraph(text) {
+            const paragraphRegex = /\[PARAGRAPH\]([\s\S]*?)\[\/PARAGRAPH\]/i;
+            const groupRegex = /\[GROUP:[^\]]+\]/gi;
+            
+            const paragraphMatch = text.match(paragraphRegex);
+            
+            // Remove GROUP tags from text
+            let cleanedText = text.replace(groupRegex, '').trim();
+            
+            if (paragraphMatch) {
+                return {
+                    paragraph: paragraphMatch[1].trim(),
+                    question: cleanedText.replace(paragraphRegex, '').trim()
+                };
+            }
+            
+            return {
+                paragraph: null,
+                question: cleanedText
+            };
+        }
 
-            options: q.options
-        }));
+        // Format questions (remove correct answers, extract paragraphs)
+        const formattedQuestions = questions.map(q => {
+            const parsedEn = extractParagraph(q.questionTextEn);
+            const parsedAr = extractParagraph(q.questionTextAr);
+            
+            return {
+                id: q._id,
+                questionType: q.questionType,
+                questionTextEn: parsedEn.question,
+                questionTextAr: parsedAr.question,
+                paragraphTextEn: parsedEn.paragraph,
+                paragraphTextAr: parsedAr.paragraph,
+                imageUrl: q.imageUrl,
+                imagePosition: q.imagePosition,
+                options: q.options
+            };
+        });
         
         res.json({
             success: true,
