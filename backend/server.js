@@ -258,6 +258,7 @@ app.get('/quiz/start/:subject', protect, async (req, res) => {
             questionTextEn: q.questionTextEn,
             questionTextAr: q.questionTextAr,
             imageUrl: q.imageUrl,
+            imagePosition: q.imagePosition,
             options: q.options
         }));
         
