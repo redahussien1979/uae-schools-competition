@@ -73,7 +73,7 @@ async function loadQuiz(subject) {
 
         showLoading(false);
 
-        if (data.success) {
+       if (data.success) {
             currentQuizData.subject = subject;
             currentQuizData.questions = data.questions;
             currentQuizData.timeLimit = data.timeLimit;
@@ -82,11 +82,22 @@ async function loadQuiz(subject) {
             // Set subject name
             setSubjectInfo(subject);
 
-            // Initialize progress dots
-            initializeProgressDots();
+            // Check if this is a paragraph-based quiz
+            const hasParagraph = data.questions.some(q => q.paragraphTextEn || q.paragraphTextAr);
+            
+            console.log('[QUIZ] Has paragraph:', hasParagraph);
+            
+            if (hasParagraph) {
+                // Display all questions at once with paragraph
+                displayParagraphMode();
+            } else {
+                // Normal mode: one question at a time
+                // Initialize progress dots
+                initializeProgressDots();
 
-            // Display first question
-            displayQuestion(0);
+                // Display first question
+                displayQuestion(0);
+            }
 
             // Start timer
             startTimer(data.timeLimit);
@@ -96,6 +107,8 @@ async function loadQuiz(subject) {
             lastActivityTime = Date.now();
 
         } else {
+
+           
             alert(data.message || 'Failed to load quiz');
             window.location.href = 'dashboard.html';
         }
@@ -604,3 +617,196 @@ window.addEventListener('blur', function() {
         showWarningMessage(msg);
     }
 });
+
+
+// ========================================
+// PARAGRAPH MODE FUNCTIONS
+// ========================================
+
+/**
+ * Display all questions at once with shared paragraph
+ */
+function displayParagraphMode() {
+    console.log('[QUIZ] Entering paragraph mode');
+    
+    // Find the first question with paragraph text
+    const paragraphQuestion = currentQuizData.questions.find(q => 
+        q.paragraphTextEn || q.paragraphTextAr
+    );
+    
+    if (!paragraphQuestion) {
+        // Fallback to normal mode if no paragraph found
+        console.log('[QUIZ] No paragraph found, falling back to normal mode');
+        initializeProgressDots();
+        displayQuestion(0);
+        return;
+    }
+    
+    // Show paragraph container
+    const paragraphContainer = document.getElementById('paragraphContainer');
+    const paragraphTextEl = document.getElementById('paragraphText');
+    const paragraphText = currentLanguage === 'ar' 
+        ? paragraphQuestion.paragraphTextAr 
+        : paragraphQuestion.paragraphTextEn;
+    
+    console.log('[QUIZ] Displaying paragraph:', paragraphText?.substring(0, 50) + '...');
+    
+    paragraphTextEl.innerHTML = paragraphText;
+    paragraphTextEl.setAttribute('dir', currentLanguage === 'ar' ? 'rtl' : 'ltr');
+    paragraphContainer.style.display = 'block';
+    
+    // Hide single question container
+    document.getElementById('questionText').style.display = 'none';
+    const answerContainer = document.getElementById('answerContainer');
+    if (answerContainer) {
+        answerContainer.style.display = 'none';
+    }
+    
+    // Hide image containers
+    document.getElementById('questionImageContainerAbove').style.display = 'none';
+    document.getElementById('questionImageContainerBelow').style.display = 'none';
+    
+    // Hide navigation buttons (we'll use submit only)
+    document.getElementById('prevBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'none';
+    
+    // Show all questions container
+    const allQuestionsContainer = document.getElementById('allQuestionsContainer');
+    allQuestionsContainer.style.display = 'block';
+    allQuestionsContainer.classList.add('all-questions-mode');
+    
+    // Build all questions HTML
+    let questionsHTML = '';
+    
+    currentQuizData.questions.forEach((question, index) => {
+        const questionText = currentLanguage === 'ar' 
+            ? question.questionTextAr 
+            : question.questionTextEn;
+        
+        const questionNumber = currentLanguage === 'ar' 
+            ? `السؤال ${index + 1}` 
+            : `Question ${index + 1}`;
+        
+        questionsHTML += `
+            <div class="question-item" id="question-item-${index}">
+                <div class="question-number-badge">
+                    ${questionNumber}
+                </div>
+                
+                <div class="question-text" dir="${currentLanguage === 'ar' ? 'rtl' : 'ltr'}">
+                    ${questionText}
+                </div>
+                
+                ${question.imageUrl ? `
+                    <div class="mb-3 text-center">
+                        <img src="${question.imageUrl}" class="img-fluid rounded" style="max-height: 300px;" alt="Question Image" />
+                    </div>
+                ` : ''}
+                
+                <div class="answer-options-container" id="answer-container-${index}">
+                    ${buildAnswerOptionsHTML(question, index)}
+                </div>
+            </div>
+        `;
+    });
+    
+    allQuestionsContainer.innerHTML = questionsHTML;
+    
+    // Hide progress dots
+    document.getElementById('progressDots').style.display = 'none';
+    
+    // Update question counter
+    document.getElementById('currentQuestion').textContent = currentLanguage === 'ar' ? '١-١٠' : '1-10';
+    document.getElementById('totalQuestions').textContent = currentLanguage === 'ar' ? '١٠' : '10';
+    
+    // Show submit button
+    document.getElementById('submitBtn').classList.remove('d-none');
+    
+    // Render MathJax
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
+    }
+    
+    console.log('[QUIZ] Paragraph mode display complete');
+}
+
+/**
+ * Build answer options HTML for a question
+ */
+function buildAnswerOptionsHTML(question, questionIndex) {
+    const savedAnswer = currentQuizData.answers[question.id];
+    let html = '';
+    
+    if (question.questionType === 'multiple_choice') {
+        question.options.forEach((option, idx) => {
+            const isSelected = savedAnswer === option;
+            const label = String.fromCharCode(65 + idx); // A, B, C, D
+            
+            // Escape quotes for onclick
+            const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            
+            html += `
+                <div class="answer-option ${isSelected ? 'selected' : ''}" 
+                     onclick="selectAnswerInParagraphMode('${question.id}', '${escapedOption}', ${questionIndex})">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <div class="option-label">${label}</div>
+                        </div>
+                        <div class="option-text">${option}</div>
+                    </div>
+                </div>
+            `;
+        });
+    } else if (question.questionType === 'true_false') {
+        ['True', 'False'].forEach(option => {
+            const isSelected = savedAnswer === option;
+            const displayText = currentLanguage === 'ar'
+                ? (option === 'True' ? 'صح' : 'خطأ')
+                : option;
+            
+            html += `
+                <div class="answer-option ${isSelected ? 'selected' : ''}" 
+                     onclick="selectAnswerInParagraphMode('${question.id}', '${option}', ${questionIndex})">
+                    <div class="text-center fw-bold fs-5">${displayText}</div>
+                </div>
+            `;
+        });
+    } else if (question.questionType === 'text_input') {
+        const value = (savedAnswer || '').replace(/"/g, '&quot;');
+        html += `
+            <input type="text" 
+                   class="form-control form-control-lg" 
+                   placeholder="${currentLanguage === 'ar' ? 'اكتب إجابتك هنا' : 'Type your answer here'}"
+                   value="${value}"
+                   oninput="selectAnswerInParagraphMode('${question.id}', this.value, ${questionIndex})" />
+        `;
+    }
+    
+    return html;
+}
+
+/**
+ * Select answer in paragraph mode
+ */
+function selectAnswerInParagraphMode(questionId, answer, questionIndex) {
+    // Save answer
+    currentQuizData.answers[questionId] = answer;
+    
+    console.log(`[QUIZ] Answer selected for question ${questionIndex + 1}:`, answer);
+    
+    // Update UI - remove 'selected' from all options in this question
+    const container = document.getElementById(`answer-container-${questionIndex}`);
+    if (container) {
+        container.querySelectorAll('.answer-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        // Add 'selected' to clicked option (for multiple choice and true/false)
+        if (event && event.currentTarget && event.currentTarget.classList) {
+            event.currentTarget.classList.add('selected');
+        }
+    }
+    
+    // Reset activity timer
+    resetActivityTimer();
+}
