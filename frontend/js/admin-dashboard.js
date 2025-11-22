@@ -1544,3 +1544,51 @@ async function exportQuestions(event) {
         event.target.disabled = false;
     }
 }
+
+
+
+
+// ========================================
+// TEXT COLORIZATION FUNCTION
+// ========================================
+
+/**
+ * Colorize selected text in a field
+ */
+function colorizeText(fieldId, color) {
+    const field = document.getElementById(fieldId);
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    const selectedText = field.value.substring(start, end);
+    
+    if (!selectedText) {
+        alert('Please select some text first');
+        return;
+    }
+    
+    // Map color names to hex values
+    const colorMap = {
+        'red': '#dc3545',
+        'blue': '#0d6efd',
+        'green': '#198754',
+        'orange': '#fd7e14',
+        'black': '#000000'
+    };
+    
+    const colorHex = colorMap[color] || color;
+    
+    // Wrap selected text in span with color
+    const before = field.value.substring(0, start);
+    const after = field.value.substring(end);
+    const coloredText = `<span style="color: ${colorHex};">${selectedText}</span>`;
+    
+    field.value = before + coloredText + after;
+    
+    // Restore cursor position
+    const newCursorPos = start + coloredText.length;
+    field.selectionStart = newCursorPos;
+    field.selectionEnd = newCursorPos;
+    
+    field.focus();
+    showToast(`Text colored ${color}`, 'success');
+}
