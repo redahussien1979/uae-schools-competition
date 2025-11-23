@@ -137,7 +137,25 @@ function displayQuestionsBySubject(data) {
 
 // Display questions breakdown by grade and subject
 function displayQuestionsBreakdown(data) {
+    console.log('[DEBUG] displayQuestionsBreakdown called with data:', data);
+
     const container = document.getElementById('questions-breakdown');
+
+    if (!container) {
+        console.error('[DEBUG] Container #questions-breakdown not found!');
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        console.log('[DEBUG] No data received or empty array');
+        container.innerHTML = `
+            <div class="col-12 text-center text-muted py-4">
+                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                <p class="mt-3">No questions available yet</p>
+            </div>
+        `;
+        return;
+    }
 
     // Subject names and colors
     const subjectInfo = {
@@ -213,6 +231,7 @@ function displayQuestionsBreakdown(data) {
 
     // If no data
     if (sortedGrades.length === 0) {
+        console.log('[DEBUG] No grades found in data');
         html = `
             <div class="col-12 text-center text-muted py-4">
                 <i class="bi bi-inbox" style="font-size: 3rem;"></i>
@@ -221,7 +240,9 @@ function displayQuestionsBreakdown(data) {
         `;
     }
 
+    console.log('[DEBUG] Setting innerHTML with', sortedGrades.length, 'grades');
     container.innerHTML = html;
+    console.log('[DEBUG] Questions breakdown displayed successfully');
 }
 
 // ========================================
