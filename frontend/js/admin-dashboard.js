@@ -175,7 +175,8 @@ function displayQuestionsBreakdown(data) {
         html += `
             <div class="col-md-6 col-lg-4 col-xl-3">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header bg-gradient text-white text-center py-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+<div class="card-header text-dark text-center py-2" style="background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); border-bottom: 3px solid #667eea;">
+
                         <h6 class="mb-0 fw-bold">
                             <i class="bi bi-mortarboard-fill me-2"></i>
                             Grade ${grade}
