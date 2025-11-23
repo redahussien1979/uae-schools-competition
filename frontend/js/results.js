@@ -52,7 +52,7 @@ function displayResults() {
     // Set subject info
     setSubjectInfo(currentSubject);
 
-    // Display score with LaTeX formatting
+    // Display score with LaTeX formatting (FIXED: double backslashes)
     document.getElementById('scoreDisplay').innerHTML = `\\(${score}\\) / \\(${totalQuestions}\\)`;
     document.getElementById('percentageDisplay').innerHTML = `\\(${percentage}\\%\\)`;
 
@@ -72,7 +72,7 @@ function displayResults() {
     document.getElementById('currentScoreText').innerHTML = `\\(${score}\\) / \\(${totalQuestions}\\)`;
     document.getElementById('previousBestText').innerHTML = `\\(${previousBest}\\) / \\(${totalQuestions}\\)`;
 
-    // Display time taken
+    // Display time taken (no LaTeX needed)
     document.getElementById('timeTaken').textContent = formatTime(timeTaken);
 
     // Display total best score with LaTeX
@@ -95,7 +95,6 @@ function displayResults() {
     // Show encouragement message
     showEncouragementMessage(percentage, isNewBest);
 }
-
 // Set subject information
 function setSubjectInfo(subject) {
     const subjectInfo = {
