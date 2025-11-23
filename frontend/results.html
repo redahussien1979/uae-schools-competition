@@ -30,19 +30,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     
-    <!-- MathJax for Beautiful Number Rendering -->
+    <!-- MathJax Configuration -->
     <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['\\(', '\\)'], ['$', '$']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            },
-            svg: {
-                fontCache: 'global'
+        window.MathJax = {
+            startup: {
+                ready: () => {
+                    console.log('MathJax is loaded and ready!');
+                    MathJax.startup.defaultReady();
+                }
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
     <!-- Navigation Bar -->
