@@ -1877,6 +1877,10 @@ async function deleteSelectedQuestions() {
             body: JSON.stringify({ questionIds })
         });
 
+    
+       
+       
+       
         const data = await response.json();
 
         if (data.success) {

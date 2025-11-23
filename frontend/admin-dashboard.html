@@ -855,6 +855,47 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <!-- Paragraph Format Instructions -->
+                <div class="alert alert-success mb-3">
+                    <h6 class="alert-heading">
+                        <i class="bi bi-lightbulb-fill me-2"></i>
+                        📖 NEW: Paragraph-Based Questions (Reading Comprehension)
+                    </h6>
+                    
+                    <p class="mb-2"><strong>For questions that share a reading passage:</strong></p>
+                    
+                    <ol class="mb-3 small">
+                        <li>
+                            <strong>Choose a unique GROUP ID</strong> for the 10 questions
+                            <br>Examples: <code>arabic_para_1</code>, <code>science_reading_5</code>, <code>eng_story_3</code>
+                        </li>
+                        <li>
+                            <strong>Question 1:</strong> Include GROUP tag + PARAGRAPH tag + question
+                            <br><code>[GROUP:arabic_para_1][PARAGRAPH]Full paragraph text here...[/PARAGRAPH]السؤال الأول: ماذا قرأ أحمد؟</code>
+                        </li>
+                        <li>
+                            <strong>Questions 2-10:</strong> Include ONLY the GROUP tag + question
+                            <br><code>[GROUP:arabic_para_1]السؤال الثاني: أين كان يجلس أحمد؟</code>
+                        </li>
+                        <li>
+                            <strong>Important:</strong> All 10 questions MUST have the <u>exact same GROUP ID</u>
+                        </li>
+                    </ol>
+                    
+                    <div class="bg-light p-2 rounded">
+                        <p class="mb-1 small"><strong>✅ Full Example (3 questions):</strong></p>
+                        <pre class="mb-0 small" style="background: white; padding: 0.75rem; border: 1px solid #dee2e6; border-radius: 4px; direction: rtl; text-align: right;">Q1: [GROUP:para1][PARAGRAPH]قرأ أحمد قصة جميلة عن الصداقة. كان يجلس تحت الشجرة.[/PARAGRAPH]السؤال ١: ماذا قرأ أحمد؟
+
+Q2: [GROUP:para1]السؤال ٢: أين كان يجلس أحمد؟
+
+Q3: [GROUP:para1]السؤال ٣: عن ماذا كانت القصة؟</pre>
+                    </div>
+                    
+                    <p class="mb-0 mt-2 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>Result:</strong> Students will see the paragraph at the top (sticky), and all 10 questions displayed below it.
+                    </p>
+                </div>
                 <div class="alert alert-info">
                     <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Excel Format Requirements:</h6>
                     <p class="mb-2">Your Excel file should have these columns:</p>

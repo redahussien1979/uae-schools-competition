@@ -232,17 +232,101 @@ app.get('/quiz/start/:subject', protect, async (req, res) => {
                 message: 'Invalid subject' 
             });
         }
+
+
+
+
+        // Helper function to extract group ID from question text
+        function extractGroupId(text) {
+            if (!text) return null;
+            const match = text.match(/\[GROUP:([^\]]+)\]/);
+            return match ? match[1] : null;
+        }
+
+        // Get all questions for this subject and grade
+        const allQuestions = await Question.find({
+            subject: subject,
+            grade: userGrade
+        });
+
+        if (allQuestions.length === 0) {
+            return res.json({
+                success: false,
+                message: 'No questions available for this subject and grade'
+            });
+        }
+
+        console.log(`[QUIZ] Found ${allQuestions.length} total questions for ${subject} grade ${userGrade}`);
+
+        // Separate grouped questions from normal questions
+        const groupedQuestions = {};
+        const normalQuestions = [];
+
+        allQuestions.forEach(q => {
+            // Check both English and Arabic text for GROUP tag
+            const groupId = extractGroupId(q.questionTextEn) || extractGroupId(q.questionTextAr);
+            
+            if (groupId) {
+                if (!groupedQuestions[groupId]) {
+                    groupedQuestions[groupId] = [];
+                }
+                groupedQuestions[groupId].push(q);
+            } else {
+                normalQuestions.push(q);
+            }
+        });
+
+        const groupIds = Object.keys(groupedQuestions);
+        console.log(`[QUIZ] Found ${groupIds.length} paragraph groups and ${normalQuestions.length} normal questions`);
+
+        let selectedQuestions = [];
+
+        // If we have both types, randomly choose which mode to use (50/50)
+        if (groupIds.length > 0 && normalQuestions.length >= 10) {
+            const useParagraphMode = Math.random() < 0.5;
+            console.log(`[QUIZ] Both types available - randomly chose: ${useParagraphMode ? 'PARAGRAPH' : 'NORMAL'} mode`);
+
+            if (useParagraphMode) {
+                // Select a random group
+                const randomGroupId = groupIds[Math.floor(Math.random() * groupIds.length)];
+                selectedQuestions = groupedQuestions[randomGroupId].slice(0, 10);
+                console.log(`[QUIZ] Selected paragraph group "${randomGroupId}" with ${selectedQuestions.length} questions`);
+            } else {
+                // Select random normal questions
+                const shuffled = normalQuestions.sort(() => 0.5 - Math.random());
+                selectedQuestions = shuffled.slice(0, 10);
+                console.log(`[QUIZ] Selected 10 random normal questions`);
+            }
+        }
+        // Only grouped questions available
+        else if (groupIds.length > 0) {
+            const randomGroupId = groupIds[Math.floor(Math.random() * groupIds.length)];
+            selectedQuestions = groupedQuestions[randomGroupId].slice(0, 10);
+            console.log(`[QUIZ] Only paragraph questions available - selected group "${randomGroupId}"`);
+        }
+        // Only normal questions available
+        else if (normalQuestions.length >= 10) {
+            const shuffled = normalQuestions.sort(() => 0.5 - Math.random());
+            selectedQuestions = shuffled.slice(0, 10);
+            console.log(`[QUIZ] Only normal questions available - selected 10 random ones`);
+        }
+        // Not enough questions of any type
+        else {
+            return res.json({
+                success: false,
+                message: 'Not enough questions available'
+            });
+        }
+
+
+
+
+
+
+
+
         
-        // Get 10 random questions for this subject and grade
-        const questions = await Question.aggregate([
-            { 
-                $match: { 
-                    subject: subject,
-                    grade: userGrade
-                } 
-            },
-            { $sample: { size: 10 } }
-        ]);
+        const questions = selectedQuestions;
         
         if (questions.length === 0) {
             return res.json({ 
@@ -251,17 +335,46 @@ app.get('/quiz/start/:subject', protect, async (req, res) => {
             });
         }
         
-        // Format questions (remove correct answers)
-        const formattedQuestions = questions.map(q => ({
-            id: q._id,
-            questionType: q.questionType,
-            questionTextEn: q.questionTextEn,
-            questionTextAr: q.questionTextAr,
-            imageUrl: q.imageUrl,
-                imagePosition: q.imagePosition,    // ← ADD THIS LINE
+        // Helper function to extract paragraph and clean group tags from question text
+        function extractParagraph(text) {
+            const paragraphRegex = /\[PARAGRAPH\]([\s\S]*?)\[\/PARAGRAPH\]/i;
+            const groupRegex = /\[GROUP:[^\]]+\]/gi;
+            
+            const paragraphMatch = text.match(paragraphRegex);
+            
+            // Remove GROUP tags from text
+            let cleanedText = text.replace(groupRegex, '').trim();
+            
+            if (paragraphMatch) {
+                return {
+                    paragraph: paragraphMatch[1].trim(),
+                    question: cleanedText.replace(paragraphRegex, '').trim()
+                };
+            }
+            
+            return {
+                paragraph: null,
+                question: cleanedText
+            };
+        }
 
-            options: q.options
-        }));
+        // Format questions (remove correct answers, extract paragraphs)
+        const formattedQuestions = questions.map(q => {
+            const parsedEn = extractParagraph(q.questionTextEn);
+            const parsedAr = extractParagraph(q.questionTextAr);
+            
+            return {
+                id: q._id,
+                questionType: q.questionType,
+                questionTextEn: parsedEn.question,
+                questionTextAr: parsedAr.question,
+                paragraphTextEn: parsedEn.paragraph,
+                paragraphTextAr: parsedAr.paragraph,
+                imageUrl: q.imageUrl,
+                imagePosition: q.imagePosition,
+                options: q.options
+            };
+        });
         
         res.json({
             success: true,
