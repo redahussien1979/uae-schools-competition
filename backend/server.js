@@ -1214,23 +1214,39 @@ app.get('/admin/stats', protectAdmin, async (req, res) => {
         const totalQuestions = await Question.countDocuments();
         const totalAttempts = await QuizAttempt.countDocuments();
         const totalSchools = await User.distinct('school').then(schools => schools.length);
-        
+
         // Recent activity (last 7 days)
         const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
         const recentUsers = await User.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
         const recentAttempts = await QuizAttempt.countDocuments({ completedAt: { $gte: sevenDaysAgo } });
-        
+
         // Questions by subject
         const questionsBySubject = await Question.aggregate([
             { $group: { _id: '$subject', count: { $sum: 1 } } }
         ]);
-        
+
         // Users by grade
         const usersByGrade = await User.aggregate([
             { $group: { _id: '$grade', count: { $sum: 1 } } },
             { $sort: { _id: 1 } }
         ]);
-        
+
+        // NEW: Questions by grade and subject
+        const questionsByGradeAndSubject = await Question.aggregate([
+            {
+                $group: {
+                    _id: {
+                        grade: '$grade',
+                        subject: '$subject'
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { '_id.grade': 1, '_id.subject': 1 }
+            }
+        ]);
+
         res.json({
             success: true,
             stats: {
@@ -1241,15 +1257,16 @@ app.get('/admin/stats', protectAdmin, async (req, res) => {
                 recentUsers,
                 recentAttempts,
                 questionsBySubject,
-                usersByGrade
+                usersByGrade,
+                questionsByGradeAndSubject
             }
         });
-        
+
     } catch (error) {
         console.error('Get admin stats error:', error);
-        res.json({ 
-            success: false, 
-            message: 'Failed to get statistics' 
+        res.json({
+            success: false,
+            message: 'Failed to get statistics'
         });
     }
 });
