@@ -84,31 +84,34 @@ function showSection(section, event) {
 // ========================================
 async function loadStatistics() {
     const token = checkAdminAuth();
-    
+
     try {
         const response = await fetch(`${API_URL}/admin/stats`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             const stats = data.stats;
-            
+
             // Update main stats
             document.getElementById('stat-users').textContent = stats.totalUsers;
             document.getElementById('stat-questions').textContent = stats.totalQuestions;
             document.getElementById('stat-attempts').textContent = stats.totalAttempts;
             document.getElementById('stat-schools').textContent = stats.totalSchools;
-            
+
             // Update recent activity
             document.getElementById('recent-users').textContent = stats.recentUsers;
             document.getElementById('recent-attempts').textContent = stats.recentAttempts;
-            
+
             // Display questions by subject
             displayQuestionsBySubject(stats.questionsBySubject);
+
+            // Display questions breakdown by grade and subject
+            displayQuestionsBreakdown(stats.questionsByGradeAndSubject);
         }
     } catch (error) {
         console.error('Load stats error:', error);
@@ -118,7 +121,7 @@ async function loadStatistics() {
 // Display questions by subject
 function displayQuestionsBySubject(data) {
     const container = document.getElementById('questions-by-subject');
-    
+
     let html = '';
     data.forEach(item => {
         html += `
@@ -128,7 +131,96 @@ function displayQuestionsBySubject(data) {
             </div>
         `;
     });
-    
+
+    container.innerHTML = html;
+}
+
+// Display questions breakdown by grade and subject
+function displayQuestionsBreakdown(data) {
+    const container = document.getElementById('questions-breakdown');
+
+    // Subject names and colors
+    const subjectInfo = {
+        'math': { name: 'Mathematics', color: 'primary', icon: 'calculator' },
+        'science': { name: 'Science', color: 'success', icon: 'flask' },
+        'english': { name: 'English', color: 'info', icon: 'chat-text' },
+        'arabic': { name: 'Arabic', color: 'warning', icon: 'translate' }
+    };
+
+    // Organize data by grade
+    const gradeData = {};
+    data.forEach(item => {
+        const grade = item._id.grade;
+        const subject = item._id.subject;
+        const count = item.count;
+
+        if (!gradeData[grade]) {
+            gradeData[grade] = {};
+        }
+        gradeData[grade][subject] = count;
+    });
+
+    // Sort grades
+    const sortedGrades = Object.keys(gradeData).sort((a, b) => a - b);
+
+    // Generate HTML
+    let html = '';
+
+    sortedGrades.forEach(grade => {
+        const subjects = gradeData[grade];
+
+        // Calculate total for this grade
+        const total = Object.values(subjects).reduce((sum, count) => sum + count, 0);
+
+        html += `
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-gradient text-white text-center py-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="bi bi-mortarboard-fill me-2"></i>
+                            Grade ${grade}
+                        </h6>
+                        <small class="opacity-75">${total} Total Questions</small>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex flex-column gap-2">
+        `;
+
+        // Display each subject
+        ['math', 'science', 'english', 'arabic'].forEach(subject => {
+            const count = subjects[subject] || 0;
+            const info = subjectInfo[subject];
+
+            html += `
+                <div class="d-flex justify-content-between align-items-center p-2 rounded"
+                     style="background-color: rgba(var(--bs-${info.color}-rgb), 0.1);">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-${info.icon} text-${info.color}"></i>
+                        <span class="small">${info.name}</span>
+                    </div>
+                    <span class="badge bg-${info.color}">${count}</span>
+                </div>
+            `;
+        });
+
+        html += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    // If no data
+    if (sortedGrades.length === 0) {
+        html = `
+            <div class="col-12 text-center text-muted py-4">
+                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                <p class="mt-3">No questions available yet</p>
+            </div>
+        `;
+    }
+
     container.innerHTML = html;
 }
 
@@ -1796,7 +1888,7 @@ async function deleteSelectedQuestions() {
 
             // Clear selection
             selectedQuestionIds.clear();
-            
+
             // Hide button and reset (no need to call updateDeleteButton)
             deleteBtn.style.display = 'none';
             deleteBtn.disabled = false;
