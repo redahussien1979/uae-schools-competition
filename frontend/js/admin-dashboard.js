@@ -1656,7 +1656,27 @@ async function exportQuestions(event) {
 }
 
 
-
+/**
+ * Insert a line break at cursor position
+ */
+function insertLineBreak(fieldId) {
+    const field = document.getElementById(fieldId);
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    
+    // Insert <br> tag at cursor position
+    const before = field.value.substring(0, start);
+    const after = field.value.substring(end);
+    field.value = before + '<br>' + after;
+    
+    // Move cursor after the inserted <br>
+    const newCursorPos = start + 4; // length of '<br>'
+    field.selectionStart = newCursorPos;
+    field.selectionEnd = newCursorPos;
+    
+    field.focus();
+    showToast('Line break inserted', 'success');
+}
 
 // ========================================
 // TEXT COLORIZATION FUNCTION
