@@ -44,7 +44,6 @@ function loadResults() {
 
 
 
-
 // Display results
 function displayResults() {
     const { score, totalQuestions, percentage, isNewBest, previousBest, timeTaken, totalBestScore, starsEarned, totalStars } = resultsData;
@@ -52,33 +51,33 @@ function displayResults() {
     // Set subject info
     setSubjectInfo(currentSubject);
 
-    // Display score with LaTeX formatting (FIXED: double backslashes)
-    document.getElementById('scoreDisplay').innerHTML = `\\(${score}\\) / \\(${totalQuestions}\\)`;
-    document.getElementById('percentageDisplay').innerHTML = `\\(${percentage}\\%\\)`;
+    // Display score with LaTeX formatting (FIXED: using String.raw)
+    document.getElementById('scoreDisplay').innerHTML = String.raw`\(${score}\) / \(${totalQuestions}\)`;
+    document.getElementById('percentageDisplay').innerHTML = String.raw`\(${percentage}\%\)`;
 
     // Display stars earned
     const starsEarnedEl = document.getElementById('starsEarned');
     if (starsEarnedEl) {
-        starsEarnedEl.innerHTML = `+\\(${starsEarned || 0}\\) ⭐`;
+        starsEarnedEl.innerHTML = String.raw`+\(${starsEarned || 0}\) ⭐`;
     }
 
     // Display total stars
     const totalStarsEl = document.getElementById('totalStarsResult');
     if (totalStarsEl) {
-        totalStarsEl.innerHTML = `\\(${totalStars || 0}\\) ⭐`;
+        totalStarsEl.innerHTML = String.raw`\(${totalStars || 0}\) ⭐`;
     }
 
     // Display comparison with LaTeX
-    document.getElementById('currentScoreText').innerHTML = `\\(${score}\\) / \\(${totalQuestions}\\)`;
-    document.getElementById('previousBestText').innerHTML = `\\(${previousBest}\\) / \\(${totalQuestions}\\)`;
+    document.getElementById('currentScoreText').innerHTML = String.raw`\(${score}\) / \(${totalQuestions}\)`;
+    document.getElementById('previousBestText').innerHTML = String.raw`\(${previousBest}\) / \(${totalQuestions}\)`;
 
     // Display time taken (no LaTeX needed)
     document.getElementById('timeTaken').textContent = formatTime(timeTaken);
 
     // Display total best score with LaTeX
-    document.getElementById('totalBestScore').innerHTML = `\\(${totalBestScore}\\) / \\(40\\)`;
+    document.getElementById('totalBestScore').innerHTML = String.raw`\(${totalBestScore}\) / \(40\)`;
     const overallPercentage = Math.round((totalBestScore / 40) * 100);
-    document.getElementById('overallPercentage').innerHTML = `\\(${overallPercentage}\\%\\)`;
+    document.getElementById('overallPercentage').innerHTML = String.raw`\(${overallPercentage}\%\)`;
 
     // Render MathJax after setting content
     if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
