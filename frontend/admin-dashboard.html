@@ -345,18 +345,24 @@
 <div id="questions-section" class="content-section">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold">Questions Management</h3>
-        <button class="btn btn-primary" onclick="openAddQuestionModal()">
-            <i class="bi bi-plus-circle me-2"></i>
-            Add Question
-        </button>
-        <button class="btn btn-success" onclick="openUploadModal()">
-            <i class="bi bi-file-earmark-spreadsheet me-2"></i>
-            Import from Excel
-        </button>
-        <button class="btn btn-info" onclick="exportQuestions(event)">
-            <i class="bi bi-download me-2"></i>
-            Export to Excel
-        </button>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="openAddQuestionModal()">
+                <i class="bi bi-plus-circle me-2"></i>
+                Add Question
+            </button>
+            <button class="btn btn-success" onclick="openUploadModal()">
+                <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                Import from Excel
+            </button>
+            <button class="btn btn-info" onclick="exportQuestions(event)">
+                <i class="bi bi-download me-2"></i>
+                Export to Excel
+            </button>
+            <button class="btn btn-danger" id="deleteSelectedBtn" onclick="deleteSelectedQuestions()" style="display: none;">
+                <i class="bi bi-trash me-2"></i>
+                Delete Selected (<span id="selectedCount">0</span>)
+            </button>
+        </div>
     </div>
     
     <!-- Filters -->
@@ -412,6 +418,9 @@
                 <table class="table table-hover mb-0">
                     <thead class="bg-light">
                         <tr>
+                            <th class="px-4 py-3" style="width: 50px;">
+                                <input type="checkbox" class="form-check-input" id="selectAllQuestions" onchange="toggleSelectAll()">
+                            </th>
                             <th class="px-4 py-3">#</th>
                             <th class="px-4 py-3">Subject</th>
                             <th class="px-4 py-3">Grade</th>
@@ -422,7 +431,7 @@
                     </thead>
                     <tbody id="questionsTableBody">
                         <tr>
-                            <td colspan="5" class="text-center py-4">
+                            <td colspan="7" class="text-center py-4">
                                 <div class="spinner-border text-primary" role="status"></div>
                             </td>
                         </tr>

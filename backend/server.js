@@ -1257,24 +1257,63 @@ if (recent) {
 app.delete('/admin/questions/:id', protectAdmin, async (req, res) => {
     try {
         const question = await Question.findByIdAndDelete(req.params.id);
-        
+
         if (!question) {
-            return res.json({ 
-                success: false, 
-                message: 'Question not found' 
+            return res.json({
+                success: false,
+                message: 'Question not found'
             });
         }
-        
+
         res.json({
             success: true,
             message: 'Question deleted successfully'
         });
-        
+
     } catch (error) {
         console.error('Delete question error:', error);
-        res.json({ 
-            success: false, 
-            message: 'Failed to delete question' 
+        res.json({
+            success: false,
+            message: 'Failed to delete question'
+        });
+    }
+});
+
+// ========================================
+// DELETE MULTIPLE QUESTIONS (ADMIN ONLY)
+// ========================================
+app.post('/admin/questions/batch-delete', protectAdmin, async (req, res) => {
+    try {
+        const { questionIds } = req.body;
+
+        // Validate input
+        if (!questionIds || !Array.isArray(questionIds) || questionIds.length === 0) {
+            return res.json({
+                success: false,
+                message: 'No questions selected'
+            });
+        }
+
+        console.log(`[ADMIN] Batch deleting ${questionIds.length} questions`);
+
+        // Delete all selected questions
+        const result = await Question.deleteMany({
+            _id: { $in: questionIds }
+        });
+
+        console.log(`[ADMIN] Successfully deleted ${result.deletedCount} questions`);
+
+        res.json({
+            success: true,
+            message: `Successfully deleted ${result.deletedCount} question(s)`,
+            deletedCount: result.deletedCount
+        });
+
+    } catch (error) {
+        console.error('Batch delete error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to delete questions'
         });
     }
 });

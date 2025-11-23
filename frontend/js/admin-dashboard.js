@@ -12,6 +12,9 @@ let currentPage = {
     questions: 1
 };
 
+// Track selected questions for batch delete
+let selectedQuestionIds = new Set();
+
 // Check if admin is logged in
 function checkAdminAuth() {
     const token = localStorage.getItem('adminToken');
@@ -500,29 +503,43 @@ async function loadQuestions(page = 1) {
 //here
 
 // Display questions (UPDATED WITH SERIAL & PREVIEW)
-// Display questions (UPDATED WITH PROPER SERIAL)
+// Display questions (UPDATED WITH CHECKBOX)
 function displayQuestions(questions, replace = true, startSerial = 1) {
     const tbody = document.getElementById('questionsTableBody');
-    
+
     if (questions.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center py-4 text-muted">
+                <td colspan="7" class="text-center py-4 text-muted">
                     No questions found
                 </td>
             </tr>
         `;
         return;
     }
-    
+
+    // Clear selected questions if replacing
+    if (replace) {
+        selectedQuestionIds.clear();
+        updateDeleteButton();
+        document.getElementById('selectAllQuestions').checked = false;
+    }
+
     let html = '';
-    
+
     questions.forEach((question, index) => {
-        const serial = startSerial + index;  // ← Use passed startSerial
+        const serial = startSerial + index;
         const questionText = question.questionTextEn.substring(0, 60) + (question.questionTextEn.length > 60 ? '...' : '');
-        
+        const isChecked = selectedQuestionIds.has(question._id) ? 'checked' : '';
+
         html += `
             <tr>
+                <td class="px-4 py-3">
+                    <input type="checkbox" class="form-check-input question-checkbox"
+                           data-question-id="${question._id}"
+                           onchange="toggleQuestionSelection('${question._id}')"
+                           ${isChecked}>
+                </td>
                 <td class="px-4 py-3">
                     <strong class="text-muted">${serial}</strong>
                 </td>
@@ -556,7 +573,7 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
             </tr>
         `;
     });
-    
+
     if (replace) {
         tbody.innerHTML = html;
     } else {
@@ -1632,24 +1649,168 @@ function underlineText(fieldId) {
     const start = field.selectionStart;
     const end = field.selectionEnd;
     const selectedText = field.value.substring(start, end);
-    
+
     if (!selectedText) {
         alert('Please select some text first');
         return;
     }
-    
+
     // Wrap selected text in u tag
     const before = field.value.substring(0, start);
     const after = field.value.substring(end);
     const underlinedText = `<u>${selectedText}</u>`;
-    
+
     field.value = before + underlinedText + after;
-    
+
     // Restore cursor position
     const newCursorPos = start + underlinedText.length;
     field.selectionStart = newCursorPos;
     field.selectionEnd = newCursorPos;
-    
+
     field.focus();
     showToast('Text underlined', 'success');
+}
+
+
+// ========================================
+// BATCH DELETE FUNCTIONS
+// ========================================
+
+/**
+ * Toggle selection of a single question
+ */
+function toggleQuestionSelection(questionId) {
+    if (selectedQuestionIds.has(questionId)) {
+        selectedQuestionIds.delete(questionId);
+    } else {
+        selectedQuestionIds.add(questionId);
+    }
+
+    updateDeleteButton();
+    updateSelectAllCheckbox();
+}
+
+/**
+ * Toggle select all questions
+ */
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAllQuestions');
+    const checkboxes = document.querySelectorAll('.question-checkbox');
+
+    if (selectAllCheckbox.checked) {
+        // Select all
+        checkboxes.forEach(cb => {
+            cb.checked = true;
+            selectedQuestionIds.add(cb.dataset.questionId);
+        });
+    } else {
+        // Deselect all
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            selectedQuestionIds.delete(cb.dataset.questionId);
+        });
+    }
+
+    updateDeleteButton();
+}
+
+/**
+ * Update the "Select All" checkbox state
+ */
+function updateSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('selectAllQuestions');
+    const checkboxes = document.querySelectorAll('.question-checkbox');
+    const checkedCount = document.querySelectorAll('.question-checkbox:checked').length;
+
+    if (checkedCount === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else if (checkedCount === checkboxes.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+    }
+}
+
+/**
+ * Update the delete button visibility and count
+ */
+function updateDeleteButton() {
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    const countSpan = document.getElementById('selectedCount');
+    const count = selectedQuestionIds.size;
+
+    if (count > 0) {
+        deleteBtn.style.display = 'inline-block';
+        countSpan.textContent = count;
+    } else {
+        deleteBtn.style.display = 'none';
+        countSpan.textContent = '0';
+    }
+}
+
+/**
+ * Delete all selected questions
+ */
+async function deleteSelectedQuestions() {
+    const count = selectedQuestionIds.size;
+
+    if (count === 0) {
+        alert('No questions selected');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete ${count} selected question(s)? This action cannot be undone.`)) {
+        return;
+    }
+
+    const token = checkAdminAuth();
+    const questionIds = Array.from(selectedQuestionIds);
+
+    try {
+        // Show loading state
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        const originalHTML = deleteBtn.innerHTML;
+        deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+        deleteBtn.disabled = true;
+
+        const response = await fetch(`${API_URL}/admin/questions/batch-delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ questionIds })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast(`Successfully deleted ${data.deletedCount} question(s)`, 'success');
+
+            // Clear selection
+            selectedQuestionIds.clear();
+            updateDeleteButton();
+
+            // Reload questions and statistics
+            currentPage.questions = 1;
+            loadQuestions();
+            loadStatistics();
+        } else {
+            alert(data.message || 'Failed to delete questions');
+            deleteBtn.innerHTML = originalHTML;
+            deleteBtn.disabled = false;
+        }
+
+    } catch (error) {
+        console.error('Batch delete error:', error);
+        alert('Failed to delete questions');
+
+        // Restore button
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        deleteBtn.innerHTML = '<i class="bi bi-trash me-2"></i>Delete Selected (<span id="selectedCount">' + count + '</span>)';
+        deleteBtn.disabled = false;
+    }
 }
