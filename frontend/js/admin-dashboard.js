@@ -1785,6 +1785,10 @@ async function deleteSelectedQuestions() {
             body: JSON.stringify({ questionIds })
         });
 
+    
+       
+       
+       
         const data = await response.json();
 
         if (data.success) {
@@ -1792,7 +1796,11 @@ async function deleteSelectedQuestions() {
 
             // Clear selection
             selectedQuestionIds.clear();
-            updateDeleteButton();
+            
+            // Hide button and reset (no need to call updateDeleteButton)
+            deleteBtn.style.display = 'none';
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = '<i class="bi bi-trash me-2"></i>Delete Selected (<span id="selectedCount">0</span>)';
 
             // Reload questions and statistics
             currentPage.questions = 1;
