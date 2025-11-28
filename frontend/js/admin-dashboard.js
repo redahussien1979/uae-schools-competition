@@ -516,7 +516,7 @@ async function loadQuestions(page = 1) {
         // Build query string with filters
         const params = new URLSearchParams({
             page: page,
-            limit: 50
+            limit: 150
         });
         
         if (questionFilters.subject) {
@@ -639,11 +639,11 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
             }
         }
 
-        // Check if this row should be highlighted
-        const highlightClass = (currentEditingQuestionId === question._id) ? 'highlight-row' : '';
+       const highlightClass = (currentEditingQuestionId === question._id) ? 'highlight-row' : '';
 
         html += `
-            <tr class="${highlightClass}" data-question-id="${question._id}">
+                <tr class="${highlightClass}" data-question-id="${question._id}">
+
                 <td class="px-4 py-3">
                     <input type="checkbox" class="form-check-input question-checkbox"
                            data-question-id="${question._id}"
@@ -759,7 +759,6 @@ function openAddQuestionModal() {
     document.querySelectorAll('.highlight-row').forEach(row => {
         row.classList.remove('highlight-row');
     });
-
     // Reset form
     document.getElementById('questionForm').reset();
     document.getElementById('questionId').value = '';
@@ -871,44 +870,41 @@ async function saveQuestion() {
         
         const data = await response.json();
         
-        if (data.success) {
-            alert(data.message);
+       if (data.success) {
+    alert(data.message);
 
-            // Store the question ID for scrolling after reload
-            const savedQuestionId = questionId || data.questionId || currentEditingQuestionId;
+    // Store the question ID for scrolling after reload
+    const savedQuestionId = questionId || data.questionId || currentEditingQuestionId;
 
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
-            modal.hide();
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
+    modal.hide();
 
-            // Reload questions and scroll to the saved question
-            await loadQuestions();
-            loadStatistics();
+    // Reload questions and scroll to the saved question
+    await loadQuestions();
+    loadStatistics();
 
-            // After questions are loaded, scroll to the saved question
-            if (savedQuestionId) {
+    // After questions are loaded, scroll to the saved question
+    if (savedQuestionId) {
+        setTimeout(() => {
+            const savedRow = document.querySelector(`tr[data-question-id="${savedQuestionId}"]`);
+            if (savedRow) {
+                savedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Keep highlight for 3 seconds then remove
                 setTimeout(() => {
-                    const savedRow = document.querySelector(`tr[data-question-id="${savedQuestionId}"]`);
-                    if (savedRow) {
-                        savedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Keep highlight for 3 seconds then remove
-                        setTimeout(() => {
-                            savedRow.classList.remove('highlight-row');
-                            currentEditingQuestionId = null;
-                        }, 3000);
-                    }
-                }, 500); // Wait for DOM to update
-            } else {
-                // Clear highlight if no ID
-                currentEditingQuestionId = null;
+                    savedRow.classList.remove('highlight-row');
+                    currentEditingQuestionId = null;
+                }, 3000);
             }
-        } else {
-            alert(data.message || 'Failed to save question');
-        }
-    } catch (error) {
-        console.error('Save question error:', error);
-        alert('Failed to save question');
+        }, 500); // Wait for DOM to update
+    } else {
+        // Clear highlight if no ID
+        currentEditingQuestionId = null;
     }
+} else {
+    alert(data.message || 'Failed to save question');
+}
+
 }
 
 // Edit Question
