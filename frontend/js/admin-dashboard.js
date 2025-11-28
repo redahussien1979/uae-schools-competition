@@ -513,7 +513,7 @@ async function loadQuestions(page = 1) {
         // Build query string with filters
         const params = new URLSearchParams({
             page: page,
-            limit: 50
+            limit: 150
         });
         
         if (questionFilters.subject) {
