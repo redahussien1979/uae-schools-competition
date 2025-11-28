@@ -16,7 +16,7 @@ let currentPage = {
 let selectedQuestionIds = new Set();
 
 // Track selected questions for batch delete
-let selectedQuestionIds = new Set();
+//let selectedQuestionIds = new Set();
 
 // Track currently editing question ID for highlighting
 let currentEditingQuestionId = null;
