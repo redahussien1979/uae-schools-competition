@@ -1454,10 +1454,13 @@ text = text.replace(
 );
 
 // 7b. Wrap remaining standalone numbers: 6000 → $6000$, -6000 → $-6000$, 40\% → $40\%$
+// 7b. Wrap remaining standalone numbers: 6000 → $6000$, -6000 → $-6000$, 40\% → $40\%$
+// BUT skip numbers inside curly braces (like \frac{1}{2})
 text = text.replace(
-    /(?<!\$)(?<!\w)(-?\d+(?:\.\d+)?(?:\\%)?)(?!\w)(?!\$)/g,
+    /(?<!\$)(?<!\w)(?<!\{)(-?\d+(?:\.\d+)?(?:\\%)?)(?!\})(?!\w)(?!\$)/g,
     (match) => `$${match}$`
 );
+
 
     // Update field
     field.value = text;
