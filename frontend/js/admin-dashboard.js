@@ -1256,49 +1256,6 @@ function showToast(message, type = 'info') {
 /**
  * Convert mathematical expressions to LaTeX format (numbers only, preserve text)
  */
-/**
- * Convert mathematical expressions to LaTeX format (numbers only, preserve text)
- */
-
-
-/**
- * Convert mathematical expressions to LaTeX format (numbers only, preserve text)
- */
-
-
-
-/**
- * Convert mathematical expressions to LaTeX format (numbers only, preserve text)
- */
-// ========================================
-// LATEX CONVERSION FUNCTIONS
-// ========================================
-
-/**
- * Show toast notification
- */
-function showToast(message, type = 'info') {
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x mt-3`;
-    toast.style.zIndex = '9999';
-    toast.style.minWidth = '300px';
-    toast.innerHTML = `
-        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'} me-2"></i>
-        ${message}
-    `;
-    
-    document.body.appendChild(toast);
-    
-    // Remove after 2 seconds
-    setTimeout(() => {
-        toast.remove();
-    }, 2000);
-}
-
-/**
- * Convert mathematical expressions to LaTeX format (numbers only, preserve text)
- */
 function convertToLatex(fieldId) {
     const field = document.getElementById(fieldId);
     let text = field.value;
@@ -1492,46 +1449,6 @@ function wrapInLatex(fieldId) {
     showToast('Wrapped in LaTeX delimiters', 'success');
 }
 
-
-
-
-
-
-
-
-
-
-/**
- * Wrap selected text or entire content in LaTeX delimiters
- */
-function wrapInLatex(fieldId) {
-    const field = document.getElementById(fieldId);
-    const start = field.selectionStart;
-    const end = field.selectionEnd;
-    const selectedText = field.value.substring(start, end);
-    
-    if (selectedText) {
-        // Wrap only selected text
-        const before = field.value.substring(0, start);
-        const after = field.value.substring(end);
-        field.value = before + '\\(' + selectedText + '\\)' + after;
-        
-        // Restore cursor position
-        field.selectionStart = start + 2;
-        field.selectionEnd = end + 2;
-    } else {
-        // Wrap entire content
-        if (field.value.trim()) {
-            field.value = '\\(' + field.value + '\\)';
-        } else {
-            alert('Please enter some text or select text to wrap');
-            return;
-        }
-    }
-    
-    field.focus();
-    showToast('Wrapped in LaTeX delimiters', 'success');
-}
 // ========================================
 // EXCEL IMPORT FUNCTIONS
 // ========================================
