@@ -15,6 +15,12 @@ let currentPage = {
 // Track selected questions for batch delete
 let selectedQuestionIds = new Set();
 
+// Track selected questions for batch delete
+let selectedQuestionIds = new Set();
+
+// Track currently editing question ID for highlighting
+let currentEditingQuestionId = null;
+
 // Check if admin is logged in
 function checkAdminAuth() {
     const token = localStorage.getItem('adminToken');
@@ -636,8 +642,11 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
             }
         }
 
+       const highlightClass = (currentEditingQuestionId === question._id) ? 'highlight-row' : '';
+
         html += `
-            <tr>
+                <tr class="${highlightClass}" data-question-id="${question._id}">
+
                 <td class="px-4 py-3">
                     <input type="checkbox" class="form-check-input question-checkbox"
                            data-question-id="${question._id}"
@@ -746,6 +755,13 @@ function adminLogout() {
 
 // Open Add Question Modal
 function openAddQuestionModal() {
+    // Clear editing question ID
+    currentEditingQuestionId = null;
+
+    // Remove any highlights
+    document.querySelectorAll('.highlight-row').forEach(row => {
+        row.classList.remove('highlight-row');
+    });
     // Reset form
     document.getElementById('questionForm').reset();
     document.getElementById('questionId').value = '';
@@ -857,23 +873,41 @@ async function saveQuestion() {
         
         const data = await response.json();
         
-        if (data.success) {
-            alert(data.message);
-            
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
-            modal.hide();
-            
-            // Reload questions
-            loadQuestions();
-            loadStatistics();
-        } else {
-            alert(data.message || 'Failed to save question');
-        }
-    } catch (error) {
-        console.error('Save question error:', error);
-        alert('Failed to save question');
+       if (data.success) {
+    alert(data.message);
+
+    // Store the question ID for scrolling after reload
+    const savedQuestionId = questionId || data.questionId || currentEditingQuestionId;
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
+    modal.hide();
+
+    // Reload questions and scroll to the saved question
+    await loadQuestions();
+    loadStatistics();
+
+    // After questions are loaded, scroll to the saved question
+    if (savedQuestionId) {
+        setTimeout(() => {
+            const savedRow = document.querySelector(`tr[data-question-id="${savedQuestionId}"]`);
+            if (savedRow) {
+                savedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Keep highlight for 3 seconds then remove
+                setTimeout(() => {
+                    savedRow.classList.remove('highlight-row');
+                    currentEditingQuestionId = null;
+                }, 3000);
+            }
+        }, 500); // Wait for DOM to update
+    } else {
+        // Clear highlight if no ID
+        currentEditingQuestionId = null;
     }
+} else {
+    alert(data.message || 'Failed to save question');
+}
+
 }
 
 // Edit Question
@@ -881,6 +915,21 @@ async function editQuestion(questionId) {
     const token = checkAdminAuth();
     
     try {
+        // Store the editing question ID for highlighting
+        currentEditingQuestionId = questionId;
+
+        // Remove previous highlights and add to current row
+        document.querySelectorAll('.highlight-row').forEach(row => {
+            row.classList.remove('highlight-row');
+        });
+
+        const currentRow = document.querySelector(`tr[data-question-id="${questionId}"]`);
+        if (currentRow) {
+            currentRow.classList.add('highlight-row');
+            // Scroll to the row smoothly
+            currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
         // Fetch question data
         const response = await fetch(`${API_URL}/admin/questions/${questionId}`, {
             headers: {
