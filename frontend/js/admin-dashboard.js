@@ -596,7 +596,7 @@ async function loadQuestions(page = 1) {
 //here
 
 // Display questions (UPDATED WITH SERIAL & PREVIEW)
-// Display questions (UPDATED WITH CHECKBOX)
+// Display questions (UPDATED WITH CHECKBOX AND VALIDATION INDICATOR)
 function displayQuestions(questions, replace = true, startSerial = 1) {
     const tbody = document.getElementById('questionsTableBody');
 
@@ -625,6 +625,17 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
         const questionText = question.questionTextEn.substring(0, 60) + (question.questionTextEn.length > 60 ? '...' : '');
         const isChecked = selectedQuestionIds.has(question._id) ? 'checked' : '';
 
+        // Validate if correct answer is among options (for multiple choice)
+        let validationIcon = '';
+        if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
+            const correctAnswer = question.correctAnswer;
+            const isValid = question.options.some(option => option.trim() === correctAnswer.trim());
+
+            if (!isValid) {
+                validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
+            }
+        }
+
         html += `
             <tr>
                 <td class="px-4 py-3">
@@ -648,6 +659,7 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
                 <td class="px-4 py-3">
                     <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         ${questionText}
+                        ${validationIcon}
                     </div>
                 </td>
                 <td class="px-4 py-3">
