@@ -793,6 +793,7 @@ function handleQuestionTypeChange() {
 }
 
 // Save Question (Add or Edit)
+// Save Question (Add or Edit)
 async function saveQuestion() {
     const token = checkAdminAuth();
     const questionId = document.getElementById('questionId').value;
@@ -805,7 +806,7 @@ async function saveQuestion() {
     const questionTextAr = document.getElementById('questionTextAr').value;
     const correctAnswer = document.getElementById('correctAnswer').value;
     const imageUrl = document.getElementById('imageUrl').value;
-        const imagePosition = document.getElementById('imagePosition').value;
+    const imagePosition = document.getElementById('imagePosition').value;
 
     // Validate required fields
     if (!subject || !grade || !questionType || !questionTextEn || !questionTextAr || !correctAnswer) {
@@ -840,7 +841,6 @@ async function saveQuestion() {
         correctAnswer,
         imageUrl: imageUrl || null,
         imagePosition: imagePosition || 'below'
-
     };
     
     try {
@@ -870,40 +870,46 @@ async function saveQuestion() {
         
         const data = await response.json();
         
-       if (data.success) {
-    alert(data.message);
+        if (data.success) {
+            alert(data.message);
 
-    // Store the question ID for scrolling after reload
-    const savedQuestionId = questionId || data.questionId || currentEditingQuestionId;
+            // Store the question ID for scrolling after reload
+            const savedQuestionId = questionId || data.questionId || currentEditingQuestionId;
 
-    // Close modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
-    modal.hide();
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
+            modal.hide();
 
-    // Reload questions and scroll to the saved question
-    await loadQuestions();
-    loadStatistics();
+            // Reload questions and scroll to the saved question
+            await loadQuestions();
+            loadStatistics();
 
-    // After questions are loaded, scroll to the saved question
-    if (savedQuestionId) {
-        setTimeout(() => {
-            const savedRow = document.querySelector(`tr[data-question-id="${savedQuestionId}"]`);
-            if (savedRow) {
-                savedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Keep highlight for 3 seconds then remove
+            // After questions are loaded, scroll to the saved question
+            if (savedQuestionId) {
                 setTimeout(() => {
-                    savedRow.classList.remove('highlight-row');
-                    currentEditingQuestionId = null;
-                }, 3000);
+                    const savedRow = document.querySelector(`tr[data-question-id="${savedQuestionId}"]`);
+                    if (savedRow) {
+                        savedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Keep highlight for 3 seconds then remove
+                        setTimeout(() => {
+                            savedRow.classList.remove('highlight-row');
+                            currentEditingQuestionId = null;
+                        }, 3000);
+                    }
+                }, 500); // Wait for DOM to update
+            } else {
+                // Clear highlight if no ID
+                currentEditingQuestionId = null;
             }
-        }, 500); // Wait for DOM to update
-    } else {
-        // Clear highlight if no ID
-        currentEditingQuestionId = null;
+        } else {
+            alert(data.message || 'Failed to save question');
+        }
+    } catch (error) {
+        console.error('Save question error:', error);
+        alert('Failed to save question');
     }
-} else {
-    alert(data.message || 'Failed to save question');
 }
+
 
 
 
