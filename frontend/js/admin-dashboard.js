@@ -15,9 +15,6 @@ let currentPage = {
 // Track selected questions for batch delete
 let selectedQuestionIds = new Set();
 
-// Track selected questions for batch delete
-//let selectedQuestionIds = new Set();
-
 // Track currently editing question ID for highlighting
 let currentEditingQuestionId = null;
 
@@ -766,10 +763,10 @@ function openAddQuestionModal() {
     document.getElementById('questionForm').reset();
     document.getElementById('questionId').value = '';
     document.getElementById('questionModalTitle').textContent = 'Add Question';
-    
+
     // Reset options container
     document.getElementById('optionsContainer').style.display = 'none';
-    
+
     // Open modal
     const modal = new bootstrap.Modal(document.getElementById('questionModal'));
     modal.show();
@@ -913,7 +910,7 @@ async function saveQuestion() {
 // Edit Question
 async function editQuestion(questionId) {
     const token = checkAdminAuth();
-    
+
     try {
         // Store the editing question ID for highlighting
         currentEditingQuestionId = questionId;
@@ -936,12 +933,12 @@ async function editQuestion(questionId) {
                 'Authorization': `Bearer ${token}`
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             const question = data.question;
-            
+
             // Populate form
             document.getElementById('questionId').value = question._id;
             document.getElementById('subject').value = question.subject;
@@ -955,7 +952,7 @@ async function editQuestion(questionId) {
 
             // Handle question type
             handleQuestionTypeChange();
-            
+
             // Populate options if multiple choice
             if (question.questionType === 'multiple_choice' && question.options) {
                 question.options.forEach((option, index) => {
@@ -965,14 +962,14 @@ async function editQuestion(questionId) {
                     }
                 });
             }
-            
+
             // Update modal title
             document.getElementById('questionModalTitle').textContent = 'Edit Question';
-            
+
             // Open modal
             const modal = new bootstrap.Modal(document.getElementById('questionModal'));
             modal.show();
-            
+
         } else {
             alert(data.message || 'Failed to load question');
         }
