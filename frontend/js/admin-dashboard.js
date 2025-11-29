@@ -2021,3 +2021,43 @@ async function deleteSelectedQuestions() {
         deleteBtn.disabled = false;
     }
 }
+
+
+
+
+
+
+
+
+// Migration function - add at the end of the file
+async function runMigration() {
+    if (!confirm('This will migrate all questions from grade to grades array.\n\nContinue?')) {
+        return;
+    }
+    
+    const token = checkAdminAuth();
+    
+    try {
+        const response = await fetch(`${API_URL}/admin/migrate-grades`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`✅ Migration successful!\n\nMigrated: ${result.migrated} questions\nTotal: ${result.total} questions\nRemaining: ${result.remaining}\n\nRefreshing page...`);
+            location.reload();
+        } else {
+            alert('Migration failed: ' + result.message);
+        }
+        
+    } catch (error) {
+        console.error('Migration error:', error);
+        alert('Migration error: ' + error.message);
+    }
+}
+
