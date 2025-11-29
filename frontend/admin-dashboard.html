@@ -556,18 +556,35 @@
                             </select>
                         </div>
                         
-                        <!-- Grade -->
+                        <!-- Grade (Multiple Selection) -->
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Grade *</label>
-                            <select class="form-select" id="grade" required>
-                                <option value="">Select Grade</option>
-                                <option value="4">Grade 4</option>
-                                <option value="5">Grade 5</option>
-                                <option value="6">Grade 6</option>
-                                <option value="7">Grade 7</option>
-                                <option value="8">Grade 8</option>
-                                <option value="9">Grade 9</option>
-                            </select>
+                            <label class="form-label fw-semibold">Grades *</label>
+                            <div id="gradeCheckboxes" class="border rounded p-3 bg-light">
+                                <div class="form-check">
+                                    <input class="form-check-input grade-checkbox" type="checkbox" value="4" id="grade4">
+                                    <label class="form-check-label" for="grade4">Grade 4</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input grade-checkbox" type="checkbox" value="5" id="grade5">
+                                    <label class="form-check-label" for="grade5">Grade 5</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input grade-checkbox" type="checkbox" value="6" id="grade6">
+                                    <label class="form-check-label" for="grade6">Grade 6</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input grade-checkbox" type="checkbox" value="7" id="grade7">
+                                    <label class="form-check-label" for="grade7">Grade 7</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input grade-checkbox" type="checkbox" value="8" id="grade8">
+                                    <label class="form-check-label" for="grade8">Grade 8</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input grade-checkbox" type="checkbox" value="9" id="grade9">
+                                    <label class="form-check-label" for="grade9">Grade 9</label>
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Question Type -->

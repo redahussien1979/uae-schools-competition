@@ -6,10 +6,15 @@ const QuestionSchema = new mongoose.Schema({
         required: true,
         enum: ['math', 'science', 'english', 'arabic']
     },
-    grade: {
-        type: Number,
+    grades: {
+        type: [Number],
         required: true,
-        enum: [4, 5, 6, 7, 8, 9]
+        validate: {
+            validator: function(v) {
+                return v && v.length > 0 && v.every(g => [4, 5, 6, 7, 8, 9].includes(g));
+            },
+            message: 'Must have at least one grade, and all grades must be between 4-9'
+        }
     },
     questionType: {
         type: String,
@@ -64,6 +69,6 @@ const QuestionSchema = new mongoose.Schema({
 });
 
 // Index for faster queries
-QuestionSchema.index({ subject: 1, grade: 1 });
+QuestionSchema.index({ subject: 1, grades: 1 });
 
 module.exports = mongoose.model('Question', QuestionSchema);
