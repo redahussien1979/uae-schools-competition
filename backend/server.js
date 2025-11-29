@@ -1390,6 +1390,65 @@ app.get('/admin/stats', protectAdmin, async (req, res) => {
 
 
 
+// ========================================
+// MIGRATE GRADE TO GRADES (ADMIN ONLY) - ONE-TIME MIGRATION
+// ========================================
+app.post('/admin/migrate-grades', protectAdmin, async (req, res) => {
+    try {
+        console.log('[ADMIN] Starting grade to grades migration...');
+
+        // Check for old format questions (with 'grade' field)
+        const oldFormatCount = await Question.countDocuments({ grade: { $exists: true } });
+        console.log(`[ADMIN] Found ${oldFormatCount} questions with old 'grade' field`);
+
+        if (oldFormatCount === 0) {
+            return res.json({
+                success: true,
+                message: 'No migration needed - all questions already use grades array',
+                migrated: 0
+            });
+        }
+
+        // Get MongoDB collection directly for bulk update
+        const collection = mongoose.connection.collection('questions');
+
+        // Migrate: Convert grade (number) to grades (array)
+        const result = await collection.updateMany(
+            { grade: { $exists: true } },
+            [
+                {
+                    $set: {
+                        grades: { $cond: [{ $isArray: "$grade" }, "$grade", ["$grade"]] }
+                    }
+                },
+                {
+                    $unset: "grade"
+                }
+            ]
+        );
+
+        console.log(`[ADMIN] Migrated ${result.modifiedCount} questions`);
+
+        // Verify migration
+        const newFormatCount = await Question.countDocuments({ grades: { $exists: true } });
+        const stillOldFormat = await Question.countDocuments({ grade: { $exists: true } });
+
+        res.json({
+            success: true,
+            message: `Successfully migrated ${result.modifiedCount} questions from grade to grades`,
+            migrated: result.modifiedCount,
+            total: newFormatCount,
+            remaining: stillOldFormat
+        });
+
+    } catch (error) {
+        console.error('Migration error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to migrate questions: ' + error.message
+        });
+    }
+});
 
 
 
