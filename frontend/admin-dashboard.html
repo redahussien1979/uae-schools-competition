@@ -544,6 +544,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <!-- NEW SINGLE BUTTON FOR ALL FIELDS -->
+    <div class="text-center mb-3">
+        <button type="button" class="btn btn-success btn-lg w-100" onclick="convertAllFieldsToLatex()">
+            ✨ Convert All Fields to LaTeX
+        </button>
+        <small class="text-muted">Converts all math expressions in question text, options, and answer</small>
+    </div>
+                <hr>
                 <form id="questionForm">
                     <input type="hidden" id="questionId">
                     
