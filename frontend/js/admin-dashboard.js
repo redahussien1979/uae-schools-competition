@@ -2061,3 +2061,271 @@ async function runMigration() {
     }
 }
 
+
+
+/**
+ * Professional LaTeX Conversion - Converts ALL fields in the question form
+ * Single button to convert: questionTextEn, questionTextAr, correctAnswer, option1-4
+ */
+function convertAllFieldsToLatex() {
+    // List of all fields that may contain math
+    const fieldIds = [
+        'questionTextEn',
+        'questionTextAr',
+        'correctAnswer',
+        'option1',
+        'option2',
+        'option3',
+        'option4'
+    ];
+
+    let convertedCount = 0;
+    let totalFields = 0;
+
+    // Process each field
+    fieldIds.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        
+        // Skip if field doesn't exist or is empty
+        if (!field || !field.value.trim()) {
+            return;
+        }
+
+        totalFields++;
+        const originalText = field.value;
+        
+        // Apply professional conversion
+        const convertedText = applyProfessionalLatexConversion(field.value);
+        
+        // Update field if changes were made
+        if (convertedText !== originalText) {
+            field.value = convertedText;
+            convertedCount++;
+        }
+    });
+
+    // Show feedback
+    if (convertedCount === 0) {
+        showToast('No mathematical expressions found in any field', 'info');
+    } else {
+        showToast(`✨ Converted ${convertedCount} of ${totalFields} fields!`, 'success');
+    }
+}
+
+/**
+ * Core conversion logic - extracted for reusability
+ */
+function applyProfessionalLatexConversion(text) {
+    if (!text || !text.trim()) {
+        return text;
+    }
+
+    const originalText = text;
+
+    // ============================================
+    // STEP 1: Convert Mathematical Notation to LaTeX
+    // ============================================
+
+    const mathConversions = [
+        // Fractions: 3/4 → \frac{3}{4}, -8/9 → -\frac{8}{9}
+        [/\b(-?\d+)\/(\d+)\b/g, '\\frac{$1}{$2}'],
+        
+        // Complex fractions: (a+b)/(c-d) → \frac{a+b}{c-d}
+        [/\(([^)]+)\)\/\(([^)]+)\)/g, '\\frac{$1}{$2}'],
+
+        // Square roots: sqrt(25) or √(25) → \sqrt{25}
+        [/sqrt\s*\(([^)]+)\)/gi, '\\sqrt{$1}'],
+        [/√\s*\(([^)]+)\)/g, '\\sqrt{$1}'],
+        [/√(\d+)/g, '\\sqrt{$1}'],
+
+        // Cube roots: cbrt(8) → \sqrt[3]{8}
+        [/cbrt\s*\(([^)]+)\)/gi, '\\sqrt[3]{$1}'],
+
+        // nth roots: root(n,x) → \sqrt[n]{x}
+        [/root\s*\((\d+),\s*([^)]+)\)/gi, '\\sqrt[$1]{$2}'],
+
+        // Exponents: x^2, x^n, x^(2n) → x^{2}, x^{n}, x^{2n}
+        [/\^([a-zA-Z0-9]+)/g, '^{$1}'],
+        [/\^\(([^)]+)\)/g, '^{$1}'],
+
+        // Subscripts: x_1, x_n, x_(2n) → x_{1}, x_{n}, x_{2n}
+        [/_([a-zA-Z0-9]+)/g, '_{$1}'],
+        [/_\(([^)]+)\)/g, '_{$1}'],
+
+        // Absolute values: |x| or |-150| (keep as-is, valid in LaTeX)
+        [/\|([^|]+)\|/g, '|$1|'],
+
+        // Scientific notation: 1.5e10 → 1.5 \times 10^{10}
+        [/(\d+\.?\d*)[eE]([+-]?\d+)/g, '$1 \\times 10^{$2}'],
+
+        // Percentages: 40% → 40\%
+        [/(\d+(?:\.\d+)?)%/g, '$1\\%'],
+
+        // Repeating decimals: 0.(3) or -0.(8) → 0.\overline{3}
+        [/(-?\d+)\.\((\d+)\)/g, '$1.\\overline{$2}'],
+
+        // Multiplication symbols: * or × → \times
+        [/(\d)\s*\*\s*(\d)/g, '$1 \\times $2'],
+        [/(\d)\s*×\s*(\d)/g, '$1 \\times $2'],
+        [/\*/g, '\\times'],
+        [/×/g, '\\times'],
+
+        // Division symbol: ÷ → \div
+        [/÷/g, '\\div'],
+
+        // Plus-minus: ± or +- → \pm
+        [/±/g, '\\pm'],
+        [/\+\-/g, '\\pm'],
+
+        // Inequalities: <= >= → \leq \geq
+        [/<=/g, '\\leq'],
+        [/>=/g, '\\geq'],
+        [/≤/g, '\\leq'],
+        [/≥/g, '\\geq'],
+
+        // Not equal: != or ≠ → \neq
+        [/!=/g, '\\neq'],
+        [/≠/g, '\\neq'],
+
+        // Approximately equal: ~= or ≈ → \approx
+        [/~=/g, '\\approx'],
+        [/≈/g, '\\approx'],
+
+        // Degrees: 90° → 90^\circ
+        [/(\d+)°/g, '$1^\\circ'],
+
+        // Greek letters (common in math)
+        [/\bpi\b/g, '\\pi'],
+        [/\balpha\b/g, '\\alpha'],
+        [/\bbeta\b/g, '\\beta'],
+        [/\bgamma\b/g, '\\gamma'],
+        [/\bdelta\b/g, '\\delta'],
+        [/\btheta\b/g, '\\theta'],
+        [/\blambda\b/g, '\\lambda'],
+        [/\bmu\b/g, '\\mu'],
+        [/\bsigma\b/g, '\\sigma'],
+        [/\bomega\b/g, '\\omega'],
+        
+        // Unicode Greek letters
+        [/π/g, '\\pi'],
+        [/α/g, '\\alpha'],
+        [/β/g, '\\beta'],
+        [/γ/g, '\\gamma'],
+        [/δ/g, '\\delta'],
+        [/θ/g, '\\theta'],
+        [/λ/g, '\\lambda'],
+        [/μ/g, '\\mu'],
+        [/σ/g, '\\sigma'],
+        [/ω/g, '\\omega'],
+
+        // Superscript numbers: x² x³ → x^{2} x^{3}
+        [/²/g, '^{2}'],
+        [/³/g, '^{3}'],
+        [/⁴/g, '^{4}'],
+        [/⁵/g, '^{5}'],
+        [/⁶/g, '^{6}'],
+        [/⁷/g, '^{7}'],
+        [/⁸/g, '^{8}'],
+        [/⁹/g, '^{9}'],
+        [/⁰/g, '^{0}'],
+        [/⁻/g, '^{-}'],
+
+        // Subscript numbers: H₂O → H_{2}O
+        [/₀/g, '_{0}'],
+        [/₁/g, '_{1}'],
+        [/₂/g, '_{2}'],
+        [/₃/g, '_{3}'],
+        [/₄/g, '_{4}'],
+        [/₅/g, '_{5}'],
+        [/₆/g, '_{6}'],
+        [/₇/g, '_{7}'],
+        [/₈/g, '_{8}'],
+        [/₉/g, '_{9}'],
+
+        // Sum notation: sum(i=1,n) → \sum_{i=1}^{n}
+        [/sum\s*\(([^,]+),\s*([^)]+)\)/gi, '\\sum_{$1}^{$2}'],
+
+        // Product notation: prod(i=1,n) → \prod_{i=1}^{n}
+        [/prod\s*\(([^,]+),\s*([^)]+)\)/gi, '\\prod_{$1}^{$2}'],
+
+        // Limit: lim(x->0) → \lim_{x \to 0}
+        [/lim\s*\(([^-]+)->([^)]+)\)/gi, '\\lim_{$1 \\to $2}'],
+
+        // Integral: int(a,b) → \int_{a}^{b}
+        [/int\s*\(([^,]+),\s*([^)]+)\)/gi, '\\int_{$1}^{$2}'],
+
+        // Infinity: inf or ∞ → \infty
+        [/\binf\b/gi, '\\infty'],
+        [/∞/g, '\\infty'],
+
+        // Logarithms: log(x), ln(x) → \log(x), \ln(x)
+        [/\blog\(/gi, '\\log('],
+        [/\bln\(/gi, '\\ln('],
+
+        // Trigonometric functions: sin(x), cos(x), tan(x)
+        [/\bsin\(/gi, '\\sin('],
+        [/\bcos\(/gi, '\\cos('],
+        [/\btan\(/gi, '\\tan('],
+        [/\bcsc\(/gi, '\\csc('],
+        [/\bsec\(/gi, '\\sec('],
+        [/\bcot\(/gi, '\\cot('],
+
+        // Inverse trig: arcsin, arccos, arctan
+        [/\barcsin\(/gi, '\\arcsin('],
+        [/\barccos\(/gi, '\\arccos('],
+        [/\barctan\(/gi, '\\arctan(']
+    ];
+
+    // Apply all conversions
+    mathConversions.forEach(([pattern, replacement]) => {
+        text = text.replace(pattern, replacement);
+    });
+
+    // ============================================
+    // STEP 2: Intelligent Auto-Wrapping
+    // Only wrap mathematical expressions, not regular text
+    // ============================================
+
+    // Pattern 1: Wrap LaTeX commands (\frac, \sqrt, etc.)
+    text = text.replace(
+        /(?<!\$)(\\(?:frac|sqrt|sum|prod|lim|int|log|ln|sin|cos|tan|csc|sec|cot|arcsin|arccos|arctan|overline|pm|times|div|leq|geq|neq|approx|infty|pi|alpha|beta|gamma|delta|theta|lambda|mu|sigma|omega|circ)\s*(?:\[[^\]]*\])?\s*\{[^}]+\}(?:\{[^}]+\})?)/g,
+        '$$$1$$'
+    );
+
+    // Pattern 2: Wrap expressions with operators
+    text = text.replace(
+        /(?<!\$)(?<!\w)(-?\d+(?:\.\d+)?(?:\s*[+\-\\times\\div]\s*\(?-?\d+(?:\.\d+)?\)?)+)(?!\w)(?!\$)/g,
+        '$$$1$$'
+    );
+
+    // Pattern 3: Wrap absolute values
+    text = text.replace(
+        /(?<!\$)\|[^|]+\|(?!\$)/g,
+        '$$$&$$'
+    );
+
+    // Pattern 4: Wrap equations
+    text = text.replace(
+        /(?<!\$)([a-zA-Z])\s*=\s*([a-zA-Z0-9+\-\\times\\div\s^_{}()]+)(?=\s*[.?!,]|\s*$)/g,
+        '$$$1 = $2$$'
+    );
+
+    // Pattern 5: Wrap numbers with units
+    text = text.replace(
+        /(?<!\$)(?<!\w)(-?\d+(?:\.\d+)?(?:\\%)?)\s+([a-zA-Z]+(?:\/[a-zA-Z]+)?)(?!\$)(?!\w)/g,
+        (match, number, unit) => `$${number} \\text{ ${unit}}$`
+    );
+
+    // Pattern 6: Wrap standalone numbers in math context
+    text = text.replace(
+        /(?<!\$)(?<!\w)(?<![a-zA-Z])(-?\d+(?:\.\d+)?(?:\\%)?)(?![a-zA-Z])(?!\w)(?!\$)(?=\s*[,;.?!]|\s+[a-z]+\s|\s*$)/g,
+        '$$$1$$'
+    );
+
+    // Pattern 7: Clean up double dollar signs
+    text = text.replace(/\$\$+/g, '$$');
+    text = text.replace(/\$\s*\$/g, '');
+
+    return text;
+}
+
