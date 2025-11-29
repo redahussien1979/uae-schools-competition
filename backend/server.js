@@ -246,7 +246,7 @@ app.get('/quiz/start/:subject', protect, async (req, res) => {
         // Get all questions for this subject and grade
         const allQuestions = await Question.find({
             subject: subject,
-            grade: userGrade
+            grades: userGrade  // MongoDB will match if array contains this value
         });
 
         if (allQuestions.length === 0) {
@@ -1172,7 +1172,7 @@ app.get('/admin/questions', protectAdmin, async (req, res) => {
         
         // Filter by grade
         if (grade) {
-            query.grade = parseInt(grade);
+            query.grades = parseInt(grade);  // MongoDB will match if array contains this value
         }
         
         // Search in question text
@@ -1344,12 +1344,15 @@ app.get('/admin/stats', protectAdmin, async (req, res) => {
             { $sort: { _id: 1 } }
         ]);
 
-        // NEW: Questions by grade and subject
+        // NEW: Questions by grade and subject (with grades array unwinding)
         const questionsByGradeAndSubject = await Question.aggregate([
+            {
+                $unwind: '$grades'  // Unwind the grades array so each grade gets counted separately
+            },
             {
                 $group: {
                     _id: {
-                        grade: '$grade',
+                        grade: '$grades',
                         subject: '$subject'
                     },
                     count: { $sum: 1 }
@@ -1402,7 +1405,7 @@ app.post('/admin/questions', protectAdmin, async (req, res) => {
     try {
         const {
             subject,
-            grade,
+            grades,
             questionType,
             questionTextEn,
             questionTextAr,
@@ -1412,19 +1415,19 @@ app.post('/admin/questions', protectAdmin, async (req, res) => {
             imagePosition          // ← ADD THIS LINE
 
         } = req.body;
-        
+
         // Validate required fields
-        if (!subject || !grade || !questionType || !questionTextEn || !questionTextAr || !correctAnswer) {
+        if (!subject || !grades || !Array.isArray(grades) || grades.length === 0 || !questionType || !questionTextEn || !questionTextAr || !correctAnswer) {
             return res.json({
                 success: false,
-                message: 'Missing required fields'
+                message: 'Missing required fields or invalid grades'
             });
         }
         
         // Create question
         const question = await Question.create({
             subject: subject.toLowerCase(),
-            grade: parseInt(grade),
+            grades: grades.map(g => parseInt(g)),
             questionType,
             questionTextEn,
             questionTextAr,
@@ -1458,7 +1461,7 @@ app.put('/admin/questions/:id', protectAdmin, async (req, res) => {
     try {
         const {
             subject,
-            grade,
+            grades,
             questionType,
             questionTextEn,
             questionTextAr,
@@ -1468,12 +1471,12 @@ app.put('/admin/questions/:id', protectAdmin, async (req, res) => {
             imagePosition          // ← ADD THIS LINE
 
         } = req.body;
-        
+
         const question = await Question.findByIdAndUpdate(
             req.params.id,
             {
                 subject: subject?.toLowerCase(),
-                grade: parseInt(grade),
+                grades: grades && Array.isArray(grades) ? grades.map(g => parseInt(g)) : undefined,
                 questionType,
                 questionTextEn,
                 questionTextAr,
@@ -1603,7 +1606,7 @@ app.post('/admin/import-questions', protectAdmin, upload.single('file'), async (
 
             try {
                 // Validate required fields
-                if (!row.subject || !row.grade || !row.questionType ||
+                if (!row.subject || !row.grades || !row.questionType ||
                     !row.questionTextEn || !row.questionTextAr || !row.correctAnswer) {
                     throw new Error('Missing required fields');
                 }
@@ -1648,10 +1651,19 @@ app.post('/admin/import-questions', protectAdmin, upload.single('file'), async (
                     throw new Error(`Invalid subject: ${subject}`);
                 }
 
-                // Validate grade
-                const grade = parseInt(row.grade);
-                if (grade < 4 || grade > 9) {
-                    throw new Error(`Invalid grade: ${grade}`);
+                // Validate grades (can be comma-separated or single value)
+                const gradesStr = row.grades.toString().trim();
+                const grades = gradesStr.split(',').map(g => parseInt(g.trim())).filter(g => !isNaN(g));
+
+                if (grades.length === 0) {
+                    throw new Error('No valid grades found');
+                }
+
+                // Validate each grade is in range
+                for (const grade of grades) {
+                    if (grade < 4 || grade > 9) {
+                        throw new Error(`Invalid grade: ${grade}`);
+                    }
                 }
 
                 // Validate question type
@@ -1664,7 +1676,7 @@ app.post('/admin/import-questions', protectAdmin, upload.single('file'), async (
                 // Create question (KEEP LaTeX in question text, but CLEAN in correctAnswer)
                 await Question.create({
                     subject: subject,
-                    grade: grade,
+                    grades: grades,
                     questionType: questionType,
                     questionTextEn: row.questionTextEn.trim(), // Keep LaTeX formatting
                     questionTextAr: row.questionTextAr.trim(), // Keep LaTeX formatting
@@ -1742,17 +1754,17 @@ app.get('/admin/export-questions', protectAdmin, async (req, res) => {
         // Build query filter
         let query = {};
         if (subject) query.subject = subject.toLowerCase();
-        if (grade) query.grade = parseInt(grade);
-        
+        if (grade) query.grades = parseInt(grade);  // MongoDB will match if array contains this value
+
         // Get all questions
-        const questions = await Question.find(query).sort({ subject: 1, grade: 1, createdAt: 1 });
+        const questions = await Question.find(query).sort({ subject: 1, grades: 1, createdAt: 1 });
         
         console.log(`[ADMIN] Found ${questions.length} questions to export`);
         
         // Format data for Excel
         const excelData = questions.map(q => ({
             subject: q.subject,
-            grade: q.grade,
+            grades: q.grades ? q.grades.join(',') : '',  // Export as comma-separated
             questionType: q.questionType,
             questionTextEn: q.questionTextEn,
             questionTextAr: q.questionTextAr,

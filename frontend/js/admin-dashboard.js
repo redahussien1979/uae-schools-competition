@@ -657,7 +657,9 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
                     <span class="badge bg-info text-capitalize">${question.subject}</span>
                 </td>
                 <td class="px-4 py-3">
-                    <span class="badge bg-primary">Grade ${question.grade}</span>
+                    ${question.grades && question.grades.length > 0
+                        ? question.grades.map(g => `<span class="badge bg-primary me-1">Grade ${g}</span>`).join('')
+                        : '<span class="badge bg-secondary">No grade</span>'}
                 </td>
                 <td class="px-4 py-3">
                     <small class="text-muted text-capitalize">${question.questionType.replace('_', ' ')}</small>
@@ -764,6 +766,9 @@ function openAddQuestionModal() {
     document.getElementById('questionId').value = '';
     document.getElementById('questionModalTitle').textContent = 'Add Question';
 
+    // Uncheck all grade checkboxes
+    document.querySelectorAll('.grade-checkbox').forEach(cb => cb.checked = false);
+
     // Reset options container
     document.getElementById('optionsContainer').style.display = 'none';
 
@@ -800,7 +805,8 @@ async function saveQuestion() {
     
     // Get form values
     const subject = document.getElementById('subject').value;
-    const grade = document.getElementById('grade').value;
+    const grades = Array.from(document.querySelectorAll('.grade-checkbox:checked'))
+        .map(cb => parseInt(cb.value));
     const questionType = document.getElementById('questionType').value;
     const questionTextEn = document.getElementById('questionTextEn').value;
     const questionTextAr = document.getElementById('questionTextAr').value;
@@ -809,8 +815,8 @@ async function saveQuestion() {
     const imagePosition = document.getElementById('imagePosition').value;
 
     // Validate required fields
-    if (!subject || !grade || !questionType || !questionTextEn || !questionTextAr || !correctAnswer) {
-        alert('Please fill in all required fields');
+    if (!subject || grades.length === 0 || !questionType || !questionTextEn || !questionTextAr || !correctAnswer) {
+        alert('Please fill in all required fields and select at least one grade');
         return;
     }
     
@@ -833,7 +839,7 @@ async function saveQuestion() {
     // Prepare data
     const questionData = {
         subject,
-        grade,
+        grades,
         questionType,
         questionTextEn,
         questionTextAr,
@@ -948,7 +954,17 @@ async function editQuestion(questionId) {
             // Populate form
             document.getElementById('questionId').value = question._id;
             document.getElementById('subject').value = question.subject;
-            document.getElementById('grade').value = question.grade;
+
+            // Uncheck all grades first
+            document.querySelectorAll('.grade-checkbox').forEach(cb => cb.checked = false);
+            // Check the grades for this question
+            if (question.grades && Array.isArray(question.grades)) {
+                question.grades.forEach(g => {
+                    const checkbox = document.getElementById(`grade${g}`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+
             document.getElementById('questionType').value = question.questionType;
             document.getElementById('questionTextEn').value = question.questionTextEn;
             document.getElementById('questionTextAr').value = question.questionTextAr;
@@ -1140,8 +1156,11 @@ function displayQuestionPreview(question) {
     };
     document.getElementById('previewSubject').textContent = subjectNames[question.subject] || question.subject;
     
-    // Update grade badge
-    document.getElementById('previewGrade').textContent = `Grade ${question.grade}`;
+    // Update grade badge (show all grades)
+    const gradesText = question.grades && question.grades.length > 0
+        ? question.grades.map(g => `Grade ${g}`).join(', ')
+        : 'No grade';
+    document.getElementById('previewGrade').textContent = gradesText;
     
     // Update type badge
     const typeNames = {
