@@ -1687,19 +1687,21 @@ app.post('/admin/import-questions', protectAdmin, upload.single('file'), async (
                 }
 
                 // IMPORTANT: Clean correctAnswer - STRIP ALL LATEX DELIMITERS
-                let cleanAnswer = row.correctAnswer.toString().trim();
+             //////////////////   let cleanAnswer = row.correctAnswer.toString().trim();
 
                 // Remove $ delimiters
-                cleanAnswer = cleanAnswer.replace(/^\$+/, '').replace(/\$+$/, '');
+              ////////////  cleanAnswer = cleanAnswer.replace(/^\$+/, '').replace(/\$+$/, '');
 
                 // Remove \( and \) delimiters
-                cleanAnswer = cleanAnswer.replace(/^\\\(+/, '').replace(/\\\)+$/, '');
+             ///////////   cleanAnswer = cleanAnswer.replace(/^\\\(+/, '').replace(/\\\)+$/, '');
 
                 // Remove \[ and \] delimiters (display math)
-                cleanAnswer = cleanAnswer.replace(/^\\\[+/, '').replace(/\\\]+$/, '');
+             ///////////////   cleanAnswer = cleanAnswer.replace(/^\\\[+/, '').replace(/\\\]+$/, '');
 
                 // Final trim
-                cleanAnswer = cleanAnswer.trim();
+             ///////////////   cleanAnswer = cleanAnswer.trim();
+                ///////////////////////////////////////////////////////////////////////
+const cleanAnswer = row.correctAnswer.toString().trim();
 
                 console.log(`[ADMIN] Row ${rowNumber}: Original answer="${row.correctAnswer}" -> Clean answer="${cleanAnswer}"`);
 
