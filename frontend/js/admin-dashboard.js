@@ -1205,8 +1205,19 @@ function displayQuestionPreview(question) {
         optionsContainer.style.display = 'none';
     }
     
-    // Update correct answer - **CHANGED: Use innerHTML instead of textContent**
-    document.getElementById('previewCorrectAnswer').innerHTML = question.correctAnswer;
+    // Update correct answer - auto-wrap in $ if it has LaTeX but no delimiters
+    let correctAnswerDisplay = question.correctAnswer;
+
+    // Check if it has LaTeX commands but no $ delimiters
+    const hasLatex = /\\(frac|sqrt|times|div|pm|leq|geq|neq|circ|pi|overline|left|right|text)/.test(correctAnswerDisplay);
+    const hasDelimiters = /\$/.test(correctAnswerDisplay);
+
+    if (hasLatex && !hasDelimiters) {
+        // Wrap it for display
+        correctAnswerDisplay = `$${correctAnswerDisplay}$`;
+    }
+
+    document.getElementById('previewCorrectAnswer').innerHTML = correctAnswerDisplay;
     
     // Update image (if exists)
     const imageContainer = document.getElementById('previewImageContainer');
