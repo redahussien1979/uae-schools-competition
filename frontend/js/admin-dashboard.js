@@ -1181,25 +1181,25 @@ function displayQuestionPreview(question) {
     if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
         optionsContainer.style.display = 'block';
         
-        let optionsHtml = '';
+       let optionsHtml = '';
 question.options.forEach((option, index) => {
-    // Normalize for comparison (trim whitespace)
-    const normalizedOption = option.trim();
-    const normalizedAnswer = question.correctAnswer.trim();
+    // Normalize by removing $ delimiters and trimming whitespace
+    const normalizedOption = option.replace(/\$/g, '').trim();
+    const normalizedAnswer = question.correctAnswer.replace(/\$/g, '').trim();
     const isCorrect = normalizedOption === normalizedAnswer;
     
     const badgeClass = isCorrect ? 'success' : 'secondary';
     const icon = isCorrect ? '<i class="bi bi-check-circle-fill me-2"></i>' : '';
+    
+    optionsHtml += `
+        <div class="list-group-item d-flex align-items-center">
+            <span class="badge bg-${badgeClass} me-3">${String.fromCharCode(65 + index)}</span>
+            ${icon}
+            <span>${option}</span>
+        </div>
+    `;
+});
 
-            
-            optionsHtml += `
-                <div class="list-group-item d-flex align-items-center">
-                    <span class="badge bg-${badgeClass} me-3">${String.fromCharCode(65 + index)}</span>
-                    ${icon}
-                    <span>${option}</span>
-                </div>
-            `;
-        });
         
         optionsList.innerHTML = optionsHtml;
     } else {
