@@ -1334,9 +1334,6 @@ function convertToLatex(fieldId) {
     }
 
     const originalText = text;
-    
-    // Check if this is the correct answer field
-    const isCorrectAnswerField = (fieldId === 'correctAnswer');
 
     // === Common Mathematical Conversions ===
     const conversions = [
@@ -1422,13 +1419,6 @@ function convertToLatex(fieldId) {
     }
 
     // === Wrap math expressions in $ $ ===
-    
-    // For correct answer field, don't auto-wrap (user will use wrap button)
-    if (isCorrectAnswerField) {
-        field.value = text;
-        showToast('Converted to LaTeX format (use Wrap button to add delimiters)', 'success');
-        return;
-    }
 
     // 1. Wrap math expressions with operators: -10 - (-4) → $-10 - (-4)$
     text = text.replace(
