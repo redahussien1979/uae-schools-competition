@@ -1182,10 +1182,15 @@ function displayQuestionPreview(question) {
         optionsContainer.style.display = 'block';
         
         let optionsHtml = '';
-        question.options.forEach((option, index) => {
-            const isCorrect = option === question.correctAnswer;
-            const badgeClass = isCorrect ? 'success' : 'secondary';
-            const icon = isCorrect ? '<i class="bi bi-check-circle-fill me-2"></i>' : '';
+question.options.forEach((option, index) => {
+    // Normalize for comparison (trim whitespace)
+    const normalizedOption = option.trim();
+    const normalizedAnswer = question.correctAnswer.trim();
+    const isCorrect = normalizedOption === normalizedAnswer;
+    
+    const badgeClass = isCorrect ? 'success' : 'secondary';
+    const icon = isCorrect ? '<i class="bi bi-check-circle-fill me-2"></i>' : '';
+
             
             optionsHtml += `
                 <div class="list-group-item d-flex align-items-center">
