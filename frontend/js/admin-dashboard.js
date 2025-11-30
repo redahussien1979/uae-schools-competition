@@ -1183,11 +1183,8 @@ function displayQuestionPreview(question) {
         
         let optionsHtml = '';
         question.options.forEach((option, index) => {
-            // Normalize by removing $ delimiters and trimming whitespace for comparison
-            const normalizedOption = option.replace(/\$/g, '').trim();
-            const normalizedAnswer = question.correctAnswer.replace(/\$/g, '').trim();
-            const isCorrect = normalizedOption === normalizedAnswer;
-
+            // Simple comparison (both are wrapped in database)
+            const isCorrect = option.trim() === question.correctAnswer.trim();
             const badgeClass = isCorrect ? 'success' : 'secondary';
             const icon = isCorrect ? '<i class="bi bi-check-circle-fill me-2"></i>' : '';
             
@@ -1205,19 +1202,8 @@ function displayQuestionPreview(question) {
         optionsContainer.style.display = 'none';
     }
     
-    // Update correct answer - auto-wrap in $ if it has LaTeX but no delimiters
-    let correctAnswerDisplay = question.correctAnswer;
-
-    // Check if it has LaTeX commands but no $ delimiters
-    const hasLatex = /\\(frac|sqrt|times|div|pm|leq|geq|neq|circ|pi|overline|left|right|text)/.test(correctAnswerDisplay);
-    const hasDelimiters = /\$/.test(correctAnswerDisplay);
-
-    if (hasLatex && !hasDelimiters) {
-        // Wrap it for display
-        correctAnswerDisplay = `$${correctAnswerDisplay}$`;
-    }
-
-    document.getElementById('previewCorrectAnswer').innerHTML = correctAnswerDisplay;
+    // Update correct answer (already wrapped in database)
+    document.getElementById('previewCorrectAnswer').innerHTML = question.correctAnswer;
     
     // Update image (if exists)
     const imageContainer = document.getElementById('previewImageContainer');
