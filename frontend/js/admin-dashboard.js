@@ -950,7 +950,9 @@ async function editQuestion(questionId) {
 
         if (data.success) {
             const question = data.question;
-
+// DEBUG: Check what comes from backend
+    console.log('correctAnswer from backend:', question.correctAnswer);
+    console.log('Has $ delimiter:', question.correctAnswer.includes('$'));
             // Populate form
             document.getElementById('questionId').value = question._id;
             document.getElementById('subject').value = question.subject;
@@ -969,6 +971,9 @@ async function editQuestion(questionId) {
             document.getElementById('questionTextEn').value = question.questionTextEn;
             document.getElementById('questionTextAr').value = question.questionTextAr;
             document.getElementById('correctAnswer').value = question.correctAnswer;
+           // DEBUG: Check what's in the input field
+    console.log('correctAnswer in field:', document.getElementById('correctAnswer').value);
+    console.log('Field has $ delimiter:', document.getElementById('correctAnswer').value.includes('$'));
             document.getElementById('imageUrl').value = question.imageUrl || '';
                         document.getElementById('imagePosition').value = question.imagePosition || 'below';
 
