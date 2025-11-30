@@ -1183,7 +1183,11 @@ function displayQuestionPreview(question) {
         
         let optionsHtml = '';
         question.options.forEach((option, index) => {
-            const isCorrect = option === question.correctAnswer;
+            // Normalize by removing $ delimiters and trimming whitespace for comparison
+            const normalizedOption = option.replace(/\$/g, '').trim();
+            const normalizedAnswer = question.correctAnswer.replace(/\$/g, '').trim();
+            const isCorrect = normalizedOption === normalizedAnswer;
+
             const badgeClass = isCorrect ? 'success' : 'secondary';
             const icon = isCorrect ? '<i class="bi bi-check-circle-fill me-2"></i>' : '';
             
