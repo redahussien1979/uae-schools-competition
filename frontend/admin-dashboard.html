@@ -918,13 +918,24 @@
                     <img id="previewImage" class="img-fluid rounded" style="max-width: 100%; max-height: 400px;">
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="editQuestionFromPreview()">
-                    <i class="bi bi-pencil me-2"></i>
-                    Edit Question
-                </button>
-            </div>
+           <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" onclick="previousQuestion()">
+        <i class="bi bi-arrow-left me-2"></i>
+        Previous
+    </button>
+    <button type="button" class="btn btn-secondary" onclick="nextQuestion()">
+        Next
+        <i class="bi bi-arrow-right ms-2"></i>
+    </button>
+    <div class="ms-auto">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="editQuestionFromPreview()">
+            <i class="bi bi-pencil me-2"></i>
+            Edit Question
+        </button>
+    </div>
+</div>
+
         </div>
     </div>
 </div>
