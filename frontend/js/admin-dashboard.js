@@ -628,7 +628,7 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
         const questionText = question.questionTextEn.substring(0, 60) + (question.questionTextEn.length > 60 ? '...' : '');
         const isChecked = selectedQuestionIds.has(question._id) ? 'checked' : '';
 
-         Validate if correct answer is among options (for multiple choice)
+         //Validate if correct answer is among options (for multiple choice)
        let validationIcon = '';
         if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
             const correctAnswer = question.correctAnswer;
@@ -638,24 +638,6 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
                 validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
