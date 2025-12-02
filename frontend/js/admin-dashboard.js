@@ -628,42 +628,14 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
         const questionText = question.questionTextEn.substring(0, 60) + (question.questionTextEn.length > 60 ? '...' : '');
         const isChecked = selectedQuestionIds.has(question._id) ? 'checked' : '';
 
-        // Validate if correct answer is among options (for multiple choice)
+        // Simple validation: Check if correct answer is among options
         let validationIcon = '';
         if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
-            // Normalize by removing ALL LaTeX delimiters and extra whitespace
-            const normalizeText = (text) => {
-                return text
-                    .replace(/\$/g, '')           // Remove $ delimiters
-                    .replace(/\\[\(\)]/g, '')     // Remove \( and \) delimiters
-                    .replace(/\s+/g, ' ')         // Normalize multiple spaces to single space
-                    .trim();                      // Trim leading/trailing whitespace
-            };
-
-            const normalizedAnswer = normalizeText(question.correctAnswer);
-
-            // DEBUG: Log validation details
-            console.log('=== VALIDATION DEBUG ===');
-            console.log('Question ID:', question._id);
-            console.log('Correct Answer (raw):', question.correctAnswer);
-            console.log('Correct Answer (normalized):', normalizedAnswer);
-            console.log('Options (raw):', question.options);
-
-            const isValid = question.options.some(option => {
-                const normalizedOption = normalizeText(option);
-                console.log('  Checking option:', option, '→', normalizedOption);
-                const matches = normalizedOption === normalizedAnswer;
-                if (matches) console.log('  ✅ MATCH!');
-                return matches;
-            });
-
-            console.log('Is Valid:', isValid);
+            const isValid = question.options.some(option => option.trim() === question.correctAnswer.trim());
 
             if (!isValid) {
                 validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
-                console.log('❌ RED X ICON ADDED');
             }
-            console.log('======================');
         }
 
        const highlightClass = (currentEditingQuestionId === question._id) ? 'highlight-row' : '';
@@ -862,6 +834,23 @@ async function saveQuestion() {
             return;
         }
 
+        // ⚠️ Simple validation: Check if correct answer matches one of the options
+        const answerMatches = options.some(option => option.trim() === correctAnswer.trim());
+
+        if (!answerMatches) {
+            const proceed = confirm(
+                '⚠️ WARNING!\n\n' +
+                'The correct answer does NOT match any of the options.\n\n' +
+                'Correct Answer: "' + correctAnswer + '"\n\n' +
+                'Options:\n' +
+                options.map((opt, i) => '  ' + (i + 1) + '. "' + opt + '"').join('\n') + '\n\n' +
+                'Do you want to save anyway?'
+            );
+
+            if (!proceed) {
+                return; // Don't save
+            }
+        }
     }
     
     // Prepare data
@@ -1216,18 +1205,7 @@ function displayQuestionPreview(question) {
         
        let optionsHtml = '';
 question.options.forEach((option, index) => {
-    // Normalize by removing ALL LaTeX delimiters and extra whitespace
-    const normalizeText = (text) => {
-        return text
-            .replace(/\$/g, '')           // Remove $ delimiters
-            .replace(/\\[\(\)]/g, '')     // Remove \( and \) delimiters
-            .replace(/\s+/g, ' ')         // Normalize multiple spaces to single space
-            .trim();                      // Trim leading/trailing whitespace
-    };
-
-    const normalizedOption = normalizeText(option);
-    const normalizedAnswer = normalizeText(question.correctAnswer);
-    const isCorrect = normalizedOption === normalizedAnswer;
+    const isCorrect = option.trim() === question.correctAnswer.trim();
     
     const badgeClass = isCorrect ? 'success' : 'secondary';
     const icon = isCorrect ? '<i class="bi bi-check-circle-fill me-2"></i>' : '';
