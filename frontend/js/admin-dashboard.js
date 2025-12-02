@@ -685,8 +685,9 @@ if (question.questionType === 'multiple_choice' && question.options && question.
                 </td>
                 <td class="px-4 py-3">
                     <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                       ${validationIcon}
                         ${questionText}
-                        ${validationIcon}
+                        
                     </div>
                 </td>
                 <td class="px-4 py-3">
