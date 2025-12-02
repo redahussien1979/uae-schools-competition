@@ -644,28 +644,16 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
 
 
 
-// Validate if correct answer is among options (for multiple choice)
+// Simple validation: Check if correct answer is among options
 let validationIcon = '';
 if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
-    // Normalize by removing ALL LaTeX delimiters and extra whitespace
-    const normalizeText = (text) => {
-        return text
-            .replace(/\$/g, '')           // Remove $ delimiters
-            .replace(/\\[\(\)]/g, '')     // Remove \( and \) delimiters
-            .replace(/\s+/g, ' ')         // Normalize multiple spaces to single space
-            .trim();                      // Trim leading/trailing whitespace
-    };
-
-    const normalizedAnswer = normalizeText(question.correctAnswer);
-    const isValid = question.options.some(option => {
-        const normalizedOption = normalizeText(option);
-        return normalizedOption === normalizedAnswer;
-    });
+    const isValid = question.options.some(option => option.trim() === question.correctAnswer.trim());
 
     if (!isValid) {
         validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
     }
 }
+
 
 
 
