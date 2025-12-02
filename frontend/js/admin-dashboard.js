@@ -631,10 +631,24 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
         // Simple validation: Check if correct answer is among options
         let validationIcon = '';
         if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
-            const isValid = question.options.some(option => option.trim() === question.correctAnswer.trim());
+            console.log('=== VALIDATION CHECK ===');
+            console.log('Question:', question.questionTextEn.substring(0, 50));
+            console.log('Correct Answer:', question.correctAnswer);
+            console.log('Options:', question.options);
+
+            const isValid = question.options.some(option => {
+                const match = option.trim() === question.correctAnswer.trim();
+                console.log(`  "${option.trim()}" === "${question.correctAnswer.trim()}" ? ${match}`);
+                return match;
+            });
+
+            console.log('Is Valid:', isValid);
 
             if (!isValid) {
                 validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
+                console.log('❌ ICON ADDED');
+            } else {
+                console.log('✅ Valid - no icon');
             }
         }
 
