@@ -631,10 +631,18 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
         // Validate if correct answer is among options (for multiple choice)
         let validationIcon = '';
         if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
-            // Normalize by removing $ delimiters and trimming whitespace
-            const normalizedAnswer = question.correctAnswer.replace(/\$/g, '').trim();
+            // Normalize by removing ALL LaTeX delimiters and extra whitespace
+            const normalizeText = (text) => {
+                return text
+                    .replace(/\$/g, '')           // Remove $ delimiters
+                    .replace(/\\[\(\)]/g, '')     // Remove \( and \) delimiters
+                    .replace(/\s+/g, ' ')         // Normalize multiple spaces to single space
+                    .trim();                      // Trim leading/trailing whitespace
+            };
+
+            const normalizedAnswer = normalizeText(question.correctAnswer);
             const isValid = question.options.some(option => {
-                const normalizedOption = option.replace(/\$/g, '').trim();
+                const normalizedOption = normalizeText(option);
                 return normalizedOption === normalizedAnswer;
             });
 
@@ -1192,9 +1200,17 @@ function displayQuestionPreview(question) {
         
        let optionsHtml = '';
 question.options.forEach((option, index) => {
-    // Normalize by removing $ delimiters and trimming whitespace
-    const normalizedOption = option.replace(/\$/g, '').trim();
-    const normalizedAnswer = question.correctAnswer.replace(/\$/g, '').trim();
+    // Normalize by removing ALL LaTeX delimiters and extra whitespace
+    const normalizeText = (text) => {
+        return text
+            .replace(/\$/g, '')           // Remove $ delimiters
+            .replace(/\\[\(\)]/g, '')     // Remove \( and \) delimiters
+            .replace(/\s+/g, ' ')         // Normalize multiple spaces to single space
+            .trim();                      // Trim leading/trailing whitespace
+    };
+
+    const normalizedOption = normalizeText(option);
+    const normalizedAnswer = normalizeText(question.correctAnswer);
     const isCorrect = normalizedOption === normalizedAnswer;
     
     const badgeClass = isCorrect ? 'success' : 'secondary';
