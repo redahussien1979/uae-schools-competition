@@ -11,6 +11,9 @@ let currentPage = {
     attempts: 1,
     questions: 1
 };
+// Track all loaded questions for navigation
+let allLoadedQuestions = [];
+let currentQuestionIndex = -1;
 
 // Track selected questions for batch delete
 let selectedQuestionIds = new Set();
@@ -603,6 +606,12 @@ async function loadQuestions(page = 1) {
 function displayQuestions(questions, replace = true, startSerial = 1) {
     const tbody = document.getElementById('questionsTableBody');
 
+    // Store questions for navigation
+    if (replace) {
+        allLoadedQuestions = questions;
+    } else {
+        allLoadedQuestions = allLoadedQuestions.concat(questions);
+    }
     if (questions.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -1148,6 +1157,9 @@ let currentPreviewQuestionId = null;
 async function viewQuestion(questionId) {
     const token = checkAdminAuth();
     
+    // Find the index of this question in the loaded questions
+    currentQuestionIndex = allLoadedQuestions.findIndex(q => q._id === questionId);
+    
     try {
         // Fetch question data
         const response = await fetch(`${API_URL}/admin/questions/${questionId}`, {
@@ -1161,6 +1173,7 @@ async function viewQuestion(questionId) {
         if (data.success) {
             displayQuestionPreview(data.question);
             currentPreviewQuestionId = questionId;
+            updateNavigationButtons(); // Update button states
         } else {
             alert(data.message || 'Failed to load question');
         }
@@ -1169,6 +1182,7 @@ async function viewQuestion(questionId) {
         alert('Failed to load question');
     }
 }
+
 
 
 function displayQuestionPreview(question) {
@@ -2371,3 +2385,48 @@ function applyProfessionalLatexConversion(text) {
     return text;
 }
 
+// ========================================
+// QUESTION NAVIGATION IN PREVIEW
+// ========================================
+
+/**
+ * Navigate to previous question in preview
+ */
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        const previousQ = allLoadedQuestions[currentQuestionIndex];
+        displayQuestionPreview(previousQ);
+        currentPreviewQuestionId = previousQ._id;
+        updateNavigationButtons();
+    }
+}
+
+/**
+ * Navigate to next question in preview
+ */
+function nextQuestion() {
+    if (currentQuestionIndex < allLoadedQuestions.length - 1) {
+        currentQuestionIndex++;
+        const nextQ = allLoadedQuestions[currentQuestionIndex];
+        displayQuestionPreview(nextQ);
+        currentPreviewQuestionId = nextQ._id;
+        updateNavigationButtons();
+    }
+}
+
+/**
+ * Update Previous/Next button states
+ */
+function updateNavigationButtons() {
+    const prevBtn = document.querySelector('.modal-footer button[onclick="previousQuestion()"]');
+    const nextBtn = document.querySelector('.modal-footer button[onclick="nextQuestion()"]');
+    
+    if (prevBtn) {
+        prevBtn.disabled = (currentQuestionIndex <= 0);
+    }
+    
+    if (nextBtn) {
+        nextBtn.disabled = (currentQuestionIndex >= allLoadedQuestions.length - 1);
+    }
+}
