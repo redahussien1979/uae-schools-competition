@@ -1287,6 +1287,16 @@ question.options.forEach((option, index) => {
     // Open modal
     const modal = new bootstrap.Modal(document.getElementById('previewModal'));
     modal.show();
+
+   // Add keyboard navigation
+    document.addEventListener('keydown', handlePreviewKeyboard);
+    
+    // Remove keyboard listener when modal closes
+    document.getElementById('previewModal').addEventListener('hidden.bs.modal', function() {
+        document.removeEventListener('keydown', handlePreviewKeyboard);
+    }, { once: true });
+
+   
 }
 
 function editQuestionFromPreview() {
@@ -2428,5 +2438,25 @@ function updateNavigationButtons() {
     
     if (nextBtn) {
         nextBtn.disabled = (currentQuestionIndex >= allLoadedQuestions.length - 1);
+    }
+}
+
+
+/**
+ * Handle keyboard navigation in preview modal
+ */
+function handlePreviewKeyboard(event) {
+    // Only handle arrow keys when preview modal is visible
+    const previewModal = document.getElementById('previewModal');
+    if (!previewModal.classList.contains('show')) {
+        return;
+    }
+    
+    if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        previousQuestion();
+    } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        nextQuestion();
     }
 }
