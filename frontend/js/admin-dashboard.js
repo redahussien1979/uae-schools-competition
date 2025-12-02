@@ -641,14 +641,29 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
             };
 
             const normalizedAnswer = normalizeText(question.correctAnswer);
+
+            // DEBUG: Log validation details
+            console.log('=== VALIDATION DEBUG ===');
+            console.log('Question ID:', question._id);
+            console.log('Correct Answer (raw):', question.correctAnswer);
+            console.log('Correct Answer (normalized):', normalizedAnswer);
+            console.log('Options (raw):', question.options);
+
             const isValid = question.options.some(option => {
                 const normalizedOption = normalizeText(option);
-                return normalizedOption === normalizedAnswer;
+                console.log('  Checking option:', option, '→', normalizedOption);
+                const matches = normalizedOption === normalizedAnswer;
+                if (matches) console.log('  ✅ MATCH!');
+                return matches;
             });
+
+            console.log('Is Valid:', isValid);
 
             if (!isValid) {
                 validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
+                console.log('❌ RED X ICON ADDED');
             }
+            console.log('======================');
         }
 
        const highlightClass = (currentEditingQuestionId === question._id) ? 'highlight-row' : '';
@@ -841,11 +856,12 @@ async function saveQuestion() {
             document.getElementById('option3').value,
             document.getElementById('option4').value
         ].filter(opt => opt.trim() !== '');
-        
+
         if (options.length < 2) {
             alert('Please provide at least 2 options for multiple choice questions');
             return;
         }
+
     }
     
     // Prepare data
