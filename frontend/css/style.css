@@ -1175,3 +1175,63 @@ small.text-muted i {
         right: 10px;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+/* ===== CUSTOM FONT FOR QUESTIONS AND OPTIONS ===== */
+
+/* Question text styling */
+#questionText,
+.question-text,
+.all-questions-mode .question-text {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500;
+}
+
+/* Arabic question text */
+[dir="rtl"] #questionText,
+[dir="rtl"] .question-text,
+[dir="rtl"] .all-questions-mode .question-text {
+    font-family: 'Tajawal', sans-serif !important;
+}
+
+/* Answer options text */
+.answer-option,
+.option-text,
+.answer-option .option-text {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 400;
+}
+
+/* Arabic answer options */
+[dir="rtl"] .answer-option,
+[dir="rtl"] .option-text,
+[dir="rtl"] .answer-option .option-text {
+    font-family: 'Tajawal', sans-serif !important;
+}
+
+/* Text input answers */
+#answerContainer input.form-control {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+[dir="rtl"] #answerContainer input.form-control {
+    font-family: 'Tajawal', sans-serif !important;
+}
+
+/* Paragraph text (for reading passages) */
+.paragraph-text {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+[dir="rtl"] .paragraph-text {
+    font-family: 'Tajawal', sans-serif !important;
+}
