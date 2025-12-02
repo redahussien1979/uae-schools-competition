@@ -628,31 +628,21 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
         const questionText = question.questionTextEn.substring(0, 60) + (question.questionTextEn.length > 60 ? '...' : '');
         const isChecked = selectedQuestionIds.has(question._id) ? 'checked' : '';
 
-        // Validate if correct answer is among options (for multiple choice)
-     //   let validationIcon = '';
-      //  if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
-       //     const correctAnswer = question.correctAnswer;
-       //     const isValid = question.options.some(option => option.trim() === correctAnswer.trim());
+         Validate if correct answer is among options (for multiple choice)
+       let validationIcon = '';
+        if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
+            const correctAnswer = question.correctAnswer;
+            const isValid = question.options.some(option => option.trim() === correctAnswer.trim());
 
-        //    if (!isValid) {
-        //        validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
-        //    }
-      //  }
-
-
+            if (!isValid) {
+                validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
+            }
+        }
 
 
 
 
-// Simple validation: Check if correct answer is among options
-let validationIcon = '';
-if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
-    const isValid = question.options.some(option => option.trim() === question.correctAnswer.trim());
 
-    if (!isValid) {
-        validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
-    }
-}
 
 
 
@@ -1218,11 +1208,21 @@ function displayQuestionPreview(question) {
         optionsContainer.style.display = 'block';
         
        let optionsHtml = '';
+
+       
+// Normalize function for comparison
+const normalize = (text) => {
+    return text
+        .replace(/\$/g, '')                    // Remove $ delimiters
+        .replace(/\\[\(\)]/g, '')              // Remove \( \) delimiters
+        .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width chars
+        .replace(/\u200F|\u200E/g, '')         // Remove RTL/LTR marks
+        .replace(/\s+/g, ' ')                  // Normalize all spaces
+        .trim();                               // Trim edges
+};
+
 question.options.forEach((option, index) => {
-    // Normalize by removing $ delimiters and trimming whitespace
-    const normalizedOption = option.replace(/\$/g, '').trim();
-    const normalizedAnswer = question.correctAnswer.replace(/\$/g, '').trim();
-    const isCorrect = normalizedOption === normalizedAnswer;
+    const isCorrect = normalize(option) === normalize(question.correctAnswer);
     
     const badgeClass = isCorrect ? 'success' : 'secondary';
     const icon = isCorrect ? '<i class="bi bi-check-circle-fill me-2"></i>' : '';
@@ -1236,6 +1236,8 @@ question.options.forEach((option, index) => {
     `;
 });
 
+
+       
         
         optionsList.innerHTML = optionsHtml;
     } else {
