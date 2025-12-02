@@ -629,15 +629,31 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
         const isChecked = selectedQuestionIds.has(question._id) ? 'checked' : '';
 
          //Validate if correct answer is among options (for multiple choice)
-       let validationIcon = '';
-        if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
-            const correctAnswer = question.correctAnswer;
-            const isValid = question.options.some(option => option.trim() === correctAnswer.trim());
+      // Validation: Check if correct answer is among options
+let validationIcon = '';
+if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
+    // Normalize function for Arabic and English text
+    const normalize = (text) => {
+        return text
+            .replace(/\$/g, '')                    // Remove $ delimiters
+            .replace(/\\[\(\)]/g, '')              // Remove \( \) delimiters
+            .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width chars
+            .replace(/\u200F|\u200E/g, '')         // Remove RTL/LTR marks
+            .replace(/\s+/g, ' ')                  // Normalize all spaces
+            .trim();                               // Trim edges
+    };
 
-            if (!isValid) {
-                validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
-            }
-        }
+    const normalizedAnswer = normalize(question.correctAnswer);
+    const isValid = question.options.some(option => {
+        const normalizedOption = normalize(option);
+        return normalizedOption === normalizedAnswer;
+    });
+
+    if (!isValid) {
+        validationIcon = '<i class="bi bi-x-circle-fill text-danger ms-2" title="Correct answer is not among the options!" style="font-size: 1.2rem;"></i>';
+    }
+}
+
 
 
 
