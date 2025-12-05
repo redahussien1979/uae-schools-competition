@@ -716,8 +716,9 @@ function displayParagraphMode() {
     document.getElementById('progressDots').style.display = 'none';
     
     // Update question counter
-    document.getElementById('currentQuestion').textContent = currentLanguage === 'ar' ? '١-١٠' : '1-10';
-    document.getElementById('totalQuestions').textContent = currentLanguage === 'ar' ? '١٠' : '10';
+  document.getElementById('currentQuestion').textContent = '1-10';
+document.getElementById('totalQuestions').textContent = '10';
+
     
     // Show submit button
     document.getElementById('submitBtn').classList.remove('d-none');
