@@ -716,7 +716,7 @@ function displayParagraphMode() {
     document.getElementById('progressDots').style.display = 'none';
     
     // Update question counter
-  document.getElementById('currentQuestion').textContent = '1-10';
+  document.getElementById('currentQuestion').textContent = '10';
 document.getElementById('totalQuestions').textContent = '10';
 
     
