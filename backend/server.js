@@ -524,14 +524,16 @@ function checkAnswer(questionType, userAnswer, correctAnswer, alternativeAnswers
 
 
 // Helper function to calculate stars based on score
+// Helper function to calculate stars based on score
 function calculateStars(score) {
-    if (score === 10) return 5;      // 100% = 5 stars
-    if (score >= 8) return 4;        // 80-90% = 4 stars
-    if (score >= 6) return 3;        // 60-70% = 3 stars
-    if (score >= 4) return 2;        // 40-50% = 2 stars
-    if (score >= 1) return 1;        // 10-30% = 1 star
-    return 0;                        // 0% = 0 stars
+    if (score === 10) return 5;      // Score 10 = 5 stars
+    if (score === 9) return 4;       // Score 9 = 4 stars
+    if (score === 8) return 3;       // Score 8 = 3 stars
+    if (score === 7) return 2;       // Score 7 = 2 stars
+    if (score === 6) return 1;       // Score 6 = 1 star
+    return 0;                        // Below 6 = 0 stars
 }
+
 
 // ========================================
 // ADD SAMPLE QUESTIONS (FOR TESTING)
