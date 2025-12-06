@@ -155,25 +155,34 @@ function showNewRecordCelebration() {
     const titleEl = document.getElementById('resultTitle');
     const iconEl = document.getElementById('resultIcon');
     const iconContainer = document.getElementById('resultIconContainer');
-    
+
     // Update title
     titleEl.setAttribute('data-en', '🎉 NEW RECORD! 🎉');
     titleEl.setAttribute('data-ar', '🎉 رقم قياسي جديد! 🎉');
     titleEl.textContent = currentLanguage === 'ar' ? '🎉 رقم قياسي جديد! 🎉' : '🎉 NEW RECORD! 🎉';
     titleEl.classList.add('text-success');
-    
+
     // Update icon
     iconEl.classList.remove('text-warning');
     iconEl.classList.add('text-success');
     iconContainer.classList.add('result-success');
-    
+
     // Highlight comparison card
     const comparisonCard = document.getElementById('comparisonCard');
     comparisonCard.classList.add('border', 'border-success', 'border-3');
-    
+
+    // Add New Record Ribbon
+    const scoreCard = document.querySelector('.card.shadow-lg');
+    if (scoreCard && !document.querySelector('.new-record-ribbon')) {
+        const ribbon = document.createElement('div');
+        ribbon.className = 'new-record-ribbon';
+        ribbon.textContent = currentLanguage === 'ar' ? 'رقم قياسي جديد' : 'NEW RECORD';
+        scoreCard.appendChild(ribbon);
+    }
+
     // Show confetti animation
     showConfetti();
-    
+
     // Play success sound (optional)
     // playSuccessSound();
 }
