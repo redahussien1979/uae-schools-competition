@@ -3,7 +3,26 @@
    ============================================ */
 
 // ===== Global Variables =====
-let currentLanguage = 'en'; // Default language
+// ===== Global Variables =====
+// Set language IMMEDIATELY from localStorage (prevents flash)
+let currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
+
+// Apply language settings immediately (before DOMContentLoaded)
+(function() {
+    const html = document.documentElement;
+    const bootstrapRTL = document.getElementById('bootstrap-rtl');
+    
+    if (currentLanguage === 'ar') {
+        html.setAttribute('lang', 'ar');
+        html.setAttribute('dir', 'rtl');
+        if (bootstrapRTL) bootstrapRTL.disabled = false;
+    } else {
+        html.setAttribute('lang', 'en');
+        html.setAttribute('dir', 'ltr');
+        if (bootstrapRTL) bootstrapRTL.disabled = true;
+    }
+})();
+
 
 
 
@@ -317,18 +336,29 @@ function showLoading(show) {
 }
 
 // ===== Initialize on Page Load =====
+// ===== Initialize on Page Load =====
 document.addEventListener('DOMContentLoaded', function() {
-    // Load saved language preference
-    const savedLanguage = localStorage.getItem('preferredLanguage');
-    if (savedLanguage && savedLanguage !== currentLanguage) {
-        toggleLanguage();
+    // Update the language toggle button text
+    const langText = document.getElementById('langText');
+    if (langText) {
+        langText.textContent = currentLanguage === 'ar' ? 'English' : 'العربية';
     }
+    
+    // Enable/disable RTL stylesheet
+    const bootstrapRTL = document.getElementById('bootstrap-rtl');
+    if (bootstrapRTL) {
+        bootstrapRTL.disabled = currentLanguage !== 'ar';
+    }
+    
+    // Update all bilingual text elements
+    updateBilingualText();
     
     // Update placeholders
     updatePlaceholders();
     
     console.log('UAE Schools Competition - System Ready');
 });
+
 // ===== Handle Registration =====
 async function handleRegister(event) {
     event.preventDefault();
