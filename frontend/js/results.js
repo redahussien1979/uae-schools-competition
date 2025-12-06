@@ -1,113 +1,171 @@
 /* ============================================
    Results Page JavaScript
    ============================================ */
+/* ============================================
+   Results Page JavaScript
+   ============================================ */
 
 let resultsData = null;
 let currentSubject = '';
 
+// ===== DEBUG MODE =====
+const DEBUG = true;
+function debugLog(message, data = null) {
+    if (DEBUG) {
+        console.log(`[DEBUG] ${message}`, data || '');
+    }
+}
+
 // Load results when page loads
 window.addEventListener('DOMContentLoaded', function() {
+    debugLog('Page loaded, calling loadResults()');
     loadResults();
 });
 
 // Load quiz results
 function loadResults() {
+    debugLog('loadResults() called');
+
     // Get results from localStorage (stored by quiz.js)
     const resultsStr = localStorage.getItem('quizResults');
-    
+    debugLog('quizResults from localStorage:', resultsStr);
+
     if (!resultsStr) {
+        debugLog('ERROR: No quiz results found in localStorage');
         alert('No quiz results found');
         window.location.href = 'dashboard.html';
         return;
     }
-    
+
     try {
         resultsData = JSON.parse(resultsStr);
-        
+        debugLog('Parsed resultsData:', resultsData);
+
         // Get subject from URL or results
         const urlParams = new URLSearchParams(window.location.search);
         currentSubject = urlParams.get('subject') || 'math';
-        
+        debugLog('Current subject:', currentSubject);
+
         // Display results
+        debugLog('Calling displayResults()');
         displayResults();
-        
+
         // Clear results from localStorage
         localStorage.removeItem('quizResults');
-        
+        debugLog('Results cleared from localStorage');
+
     } catch (error) {
+        debugLog('CRITICAL ERROR in loadResults():', error);
         console.error('Error loading results:', error);
-        alert('Failed to load results');
+        alert('Failed to load results: ' + error.message);
         window.location.href = 'dashboard.html';
     }
 }
 
-
-
-
 // Display results
 function displayResults() {
-    const { score, totalQuestions, percentage, isNewBest, previousBest, timeTaken, totalBestScore, starsEarned, totalStars } = resultsData;
+    debugLog('displayResults() started');
+    try {
+        debugLog('Extracting data from resultsData');
+        const { score, totalQuestions, percentage, isNewBest, previousBest, timeTaken, totalBestScore, starsEarned, totalStars } = resultsData;
+        debugLog('Extracted values:', { score, totalQuestions, percentage, isNewBest, previousBest, timeTaken, totalBestScore, starsEarned, totalStars });
 
-    // Set subject info
-    setSubjectInfo(currentSubject);
+        // Set subject info
+        debugLog('Setting subject info');
+        setSubjectInfo(currentSubject);
 
-    // Display score - Simple approach without LaTeX
-    document.getElementById('scoreDisplay').textContent = `${score}/${totalQuestions}`;
-    document.getElementById('percentageDisplay').textContent = `${percentage}%`;
+        // Display score - Simple approach without LaTeX
+        debugLog('Displaying score');
+        const scoreEl = document.getElementById('scoreDisplay');
+        const percentageEl = document.getElementById('percentageDisplay');
+        debugLog('Score element:', scoreEl);
+        debugLog('Percentage element:', percentageEl);
 
-    // Display stars earned
-    const starsEarnedEl = document.getElementById('starsEarned');
-    if (starsEarnedEl) {
-        starsEarnedEl.textContent = `+${starsEarned || 0} ⭐`;
+        scoreEl.textContent = `${score}/${totalQuestions}`;
+        percentageEl.textContent = `${percentage}%`;
+        debugLog('Score and percentage set');
+
+        // Display stars earned
+        debugLog('Displaying stars earned');
+        const starsEarnedEl = document.getElementById('starsEarned');
+        if (starsEarnedEl) {
+            starsEarnedEl.textContent = `+${starsEarned || 0} ⭐`;
+            debugLog('Stars earned set:', starsEarned);
+        } else {
+            debugLog('WARNING: starsEarned element not found');
+        }
+
+        // Display total stars
+        debugLog('Displaying total stars');
+        const totalStarsEl = document.getElementById('totalStarsResult');
+        if (totalStarsEl) {
+            totalStarsEl.textContent = `${totalStars || 0} ⭐`;
+            debugLog('Total stars set:', totalStars);
+        } else {
+            debugLog('INFO: totalStarsResult element not found (optional)');
+        }
+
+        // Display comparison
+        debugLog('Displaying comparison scores');
+        document.getElementById('currentScoreText').textContent = `${score}/${totalQuestions}`;
+        document.getElementById('previousBestText').textContent = `${previousBest}/${totalQuestions}`;
+
+        // Display time taken
+        debugLog('Displaying time taken');
+        document.getElementById('timeTaken').textContent = formatTime(timeTaken);
+
+        // Display total best score
+        debugLog('Displaying total best score');
+        document.getElementById('totalBestScore').textContent = `${totalBestScore}/40`;
+        const overallPercentage = Math.round((totalBestScore / 40) * 100);
+        document.getElementById('overallPercentage').textContent = `${overallPercentage}%`;
+        debugLog('Overall percentage calculated:', overallPercentage);
+
+        // NOW apply MathJax rendering to make numbers beautiful
+        debugLog('Checking MathJax');
+        if (typeof MathJax !== 'undefined') {
+            debugLog('MathJax found, rendering...');
+            MathJax.typesetPromise([
+                document.getElementById('scoreDisplay'),
+                document.getElementById('percentageDisplay'),
+                document.getElementById('starsEarned'),
+                document.getElementById('currentScoreText'),
+                document.getElementById('previousBestText'),
+                document.getElementById('totalBestScore'),
+                document.getElementById('overallPercentage')
+            ]).then(() => {
+                debugLog('MathJax rendered successfully');
+            }).catch((err) => {
+                debugLog('MathJax error:', err);
+                console.error('MathJax error:', err);
+            });
+        } else {
+            debugLog('MathJax not loaded - numbers will display normally');
+        }
+
+        // Handle new record
+        debugLog('Checking if new best:', isNewBest);
+        if (isNewBest) {
+            debugLog('Showing new record celebration');
+            showNewRecordCelebration();
+        } else {
+            debugLog('Showing regular results');
+            showRegularResults();
+        }
+
+        // Show encouragement message
+        debugLog('Showing encouragement message');
+        showEncouragementMessage(percentage, isNewBest);
+
+        debugLog('displayResults() completed successfully!');
+    } catch (error) {
+        debugLog('CRITICAL ERROR in displayResults():', error);
+        debugLog('Error stack:', error.stack);
+        console.error('Error displaying results:', error);
+        alert('Error displaying results: ' + error.message + '\n\nCheck console for details.');
     }
-
-    // Display total stars
-    const totalStarsEl = document.getElementById('totalStarsResult');
-    if (totalStarsEl) {
-        totalStarsEl.textContent = `${totalStars || 0} ⭐`;
-    }
-
-    // Display comparison
-    document.getElementById('currentScoreText').textContent = `${score}/${totalQuestions}`;
-    document.getElementById('previousBestText').textContent = `${previousBest}/${totalQuestions}`;
-
-    // Display time taken
-    document.getElementById('timeTaken').textContent = formatTime(timeTaken);
-
-    // Display total best score
-    document.getElementById('totalBestScore').textContent = `${totalBestScore}/40`;
-    const overallPercentage = Math.round((totalBestScore / 40) * 100);
-    document.getElementById('overallPercentage').textContent = `${overallPercentage}%`;
-
-    // NOW apply MathJax rendering to make numbers beautiful
-    if (typeof MathJax !== 'undefined') {
-        MathJax.typesetPromise([
-            document.getElementById('scoreDisplay'),
-            document.getElementById('percentageDisplay'),
-            document.getElementById('starsEarned'),
-            document.getElementById('currentScoreText'),
-            document.getElementById('previousBestText'),
-            document.getElementById('totalBestScore'),
-            document.getElementById('overallPercentage')
-        ]).then(() => {
-            console.log('MathJax rendered numbers successfully');
-        }).catch((err) => {
-            console.error('MathJax error:', err);
-        });
-    } else {
-        console.warn('MathJax not loaded - numbers will display normally');
-    }
-
-    // Handle new record
-    if (isNewBest) {
-        showNewRecordCelebration();
-    } else {
-        showRegularResults();
-    }
-
-    // Show encouragement message
-    showEncouragementMessage(percentage, isNewBest);
 }
+
 // Set subject information
 function setSubjectInfo(subject) {
     const subjectInfo = {
