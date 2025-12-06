@@ -83,7 +83,11 @@ function displayResults() {
 
       //  scoreEl.textContent = `${score}/${totalQuestions}`;
        scoreEl.innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
-
+// Remove gradient CSS that conflicts with MathJax
+scoreEl.style.background = 'none';
+scoreEl.style.webkitTextFillColor = 'inherit';
+scoreEl.style.color = '#667eea';
+debugLog('Score set with LaTeX');
 
        percentageEl.textContent = `${percentage}%`;
         debugLog('Score and percentage set');
