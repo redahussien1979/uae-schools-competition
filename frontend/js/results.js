@@ -15,9 +15,31 @@ function debugLog(message, data = null) {
 
 // Load results when page loads
 window.addEventListener('DOMContentLoaded', function() {
-    debugLog('Page loaded, calling loadResults()');
-    loadResults();
+    debugLog('Page loaded, waiting for MathJax...');
+    
+    // Function to run after MathJax is ready
+    function initResults() {
+        debugLog('MathJax ready, calling loadResults()');
+        loadResults();
+    }
+    
+    // Check if MathJax is already ready
+    if (window.mathJaxReady) {
+        initResults();
+    } else {
+        // Wait for MathJax to signal it's ready
+        window.onMathJaxReady = initResults;
+        
+        // Fallback timeout in case MathJax fails to load (5 seconds)
+        setTimeout(function() {
+            if (!window.mathJaxReady) {
+                debugLog('MathJax timeout - proceeding without it');
+                initResults();
+            }
+        }, 5000);
+    }
 });
+
 
 // Load quiz results
 function loadResults() {
@@ -79,12 +101,7 @@ function displayResults() {
         debugLog('Percentage element:', percentageEl);
 
         // Hide elements initially to prevent flash
-        scoreEl.style.opacity = '0';
-        percentageEl.style.opacity = '0';
-        document.getElementById('currentScoreText').style.opacity = '0';
-        document.getElementById('previousBestText').style.opacity = '0';
-        document.getElementById('totalBestScore').style.opacity = '0';
-        document.getElementById('overallPercentage').style.opacity = '0';
+        
 
         // Set content in LaTeX format
         scoreEl.innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
