@@ -122,26 +122,33 @@ function displayResults() {
         debugLog('Overall percentage calculated:', overallPercentage);
 
         // NOW apply MathJax rendering to make numbers beautiful
-        debugLog('Checking MathJax');
-        if (typeof MathJax !== 'undefined') {
-            debugLog('MathJax found, rendering...');
-            MathJax.typesetPromise([
-                document.getElementById('scoreDisplay'),
-                document.getElementById('percentageDisplay'),
-                document.getElementById('starsEarned'),
-                document.getElementById('currentScoreText'),
-                document.getElementById('previousBestText'),
-                document.getElementById('totalBestScore'),
-                document.getElementById('overallPercentage')
-            ]).then(() => {
-                debugLog('MathJax rendered successfully');
-            }).catch((err) => {
-                debugLog('MathJax error:', err);
-                console.error('MathJax error:', err);
-            });
-        } else {
-            debugLog('MathJax not loaded - numbers will display normally');
-        }
+        // NOW apply MathJax rendering to make numbers beautiful (optional)
+debugLog('Checking MathJax');
+if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+    debugLog('MathJax found with typesetPromise, rendering...');
+    try {
+        MathJax.typesetPromise([
+            document.getElementById('scoreDisplay'),
+            document.getElementById('percentageDisplay'),
+            document.getElementById('starsEarned'),
+            document.getElementById('currentScoreText'),
+            document.getElementById('previousBestText'),
+            document.getElementById('totalBestScore'),
+            document.getElementById('overallPercentage')
+        ]).then(() => {
+            debugLog('MathJax rendered successfully');
+        }).catch((err) => {
+            debugLog('MathJax rendering error (non-critical):', err);
+            console.warn('MathJax rendering error (non-critical):', err);
+        });
+    } catch (err) {
+        debugLog('MathJax error (non-critical):', err);
+        console.warn('MathJax error (non-critical):', err);
+    }
+} else {
+    debugLog('MathJax not available - numbers will display normally (this is fine)');
+}
+
 
         // Handle new record
         debugLog('Checking if new best:', isNewBest);
@@ -197,15 +204,26 @@ function setSubjectInfo(subject) {
     
     const info = subjectInfo[subject] || subjectInfo.math;
     
-    // Update subject name
-    const nameEl = document.querySelector('#subjectName span:last-child');
+   // Update subject name - select the LAST span (the text span, not the icon wrapper)
+const nameEl = document.querySelector('#subjectName span:last-child');
+if (nameEl) {
     nameEl.setAttribute('data-en', info.en);
     nameEl.setAttribute('data-ar', info.ar);
     nameEl.textContent = currentLanguage === 'ar' ? info.ar : info.en;
-    
-    // Update icon
-    const iconEl = document.getElementById('subjectIcon');
+    debugLog('Subject name updated');
+} else {
+    debugLog('WARNING: nameEl not found');
+}
+
+// Update icon
+const iconEl = document.getElementById('subjectIcon');
+if (iconEl) {
     iconEl.className = `bi bi-${info.icon} me-2 text-${info.color}`;
+    debugLog('Icon updated');
+} else {
+    debugLog('ERROR: iconEl not found!');
+}
+
 }
 
 // Show new record celebration
