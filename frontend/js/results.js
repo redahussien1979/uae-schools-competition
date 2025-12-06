@@ -198,7 +198,7 @@ function setSubjectInfo(subject) {
     const info = subjectInfo[subject] || subjectInfo.math;
     
     // Update subject name
-    const nameEl = document.querySelector('#subjectName span');
+    const nameEl = document.querySelector('#subjectName span:last-child');
     nameEl.setAttribute('data-en', info.en);
     nameEl.setAttribute('data-ar', info.ar);
     nameEl.textContent = currentLanguage === 'ar' ? info.ar : info.en;
