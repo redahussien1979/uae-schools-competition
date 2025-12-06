@@ -167,44 +167,57 @@ function displayResults() {
 }
 // Set subject information
 function setSubjectInfo(subject) {
+    debugLog('setSubjectInfo called with subject:', subject);
+
     const subjectInfo = {
-        'math': { 
-            en: 'Mathematics', 
-            ar: 'الرياضيات', 
-            icon: 'calculator-fill', 
-            color: 'primary' 
+        'math': {
+            en: 'Mathematics',
+            ar: 'الرياضيات',
+            icon: 'calculator-fill',
+            color: 'primary'
         },
-        'science': { 
-            en: 'Science', 
-            ar: 'العلوم', 
-            icon: 'flask', 
-            color: 'success' 
+        'science': {
+            en: 'Science',
+            ar: 'العلوم',
+            icon: 'flask',
+            color: 'success'
         },
-        'english': { 
-            en: 'English', 
-            ar: 'اللغة الإنجليزية', 
-            icon: 'book-fill', 
-            color: 'danger' 
+        'english': {
+            en: 'English',
+            ar: 'اللغة الإنجليزية',
+            icon: 'book-fill',
+            color: 'danger'
         },
-        'arabic': { 
-            en: 'Arabic', 
-            ar: 'اللغة العربية', 
-            icon: 'chat-square-text-fill', 
-            color: 'warning' 
+        'arabic': {
+            en: 'Arabic',
+            ar: 'اللغة العربية',
+            icon: 'chat-square-text-fill',
+            color: 'warning'
         }
     };
-    
+
     const info = subjectInfo[subject] || subjectInfo.math;
-    
-    // Update subject name
-    const nameEl = document.querySelector('#subjectName span');
-    nameEl.setAttribute('data-en', info.en);
-    nameEl.setAttribute('data-ar', info.ar);
-    nameEl.textContent = currentLanguage === 'ar' ? info.ar : info.en;
-    
+    debugLog('Subject info:', info);
+
+    // Update subject name - select the LAST span (the text span, not the icon wrapper)
+    const nameEl = document.querySelector('#subjectName span:last-child');
+    if (nameEl) {
+        nameEl.setAttribute('data-en', info.en);
+        nameEl.setAttribute('data-ar', info.ar);
+        nameEl.textContent = currentLanguage === 'ar' ? info.ar : info.en;
+        debugLog('Subject name updated');
+    } else {
+        debugLog('WARNING: nameEl not found');
+    }
+
     // Update icon
     const iconEl = document.getElementById('subjectIcon');
-    iconEl.className = `bi bi-${info.icon} me-2 text-${info.color}`;
+    if (iconEl) {
+        iconEl.className = `bi bi-${info.icon} me-2 text-${info.color}`;
+        debugLog('Icon updated');
+    } else {
+        debugLog('ERROR: iconEl not found!');
+    }
 }
 
 // Show new record celebration
