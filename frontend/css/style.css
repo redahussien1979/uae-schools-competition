@@ -1194,6 +1194,7 @@ small.text-muted i {
 .all-questions-mode .question-text {
     font-family: 'Poppins', sans-serif !important;
     font-weight: 500;
+   font-size: 1.35rem;
 }
 
 /* Arabic question text */
