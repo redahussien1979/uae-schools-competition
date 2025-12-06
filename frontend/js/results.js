@@ -81,8 +81,11 @@ function displayResults() {
         debugLog('Score element:', scoreEl);
         debugLog('Percentage element:', percentageEl);
 
-        scoreEl.textContent = `${score}/${totalQuestions}`;
-        percentageEl.textContent = `${percentage}%`;
+      //  scoreEl.textContent = `${score}/${totalQuestions}`;
+       scoreEl.innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
+
+
+       percentageEl.textContent = `${percentage}%`;
         debugLog('Score and percentage set');
 
         // Display stars earned
@@ -107,8 +110,9 @@ function displayResults() {
 
         // Display comparison
         debugLog('Displaying comparison scores');
-        document.getElementById('currentScoreText').textContent = `${score}/${totalQuestions}`;
-        document.getElementById('previousBestText').textContent = `${previousBest}/${totalQuestions}`;
+       document.getElementById('currentScoreText').innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
+document.getElementById('previousBestText').innerHTML = `\\(\\frac{${previousBest}}{${totalQuestions}}\\)`;
+
 
         // Display time taken
         debugLog('Displaying time taken');
@@ -116,7 +120,7 @@ function displayResults() {
 
         // Display total best score
         debugLog('Displaying total best score');
-        document.getElementById('totalBestScore').textContent = `${totalBestScore}/40`;
+document.getElementById('totalBestScore').innerHTML = `\\(\\frac{${totalBestScore}}{40}\\)`;
         const overallPercentage = Math.round((totalBestScore / 40) * 100);
         document.getElementById('overallPercentage').textContent = `${overallPercentage}%`;
         debugLog('Overall percentage calculated:', overallPercentage);
