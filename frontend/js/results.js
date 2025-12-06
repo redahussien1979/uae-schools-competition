@@ -46,14 +46,15 @@ function loadResults() {
 
 // Display results
 function displayResults() {
-    const { score, totalQuestions, percentage, isNewBest, previousBest, timeTaken, totalBestScore, starsEarned, totalStars } = resultsData;
+    try {
+        const { score, totalQuestions, percentage, isNewBest, previousBest, timeTaken, totalBestScore, starsEarned, totalStars } = resultsData;
 
-    // Set subject info
-    setSubjectInfo(currentSubject);
+        // Set subject info
+        setSubjectInfo(currentSubject);
 
-    // Display score - Simple approach without LaTeX
-    document.getElementById('scoreDisplay').textContent = `${score}/${totalQuestions}`;
-    document.getElementById('percentageDisplay').textContent = `${percentage}%`;
+        // Display score - Simple approach without LaTeX
+        document.getElementById('scoreDisplay').textContent = `${score}/${totalQuestions}`;
+        document.getElementById('percentageDisplay').textContent = `${percentage}%`;
 
     // Display stars earned
     const starsEarnedEl = document.getElementById('starsEarned');
@@ -105,8 +106,12 @@ function displayResults() {
         showRegularResults();
     }
 
-    // Show encouragement message
-    showEncouragementMessage(percentage, isNewBest);
+        // Show encouragement message
+        showEncouragementMessage(percentage, isNewBest);
+    } catch (error) {
+        console.error('Error displaying results:', error);
+        alert('Error displaying results. Please try again.');
+    }
 }
 // Set subject information
 function setSubjectInfo(subject) {
@@ -172,12 +177,16 @@ function showNewRecordCelebration() {
     comparisonCard.classList.add('border', 'border-success', 'border-3');
 
     // Add New Record Ribbon
-    const scoreCard = document.querySelector('.card.shadow-lg');
-    if (scoreCard && !document.querySelector('.new-record-ribbon')) {
-        const ribbon = document.createElement('div');
-        ribbon.className = 'new-record-ribbon';
-        ribbon.textContent = currentLanguage === 'ar' ? 'رقم قياسي جديد' : 'NEW RECORD';
-        scoreCard.appendChild(ribbon);
+    try {
+        const scoreCard = document.querySelector('.card.shadow-lg');
+        if (scoreCard && !document.querySelector('.new-record-ribbon')) {
+            const ribbon = document.createElement('div');
+            ribbon.className = 'new-record-ribbon';
+            ribbon.textContent = currentLanguage === 'ar' ? 'رقم قياسي جديد' : 'NEW RECORD';
+            scoreCard.appendChild(ribbon);
+        }
+    } catch (err) {
+        console.warn('Could not add ribbon:', err);
     }
 
     // Show confetti animation
