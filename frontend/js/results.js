@@ -13,40 +13,15 @@ function debugLog(message, data = null) {
     }
 }
 
-// Load results when page loads - WAIT for MathJax first
+// Helper function to create a styled fraction using HTML/CSS
+function createFraction(numerator, denominator) {
+    return `<span class="fraction"><span class="numerator">${numerator}</span><span class="denominator">${denominator}</span></span>`;
+}
+
+// Load results when page loads
 window.addEventListener('DOMContentLoaded', function() {
-    debugLog('Page loaded, waiting for MathJax...');
-    
-    function initResults() {
-        debugLog('MathJax ready, calling loadResults()');
-        loadResults();
-    }
-    
-    // Check if MathJax is ready
-    if (typeof MathJax !== 'undefined' && MathJax.startup && MathJax.startup.promise) {
-        MathJax.startup.promise.then(initResults).catch(function() {
-            debugLog('MathJax promise rejected, proceeding anyway');
-            initResults();
-        });
-    } else if (typeof MathJax !== 'undefined' && MathJax.tex2chtml) {
-        // MathJax already loaded
-        initResults();
-    } else {
-        // Wait for MathJax with timeout fallback
-        let attempts = 0;
-        const maxAttempts = 50; // 5 seconds max
-        const checkMathJax = setInterval(function() {
-            attempts++;
-            if (typeof MathJax !== 'undefined' && MathJax.tex2chtml) {
-                clearInterval(checkMathJax);
-                initResults();
-            } else if (attempts >= maxAttempts) {
-                clearInterval(checkMathJax);
-                debugLog('MathJax timeout - proceeding without it');
-                initResults();
-            }
-        }, 100);
-    }
+    debugLog('Page loaded, calling loadResults()');
+    loadResults();
 });
 
 // Load quiz results
@@ -101,114 +76,16 @@ function displayResults() {
         debugLog('Setting subject info');
         setSubjectInfo(currentSubject);
 
-        // Get all elements
+        // Display score using CSS fractions (instant, no delay!)
+        debugLog('Displaying score');
         const scoreEl = document.getElementById('scoreDisplay');
         const percentageEl = document.getElementById('percentageDisplay');
-        const currentScoreEl = document.getElementById('currentScoreText');
-        const previousBestEl = document.getElementById('previousBestText');
-        const totalBestEl = document.getElementById('totalBestScore');
-        const overallPercentEl = document.getElementById('overallPercentage');
 
-        // Hide ALL elements completely until MathJax renders
-        scoreEl.style.display = 'none';
-        percentageEl.style.display = 'none';
-        currentScoreEl.style.display = 'none';
-        previousBestEl.style.display = 'none';
-        totalBestEl.style.display = 'none';
-        overallPercentEl.style.display = 'none';
+        // Set fractions using CSS styling
+        scoreEl.innerHTML = createFraction(score, totalQuestions);
+        percentageEl.textContent = `${percentage}%`;
 
-        // Calculate overall percentage
-        const overallPct = Math.round((totalBestScore / 40) * 100);
-
-        // Function to render with MathJax tex2chtml (pre-rendered, no flash)
-        function renderWithMathJax() {
-            debugLog('Rendering with MathJax tex2chtml');
-            
-            // Clear existing content
-            scoreEl.innerHTML = '';
-            percentageEl.innerHTML = '';
-            currentScoreEl.innerHTML = '';
-            previousBestEl.innerHTML = '';
-            totalBestEl.innerHTML = '';
-            overallPercentEl.innerHTML = '';
-
-            // Use tex2chtml to create pre-rendered MathJax nodes
-            scoreEl.appendChild(MathJax.tex2chtml(`\\frac{${score}}{${totalQuestions}}`));
-            percentageEl.appendChild(MathJax.tex2chtml(`${percentage}\\%`));
-            currentScoreEl.appendChild(MathJax.tex2chtml(`\\frac{${score}}{${totalQuestions}}`));
-            previousBestEl.appendChild(MathJax.tex2chtml(`\\frac{${previousBest}}{${totalQuestions}}`));
-            totalBestEl.appendChild(MathJax.tex2chtml(`\\frac{${totalBestScore}}{40}`));
-            overallPercentEl.appendChild(MathJax.tex2chtml(`${overallPct}\\%`));
-
-            // Apply styles to scoreEl
-            scoreEl.style.background = 'none';
-            scoreEl.style.webkitTextFillColor = 'inherit';
-            scoreEl.style.color = '#667eea';
-            scoreEl.style.fontSize = '5rem';
-            scoreEl.style.fontWeight = '900';
-
-            // Insert MathJax stylesheet if not already present
-            if (MathJax.startup && MathJax.startup.document) {
-                MathJax.startup.document.updateDocument();
-            }
-
-            // NOW show all elements (already rendered!)
-            scoreEl.style.display = '';
-            percentageEl.style.display = '';
-            currentScoreEl.style.display = '';
-            previousBestEl.style.display = '';
-            totalBestEl.style.display = '';
-            overallPercentEl.style.display = '';
-
-            debugLog('MathJax rendering complete - elements visible');
-        }
-
-        // Function to render plain text fallback
-        function renderPlainText() {
-            debugLog('Rendering plain text fallback');
-            
-            scoreEl.textContent = `${score}/${totalQuestions}`;
-            percentageEl.textContent = `${percentage}%`;
-            currentScoreEl.textContent = `${score}/${totalQuestions}`;
-            previousBestEl.textContent = `${previousBest}/${totalQuestions}`;
-            totalBestEl.textContent = `${totalBestScore}/40`;
-            overallPercentEl.textContent = `${overallPct}%`;
-
-            // Apply styles to scoreEl
-            scoreEl.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%)';
-            scoreEl.style.backgroundSize = '200% auto';
-            scoreEl.style.webkitBackgroundClip = 'text';
-            scoreEl.style.webkitTextFillColor = 'transparent';
-            scoreEl.style.fontSize = '5rem';
-            scoreEl.style.fontWeight = '900';
-
-            // Show all elements
-            scoreEl.style.display = '';
-            percentageEl.style.display = '';
-            currentScoreEl.style.display = '';
-            previousBestEl.style.display = '';
-            totalBestEl.style.display = '';
-            overallPercentEl.style.display = '';
-        }
-
-        // Check if MathJax tex2chtml is available
-        if (typeof MathJax !== 'undefined' && MathJax.tex2chtml) {
-            renderWithMathJax();
-        } else if (typeof MathJax !== 'undefined' && MathJax.startup && MathJax.startup.promise) {
-            // Wait for MathJax startup promise
-            MathJax.startup.promise.then(function() {
-                if (MathJax.tex2chtml) {
-                    renderWithMathJax();
-                } else {
-                    renderPlainText();
-                }
-            }).catch(function() {
-                renderPlainText();
-            });
-        } else {
-            // Fallback: no MathJax available
-            renderPlainText();
-        }
+        debugLog('Score set with CSS fraction');
 
         // Display stars earned
         debugLog('Displaying stars earned');
@@ -216,8 +93,6 @@ function displayResults() {
         if (starsEarnedEl) {
             starsEarnedEl.textContent = `+${starsEarned || 0} ⭐`;
             debugLog('Stars earned set:', starsEarned);
-        } else {
-            debugLog('WARNING: starsEarned element not found');
         }
 
         // Display total stars
@@ -226,13 +101,23 @@ function displayResults() {
         if (totalStarsEl) {
             totalStarsEl.textContent = `${totalStars || 0} ⭐`;
             debugLog('Total stars set:', totalStars);
-        } else {
-            debugLog('INFO: totalStarsResult element not found (optional)');
         }
+
+        // Display comparison using CSS fractions
+        debugLog('Displaying comparison scores');
+        document.getElementById('currentScoreText').innerHTML = createFraction(score, totalQuestions);
+        document.getElementById('previousBestText').innerHTML = createFraction(previousBest, totalQuestions);
 
         // Display time taken
         debugLog('Displaying time taken');
         document.getElementById('timeTaken').textContent = formatTime(timeTaken);
+
+        // Display total best score using CSS fractions
+        debugLog('Displaying total best score');
+        document.getElementById('totalBestScore').innerHTML = createFraction(totalBestScore, 40);
+        const overallPercentage = Math.round((totalBestScore / 40) * 100);
+        document.getElementById('overallPercentage').textContent = `${overallPercentage}%`;
+        debugLog('Overall percentage calculated:', overallPercentage);
 
         // Handle new record
         debugLog('Checking if new best:', isNewBest);
@@ -291,15 +176,13 @@ function setSubjectInfo(subject) {
     const info = subjectInfo[subject] || subjectInfo.math;
     debugLog('Subject info:', info);
 
-    // Update subject name - select the LAST span (the text span, not the icon wrapper)
+    // Update subject name
     const nameEl = document.querySelector('#subjectName span:last-child');
     if (nameEl) {
         nameEl.setAttribute('data-en', info.en);
         nameEl.setAttribute('data-ar', info.ar);
         nameEl.textContent = currentLanguage === 'ar' ? info.ar : info.en;
         debugLog('Subject name updated');
-    } else {
-        debugLog('WARNING: nameEl not found');
     }
 
     // Update icon
@@ -307,8 +190,6 @@ function setSubjectInfo(subject) {
     if (iconEl) {
         iconEl.className = `bi bi-${info.icon} me-2 text-${info.color}`;
         debugLog('Icon updated');
-    } else {
-        debugLog('ERROR: iconEl not found!');
     }
 }
 
@@ -318,22 +199,18 @@ function showNewRecordCelebration() {
     const iconEl = document.getElementById('resultIcon');
     const iconContainer = document.getElementById('resultIconContainer');
 
-    // Update title
     titleEl.setAttribute('data-en', '🎉 NEW RECORD! 🎉');
     titleEl.setAttribute('data-ar', '🎉 رقم قياسي جديد! 🎉');
     titleEl.textContent = currentLanguage === 'ar' ? '🎉 رقم قياسي جديد! 🎉' : '🎉 NEW RECORD! 🎉';
     titleEl.classList.add('text-success');
 
-    // Update icon
     iconEl.classList.remove('text-warning');
     iconEl.classList.add('text-success');
     iconContainer.classList.add('result-success');
 
-    // Highlight comparison card
     const comparisonCard = document.getElementById('comparisonCard');
     comparisonCard.classList.add('border', 'border-success', 'border-3');
 
-    // Add New Record Ribbon
     try {
         const scoreCard = document.querySelector('.card.shadow-lg');
         if (scoreCard && !document.querySelector('.new-record-ribbon')) {
@@ -346,14 +223,12 @@ function showNewRecordCelebration() {
         console.warn('Could not add ribbon:', err);
     }
 
-    // Show confetti animation
     showConfetti();
 }
 
 // Show regular results
 function showRegularResults() {
     const titleEl = document.getElementById('resultTitle');
-
     titleEl.setAttribute('data-en', 'Quiz Completed!');
     titleEl.setAttribute('data-ar', 'اكتمل الاختبار!');
     titleEl.textContent = currentLanguage === 'ar' ? 'اكتمل الاختبار!' : 'Quiz Completed!';
@@ -390,7 +265,6 @@ function showEncouragementMessage(percentage, isNewBest) {
 // Format time (seconds to MM:SS)
 function formatTime(seconds) {
     if (!seconds) return '0:00';
-
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -414,7 +288,6 @@ function showConfetti() {
     const confettiCount = 150;
     const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500'];
 
-    // Create confetti particles
     for (let i = 0; i < confettiCount; i++) {
         confetti.push({
             x: Math.random() * canvas.width,
@@ -460,7 +333,6 @@ function showConfetti() {
 
     draw();
 
-    // Auto-hide after 5 seconds
     setTimeout(() => {
         canvas.style.display = 'none';
         if (animationFrame) {
