@@ -29,7 +29,352 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    
+
+    <style>
+        /* ===== ENHANCED RESULTS PAGE STYLES ===== */
+
+        /* Animated gradient background for results section */
+        .results-hero {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            animation: rotateGradient 20s linear infinite;
+        }
+
+        @keyframes rotateGradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced trophy icon with pulse and glow */
+        .result-icon-enhanced {
+            position: relative;
+            display: inline-block;
+        }
+
+        .result-icon-enhanced i {
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 10px 20px rgba(255, 193, 7, 0.5));
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        .result-icon-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(255, 193, 7, 0.3), transparent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* Animated score circle with gradient border */
+        .score-circle-wrapper {
+            position: relative;
+            display: inline-block;
+            padding: 3rem;
+        }
+
+        .score-circle-border {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Enhanced score display with shimmer */
+        .score-display-enhanced {
+            position: relative;
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Percentage badge with 3D effect */
+        .percentage-badge {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50px;
+            box-shadow:
+                0 10px 25px rgba(102, 126, 234, 0.3),
+                inset 0 -3px 10px rgba(0,0,0,0.2),
+                inset 0 3px 10px rgba(255,255,255,0.3);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .percentage-badge:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 15px 35px rgba(102, 126, 234, 0.4),
+                inset 0 -3px 10px rgba(0,0,0,0.2),
+                inset 0 3px 10px rgba(255,255,255,0.3);
+        }
+
+        /* Stars earned with sparkle animation */
+        .stars-badge {
+            position: relative;
+            display: inline-block;
+            font-size: 2rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #fff;
+            border-radius: 30px;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+            animation: starFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes starFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .stars-badge::before {
+            content: '✨';
+            position: absolute;
+            left: -15px;
+            top: -10px;
+            font-size: 1.5rem;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        .stars-badge::after {
+            content: '✨';
+            position: absolute;
+            right: -15px;
+            bottom: -10px;
+            font-size: 1.5rem;
+            animation: sparkle 1.5s ease-in-out infinite 0.75s;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Comparison card with glass morphism */
+        .comparison-card-fancy {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .comparison-card-fancy::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .comparison-card-fancy:hover::before {
+            left: 100%;
+        }
+
+        /* Stats card with gradient border */
+        .stats-card-gradient {
+            position: relative;
+            border-radius: 20px;
+            padding: 2px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-card-inner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 18px;
+            padding: 2rem;
+            color: white;
+        }
+
+        /* Action buttons with enhanced hover effects */
+        .btn-fancy {
+            position: relative;
+            overflow: hidden;
+            border: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-fancy::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-fancy:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn-fancy:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* New record ribbon */
+        .new-record-ribbon {
+            position: absolute;
+            top: 30px;
+            right: -35px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 10px 50px;
+            transform: rotate(45deg);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            font-weight: bold;
+            font-size: 0.9rem;
+            z-index: 10;
+            animation: ribbonSlide 0.8s ease-out;
+        }
+
+        @keyframes ribbonSlide {
+            0% { right: -200px; }
+            100% { right: -35px; }
+        }
+
+        /* Time badge */
+        .time-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        /* Encouragement message with fade-in */
+        .encouragement-message {
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Subject icon with rotating border */
+        .subject-icon-fancy {
+            position: relative;
+            display: inline-block;
+            padding: 1rem;
+        }
+
+        .subject-icon-fancy::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            animation: rotateBorder 3s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotateBorder {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .score-display-enhanced {
+                font-size: 3.5rem;
+            }
+
+            .percentage-badge {
+                font-size: 2rem;
+                padding: 0.75rem 2rem;
+            }
+
+            .stars-badge {
+                font-size: 1.5rem;
+                padding: 0.75rem 1.5rem;
+            }
+
+            .new-record-ribbon {
+                font-size: 0.75rem;
+                padding: 8px 40px;
+            }
+        }
+    </style>
+
     <!-- MathJax Configuration -->
     <script>
         window.MathJax = {
@@ -63,14 +408,14 @@
 
     <!-- Main Content -->
     <div class="container my-5">
-        
+
         <!-- Results Card -->
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                
+
                 <!-- Success/New Record Banner -->
-                <div class="text-center mb-4" id="resultBanner">
-                    <div class="result-icon-container mb-3" id="resultIconContainer">
+                <div class="text-center mb-4 results-hero" id="resultBanner">
+                    <div class="result-icon-enhanced mb-3" id="resultIconContainer">
                         <i class="bi bi-trophy-fill text-warning" id="resultIcon" style="font-size: 5rem;"></i>
                     </div>
                     <h1 class="fw-bold mb-2" id="resultTitle" data-en="Quiz Completed!" data-ar="اكتمل الاختبار!">
@@ -79,58 +424,64 @@
                 </div>
 
                 <!-- Score Card -->
-                <div class="card shadow-lg border-0 rounded-4 mb-4">
+                <div class="card shadow-lg border-0 rounded-4 mb-4" style="position: relative; overflow: visible;">
                     <div class="card-body p-5 text-center">
                         
                         <!-- Subject Name -->
                         <h3 class="fw-bold mb-4" id="subjectName">
-                            <i class="bi bi-calculator-fill me-2" id="subjectIcon"></i>
+                            <span class="subject-icon-fancy">
+                                <i class="bi bi-calculator-fill me-2" id="subjectIcon"></i>
+                            </span>
                             <span>Mathematics</span>
                         </h3>
 
                         <div class="mb-4">
-                            <div class="score-display mb-2" id="scoreDisplay">0/10</div>
-                            <div class="percentage-display mb-3" id="percentageDisplay">0%</div>
-                            <div class="stars-earned-display mt-3">
-                                <span class="badge bg-warning text-dark fs-4 px-4 py-2" id="starsEarned">+0 ⭐</span>
-                                <div class="mt-2">
-                                    <small class="text-muted" data-en="Stars Earned" data-ar="النجوم المكتسبة">Stars Earned</small>
+                            <div class="score-display-enhanced mb-3" id="scoreDisplay">0/10</div>
+                            <div class="percentage-badge mb-4" id="percentageDisplay">0%</div>
+                            <div class="stars-earned-display mt-4">
+                                <span class="stars-badge" id="starsEarned">+0 ⭐</span>
+                                <div class="mt-3">
+                                    <small class="text-muted fw-semibold" data-en="Stars Earned" data-ar="النجوم المكتسبة">Stars Earned</small>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Comparison with Previous Best -->
-                        <div class="card bg-light border-0 p-4 mb-4" id="comparisonCard">
+                        <div class="comparison-card-fancy p-4 mb-4" id="comparisonCard">
                             <div class="row">
                                 <div class="col-6">
-                                    <div class="text-muted small mb-1" data-en="Your Score" data-ar="نتيجتك">Your Score</div>
-                                    <div class="h4 fw-bold mb-0" id="currentScoreText">0/10</div>
+                                    <div class="text-muted small mb-2 text-uppercase" style="letter-spacing: 0.5px;" data-en="Your Score" data-ar="نتيجتك">Your Score</div>
+                                    <div class="h3 fw-bold mb-0 text-primary" id="currentScoreText">0/10</div>
                                 </div>
                                 <div class="col-6">
-                                    <div class="text-muted small mb-1" data-en="Previous Best" data-ar="أفضل نتيجة سابقة">Previous Best</div>
-                                    <div class="h4 fw-bold mb-0" id="previousBestText">0/10</div>
+                                    <div class="text-muted small mb-2 text-uppercase" style="letter-spacing: 0.5px;" data-en="Previous Best" data-ar="أفضل نتيجة سابقة">Previous Best</div>
+                                    <div class="h3 fw-bold mb-0 text-secondary" id="previousBestText">0/10</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Time Taken -->
                         <div class="mb-4">
-                            <i class="bi bi-clock me-2"></i>
-                            <span class="text-muted" data-en="Time Taken:" data-ar="الوقت المستغرق:">Time Taken:</span>
-                            <span class="fw-bold" id="timeTaken">0:00</span>
+                            <div class="time-badge">
+                                <i class="bi bi-clock-fill"></i>
+                                <span data-en="Time Taken:" data-ar="الوقت المستغرق:">Time Taken:</span>
+                                <span class="fw-bold" id="timeTaken">0:00</span>
+                            </div>
                         </div>
 
                         <!-- Updated Stats -->
-                        <div class="card bg-gradient-primary text-white border-0 p-4 mb-4">
-                            <h5 class="mb-3" data-en="Updated Statistics" data-ar="إحصائياتك المحدثة">Updated Statistics</h5>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="opacity-75 small mb-1" data-en="Total Best Score" data-ar="مجموع أفضل النتائج">Total Best Score</div>
-                                    <div class="h4 fw-bold mb-0" id="totalBestScore">0/40</div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="opacity-75 small mb-1" data-en="Overall Percentage" data-ar="النسبة المئوية">Overall Percentage</div>
-                                    <div class="h4 fw-bold mb-0" id="overallPercentage">0%</div>
+                        <div class="stats-card-gradient mb-4">
+                            <div class="stats-card-inner">
+                                <h5 class="mb-4 fw-bold" data-en="📊 Updated Statistics" data-ar="📊 إحصائياتك المحدثة">📊 Updated Statistics</h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="opacity-75 small mb-2 text-uppercase" style="letter-spacing: 0.5px;" data-en="Total Best Score" data-ar="مجموع أفضل النتائج">Total Best Score</div>
+                                        <div class="h3 fw-bold mb-0" id="totalBestScore">0/40</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="opacity-75 small mb-2 text-uppercase" style="letter-spacing: 0.5px;" data-en="Overall Percentage" data-ar="النسبة المئوية">Overall Percentage</div>
+                                        <div class="h3 fw-bold mb-0" id="overallPercentage">0%</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -141,30 +492,32 @@
                 <!-- Action Buttons -->
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <a href="dashboard.html" class="btn btn-outline-primary w-100 btn-lg">
-                            <i class="bi bi-house-door me-2"></i>
+                        <a href="dashboard.html" class="btn btn-outline-primary btn-fancy w-100 btn-lg">
+                            <i class="bi bi-house-door-fill me-2"></i>
                             <span data-en="Dashboard" data-ar="الرئيسية">Dashboard</span>
                         </a>
                     </div>
                     <div class="col-md-4">
-                        <button class="btn btn-success w-100 btn-lg" onclick="retryQuiz()">
+                        <button class="btn btn-success btn-fancy w-100 btn-lg" onclick="retryQuiz()">
                             <i class="bi bi-arrow-repeat me-2"></i>
                             <span data-en="Try Again" data-ar="حاول مرة أخرى">Try Again</span>
                         </button>
                     </div>
                     <div class="col-md-4">
-                        <a href="leaderboard.html" class="btn btn-warning w-100 btn-lg">
-                            <i class="bi bi-trophy me-2"></i>
+                        <a href="leaderboard.html" class="btn btn-warning btn-fancy w-100 btn-lg">
+                            <i class="bi bi-trophy-fill me-2"></i>
                             <span data-en="Leaderboard" data-ar="لوحة المتصدرين">Leaderboard</span>
                         </a>
                     </div>
                 </div>
 
                 <!-- Encouragement Message -->
-                <div class="text-center mt-4">
-                    <p class="text-muted" id="encouragementMessage">
-                        <!-- Will be set by JavaScript -->
-                    </p>
+                <div class="text-center mt-5">
+                    <div class="encouragement-message">
+                        <p class="mb-0 h5 text-muted" id="encouragementMessage">
+                            <!-- Will be set by JavaScript -->
+                        </p>
+                    </div>
                 </div>
 
             </div>
