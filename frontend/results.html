@@ -386,44 +386,6 @@
 
 
 
-        /* Enhanced score numbers styling */
-.score-display-enhanced {
-    position: relative;
-    font-size: 5rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 3s linear infinite;
-    letter-spacing: 0.1em;
-    text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Add glow effect around score */
-.score-display-enhanced::before {
-    content: attr(data-score);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: blur(20px);
-    opacity: 0.5;
-    z-index: -1;
-}
-
-/* Make the slash smaller and styled */
-#scoreDisplay {
-    font-variant-numeric: tabular-nums;
-}
-
     </style>
 
     <!-- MathJax Configuration -->
