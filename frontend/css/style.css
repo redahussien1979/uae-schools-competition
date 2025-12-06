@@ -1209,6 +1209,8 @@ small.text-muted i {
 .answer-option .option-text {
     font-family: 'Poppins', sans-serif !important;
     font-weight: 400;
+       font-size: 1.25rem; /* or whatever size you prefer */
+
 }
 
 /* Arabic answer options */
