@@ -13,33 +13,41 @@ function debugLog(message, data = null) {
     }
 }
 
-// Load results when page loads
+// Load results when page loads - WAIT for MathJax first
 window.addEventListener('DOMContentLoaded', function() {
     debugLog('Page loaded, waiting for MathJax...');
     
-    // Function to run after MathJax is ready
     function initResults() {
         debugLog('MathJax ready, calling loadResults()');
         loadResults();
     }
     
-    // Check if MathJax is already ready
-    if (window.mathJaxReady) {
+    // Check if MathJax is ready
+    if (typeof MathJax !== 'undefined' && MathJax.startup && MathJax.startup.promise) {
+        MathJax.startup.promise.then(initResults).catch(function() {
+            debugLog('MathJax promise rejected, proceeding anyway');
+            initResults();
+        });
+    } else if (typeof MathJax !== 'undefined' && MathJax.tex2chtml) {
+        // MathJax already loaded
         initResults();
     } else {
-        // Wait for MathJax to signal it's ready
-        window.onMathJaxReady = initResults;
-        
-        // Fallback timeout in case MathJax fails to load (5 seconds)
-        setTimeout(function() {
-            if (!window.mathJaxReady) {
+        // Wait for MathJax with timeout fallback
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds max
+        const checkMathJax = setInterval(function() {
+            attempts++;
+            if (typeof MathJax !== 'undefined' && MathJax.tex2chtml) {
+                clearInterval(checkMathJax);
+                initResults();
+            } else if (attempts >= maxAttempts) {
+                clearInterval(checkMathJax);
                 debugLog('MathJax timeout - proceeding without it');
                 initResults();
             }
-        }, 5000);
+        }, 100);
     }
 });
-
 
 // Load quiz results
 function loadResults() {
@@ -93,27 +101,114 @@ function displayResults() {
         debugLog('Setting subject info');
         setSubjectInfo(currentSubject);
 
-        // Display score - Use LaTeX format from the start
-        debugLog('Displaying score');
+        // Get all elements
         const scoreEl = document.getElementById('scoreDisplay');
         const percentageEl = document.getElementById('percentageDisplay');
-        debugLog('Score element:', scoreEl);
-        debugLog('Percentage element:', percentageEl);
+        const currentScoreEl = document.getElementById('currentScoreText');
+        const previousBestEl = document.getElementById('previousBestText');
+        const totalBestEl = document.getElementById('totalBestScore');
+        const overallPercentEl = document.getElementById('overallPercentage');
 
-        // Hide elements initially to prevent flash
-        
+        // Hide ALL elements completely until MathJax renders
+        scoreEl.style.display = 'none';
+        percentageEl.style.display = 'none';
+        currentScoreEl.style.display = 'none';
+        previousBestEl.style.display = 'none';
+        totalBestEl.style.display = 'none';
+        overallPercentEl.style.display = 'none';
 
-        // Set content in LaTeX format
-        scoreEl.innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
-        percentageEl.innerHTML = `\\(${percentage}\\%\\)`;
-        
-        // Remove gradient CSS that conflicts with MathJax for main score
-        scoreEl.style.background = 'none';
-        scoreEl.style.webkitTextFillColor = 'inherit';
-        scoreEl.style.color = '#667eea';
-        scoreEl.style.fontSize = '5rem';
-        scoreEl.style.fontWeight = '900';
-        debugLog('Score set with LaTeX');
+        // Calculate overall percentage
+        const overallPct = Math.round((totalBestScore / 40) * 100);
+
+        // Function to render with MathJax tex2chtml (pre-rendered, no flash)
+        function renderWithMathJax() {
+            debugLog('Rendering with MathJax tex2chtml');
+            
+            // Clear existing content
+            scoreEl.innerHTML = '';
+            percentageEl.innerHTML = '';
+            currentScoreEl.innerHTML = '';
+            previousBestEl.innerHTML = '';
+            totalBestEl.innerHTML = '';
+            overallPercentEl.innerHTML = '';
+
+            // Use tex2chtml to create pre-rendered MathJax nodes
+            scoreEl.appendChild(MathJax.tex2chtml(`\\frac{${score}}{${totalQuestions}}`));
+            percentageEl.appendChild(MathJax.tex2chtml(`${percentage}\\%`));
+            currentScoreEl.appendChild(MathJax.tex2chtml(`\\frac{${score}}{${totalQuestions}}`));
+            previousBestEl.appendChild(MathJax.tex2chtml(`\\frac{${previousBest}}{${totalQuestions}}`));
+            totalBestEl.appendChild(MathJax.tex2chtml(`\\frac{${totalBestScore}}{40}`));
+            overallPercentEl.appendChild(MathJax.tex2chtml(`${overallPct}\\%`));
+
+            // Apply styles to scoreEl
+            scoreEl.style.background = 'none';
+            scoreEl.style.webkitTextFillColor = 'inherit';
+            scoreEl.style.color = '#667eea';
+            scoreEl.style.fontSize = '5rem';
+            scoreEl.style.fontWeight = '900';
+
+            // Insert MathJax stylesheet if not already present
+            if (MathJax.startup && MathJax.startup.document) {
+                MathJax.startup.document.updateDocument();
+            }
+
+            // NOW show all elements (already rendered!)
+            scoreEl.style.display = '';
+            percentageEl.style.display = '';
+            currentScoreEl.style.display = '';
+            previousBestEl.style.display = '';
+            totalBestEl.style.display = '';
+            overallPercentEl.style.display = '';
+
+            debugLog('MathJax rendering complete - elements visible');
+        }
+
+        // Function to render plain text fallback
+        function renderPlainText() {
+            debugLog('Rendering plain text fallback');
+            
+            scoreEl.textContent = `${score}/${totalQuestions}`;
+            percentageEl.textContent = `${percentage}%`;
+            currentScoreEl.textContent = `${score}/${totalQuestions}`;
+            previousBestEl.textContent = `${previousBest}/${totalQuestions}`;
+            totalBestEl.textContent = `${totalBestScore}/40`;
+            overallPercentEl.textContent = `${overallPct}%`;
+
+            // Apply styles to scoreEl
+            scoreEl.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%)';
+            scoreEl.style.backgroundSize = '200% auto';
+            scoreEl.style.webkitBackgroundClip = 'text';
+            scoreEl.style.webkitTextFillColor = 'transparent';
+            scoreEl.style.fontSize = '5rem';
+            scoreEl.style.fontWeight = '900';
+
+            // Show all elements
+            scoreEl.style.display = '';
+            percentageEl.style.display = '';
+            currentScoreEl.style.display = '';
+            previousBestEl.style.display = '';
+            totalBestEl.style.display = '';
+            overallPercentEl.style.display = '';
+        }
+
+        // Check if MathJax tex2chtml is available
+        if (typeof MathJax !== 'undefined' && MathJax.tex2chtml) {
+            renderWithMathJax();
+        } else if (typeof MathJax !== 'undefined' && MathJax.startup && MathJax.startup.promise) {
+            // Wait for MathJax startup promise
+            MathJax.startup.promise.then(function() {
+                if (MathJax.tex2chtml) {
+                    renderWithMathJax();
+                } else {
+                    renderPlainText();
+                }
+            }).catch(function() {
+                renderPlainText();
+            });
+        } else {
+            // Fallback: no MathJax available
+            renderPlainText();
+        }
 
         // Display stars earned
         debugLog('Displaying stars earned');
@@ -135,48 +230,10 @@ function displayResults() {
             debugLog('INFO: totalStarsResult element not found (optional)');
         }
 
-        // Display comparison - LaTeX format
-        debugLog('Displaying comparison scores');
-        document.getElementById('currentScoreText').innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
-        document.getElementById('previousBestText').innerHTML = `\\(\\frac{${previousBest}}{${totalQuestions}}\\)`;
-
         // Display time taken
         debugLog('Displaying time taken');
         document.getElementById('timeTaken').textContent = formatTime(timeTaken);
 
-        // Display total best score - LaTeX format
-        debugLog('Displaying total best score');
-        document.getElementById('totalBestScore').innerHTML = `\\(\\frac{${totalBestScore}}{40}\\)`;
-        const overallPercentage = Math.round((totalBestScore / 40) * 100);
-        document.getElementById('overallPercentage').innerHTML = `\\(${overallPercentage}\\%\\)`;
-        debugLog('Overall percentage calculated:', overallPercentage);
-
-
-
-       
-               // Render with MathJax (already loaded and ready)
-        debugLog('Rendering with MathJax');
-        if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-            MathJax.typesetPromise([
-                document.getElementById('scoreDisplay'),
-                document.getElementById('percentageDisplay'),
-                document.getElementById('currentScoreText'),
-                document.getElementById('previousBestText'),
-                document.getElementById('totalBestScore'),
-                document.getElementById('overallPercentage')
-            ]).then(() => {
-                debugLog('MathJax rendered successfully');
-            }).catch((err) => {
-                debugLog('MathJax rendering error:', err);
-            });
-        }
-
-
-
-
-
-
-       
         // Handle new record
         debugLog('Checking if new best:', isNewBest);
         if (isNewBest) {
@@ -291,9 +348,6 @@ function showNewRecordCelebration() {
 
     // Show confetti animation
     showConfetti();
-
-    // Play success sound (optional)
-    // playSuccessSound();
 }
 
 // Show regular results
