@@ -151,68 +151,32 @@ function displayResults() {
         document.getElementById('overallPercentage').innerHTML = `\\(${overallPercentage}\\%\\)`;
         debugLog('Overall percentage calculated:', overallPercentage);
 
-        // NOW apply MathJax rendering and show elements when done
-        debugLog('Checking MathJax');
+
+
+       
+               // Render with MathJax (already loaded and ready)
+        debugLog('Rendering with MathJax');
         if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-            debugLog('MathJax found with typesetPromise, rendering...');
-            try {
-                MathJax.typesetPromise([
-                    document.getElementById('scoreDisplay'),
-                    document.getElementById('percentageDisplay'),
-                    document.getElementById('starsEarned'),
-                    document.getElementById('currentScoreText'),
-                    document.getElementById('previousBestText'),
-                    document.getElementById('totalBestScore'),
-                    document.getElementById('overallPercentage')
-                ]).then(() => {
-                    debugLog('MathJax rendered successfully');
-                    // Show elements with smooth fade-in after rendering
-                    scoreEl.style.transition = 'opacity 0.5s ease-in';
-                    percentageEl.style.transition = 'opacity 0.5s ease-in';
-                    document.getElementById('currentScoreText').style.transition = 'opacity 0.5s ease-in';
-                    document.getElementById('previousBestText').style.transition = 'opacity 0.5s ease-in';
-                    document.getElementById('totalBestScore').style.transition = 'opacity 0.5s ease-in';
-                    document.getElementById('overallPercentage').style.transition = 'opacity 0.5s ease-in';
-                    
-                    scoreEl.style.opacity = '1';
-                    percentageEl.style.opacity = '1';
-                    document.getElementById('currentScoreText').style.opacity = '1';
-                    document.getElementById('previousBestText').style.opacity = '1';
-                    document.getElementById('totalBestScore').style.opacity = '1';
-                    document.getElementById('overallPercentage').style.opacity = '1';
-                }).catch((err) => {
-                    debugLog('MathJax rendering error (non-critical):', err);
-                    console.warn('MathJax rendering error (non-critical):', err);
-                    // Show elements even if MathJax fails
-                    scoreEl.style.opacity = '1';
-                    percentageEl.style.opacity = '1';
-                    document.getElementById('currentScoreText').style.opacity = '1';
-                    document.getElementById('previousBestText').style.opacity = '1';
-                    document.getElementById('totalBestScore').style.opacity = '1';
-                    document.getElementById('overallPercentage').style.opacity = '1';
-                });
-            } catch (err) {
-                debugLog('MathJax error (non-critical):', err);
-                console.warn('MathJax error (non-critical):', err);
-                // Show elements if error
-                scoreEl.style.opacity = '1';
-                percentageEl.style.opacity = '1';
-                document.getElementById('currentScoreText').style.opacity = '1';
-                document.getElementById('previousBestText').style.opacity = '1';
-                document.getElementById('totalBestScore').style.opacity = '1';
-                document.getElementById('overallPercentage').style.opacity = '1';
-            }
-        } else {
-            debugLog('MathJax not available - showing elements normally');
-            // No MathJax, show elements immediately
-            scoreEl.style.opacity = '1';
-            percentageEl.style.opacity = '1';
-            document.getElementById('currentScoreText').style.opacity = '1';
-            document.getElementById('previousBestText').style.opacity = '1';
-            document.getElementById('totalBestScore').style.opacity = '1';
-            document.getElementById('overallPercentage').style.opacity = '1';
+            MathJax.typesetPromise([
+                document.getElementById('scoreDisplay'),
+                document.getElementById('percentageDisplay'),
+                document.getElementById('currentScoreText'),
+                document.getElementById('previousBestText'),
+                document.getElementById('totalBestScore'),
+                document.getElementById('overallPercentage')
+            ]).then(() => {
+                debugLog('MathJax rendered successfully');
+            }).catch((err) => {
+                debugLog('MathJax rendering error:', err);
+            });
         }
 
+
+
+
+
+
+       
         // Handle new record
         debugLog('Checking if new best:', isNewBest);
         if (isNewBest) {
