@@ -1,9 +1,6 @@
 /* ============================================
    Results Page JavaScript
    ============================================ */
-/* ============================================
-   Results Page JavaScript
-   ============================================ */
 
 let resultsData = null;
 let currentSubject = '';
@@ -74,23 +71,32 @@ function displayResults() {
         debugLog('Setting subject info');
         setSubjectInfo(currentSubject);
 
-        // Display score - Simple approach without LaTeX
+        // Display score - Use LaTeX format from the start
         debugLog('Displaying score');
         const scoreEl = document.getElementById('scoreDisplay');
         const percentageEl = document.getElementById('percentageDisplay');
         debugLog('Score element:', scoreEl);
         debugLog('Percentage element:', percentageEl);
 
-      //  scoreEl.textContent = `${score}/${totalQuestions}`;
-       scoreEl.innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
-// Remove gradient CSS that conflicts with MathJax
-scoreEl.style.background = 'none';
-scoreEl.style.webkitTextFillColor = 'inherit';
-scoreEl.style.color = '#667eea';
-debugLog('Score set with LaTeX');
+        // Hide elements initially to prevent flash
+        scoreEl.style.opacity = '0';
+        percentageEl.style.opacity = '0';
+        document.getElementById('currentScoreText').style.opacity = '0';
+        document.getElementById('previousBestText').style.opacity = '0';
+        document.getElementById('totalBestScore').style.opacity = '0';
+        document.getElementById('overallPercentage').style.opacity = '0';
 
-       percentageEl.textContent = `${percentage}%`;
-        debugLog('Score and percentage set');
+        // Set content in LaTeX format
+        scoreEl.innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
+        percentageEl.innerHTML = `\\(${percentage}\\%\\)`;
+        
+        // Remove gradient CSS that conflicts with MathJax for main score
+        scoreEl.style.background = 'none';
+        scoreEl.style.webkitTextFillColor = 'inherit';
+        scoreEl.style.color = '#667eea';
+        scoreEl.style.fontSize = '5rem';
+        scoreEl.style.fontWeight = '900';
+        debugLog('Score set with LaTeX');
 
         // Display stars earned
         debugLog('Displaying stars earned');
@@ -112,51 +118,83 @@ debugLog('Score set with LaTeX');
             debugLog('INFO: totalStarsResult element not found (optional)');
         }
 
-        // Display comparison
+        // Display comparison - LaTeX format
         debugLog('Displaying comparison scores');
-       document.getElementById('currentScoreText').innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
-document.getElementById('previousBestText').innerHTML = `\\(\\frac{${previousBest}}{${totalQuestions}}\\)`;
-
+        document.getElementById('currentScoreText').innerHTML = `\\(\\frac{${score}}{${totalQuestions}}\\)`;
+        document.getElementById('previousBestText').innerHTML = `\\(\\frac{${previousBest}}{${totalQuestions}}\\)`;
 
         // Display time taken
         debugLog('Displaying time taken');
         document.getElementById('timeTaken').textContent = formatTime(timeTaken);
 
-        // Display total best score
+        // Display total best score - LaTeX format
         debugLog('Displaying total best score');
-document.getElementById('totalBestScore').innerHTML = `\\(\\frac{${totalBestScore}}{40}\\)`;
+        document.getElementById('totalBestScore').innerHTML = `\\(\\frac{${totalBestScore}}{40}\\)`;
         const overallPercentage = Math.round((totalBestScore / 40) * 100);
-        document.getElementById('overallPercentage').textContent = `${overallPercentage}%`;
+        document.getElementById('overallPercentage').innerHTML = `\\(${overallPercentage}\\%\\)`;
         debugLog('Overall percentage calculated:', overallPercentage);
 
-        // NOW apply MathJax rendering to make numbers beautiful
-        // NOW apply MathJax rendering to make numbers beautiful (optional)
-debugLog('Checking MathJax');
-if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
-    debugLog('MathJax found with typesetPromise, rendering...');
-    try {
-        MathJax.typesetPromise([
-            document.getElementById('scoreDisplay'),
-            document.getElementById('percentageDisplay'),
-            document.getElementById('starsEarned'),
-            document.getElementById('currentScoreText'),
-            document.getElementById('previousBestText'),
-            document.getElementById('totalBestScore'),
-            document.getElementById('overallPercentage')
-        ]).then(() => {
-            debugLog('MathJax rendered successfully');
-        }).catch((err) => {
-            debugLog('MathJax rendering error (non-critical):', err);
-            console.warn('MathJax rendering error (non-critical):', err);
-        });
-    } catch (err) {
-        debugLog('MathJax error (non-critical):', err);
-        console.warn('MathJax error (non-critical):', err);
-    }
-} else {
-    debugLog('MathJax not available - numbers will display normally (this is fine)');
-}
-
+        // NOW apply MathJax rendering and show elements when done
+        debugLog('Checking MathJax');
+        if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+            debugLog('MathJax found with typesetPromise, rendering...');
+            try {
+                MathJax.typesetPromise([
+                    document.getElementById('scoreDisplay'),
+                    document.getElementById('percentageDisplay'),
+                    document.getElementById('starsEarned'),
+                    document.getElementById('currentScoreText'),
+                    document.getElementById('previousBestText'),
+                    document.getElementById('totalBestScore'),
+                    document.getElementById('overallPercentage')
+                ]).then(() => {
+                    debugLog('MathJax rendered successfully');
+                    // Show elements with smooth fade-in after rendering
+                    scoreEl.style.transition = 'opacity 0.5s ease-in';
+                    percentageEl.style.transition = 'opacity 0.5s ease-in';
+                    document.getElementById('currentScoreText').style.transition = 'opacity 0.5s ease-in';
+                    document.getElementById('previousBestText').style.transition = 'opacity 0.5s ease-in';
+                    document.getElementById('totalBestScore').style.transition = 'opacity 0.5s ease-in';
+                    document.getElementById('overallPercentage').style.transition = 'opacity 0.5s ease-in';
+                    
+                    scoreEl.style.opacity = '1';
+                    percentageEl.style.opacity = '1';
+                    document.getElementById('currentScoreText').style.opacity = '1';
+                    document.getElementById('previousBestText').style.opacity = '1';
+                    document.getElementById('totalBestScore').style.opacity = '1';
+                    document.getElementById('overallPercentage').style.opacity = '1';
+                }).catch((err) => {
+                    debugLog('MathJax rendering error (non-critical):', err);
+                    console.warn('MathJax rendering error (non-critical):', err);
+                    // Show elements even if MathJax fails
+                    scoreEl.style.opacity = '1';
+                    percentageEl.style.opacity = '1';
+                    document.getElementById('currentScoreText').style.opacity = '1';
+                    document.getElementById('previousBestText').style.opacity = '1';
+                    document.getElementById('totalBestScore').style.opacity = '1';
+                    document.getElementById('overallPercentage').style.opacity = '1';
+                });
+            } catch (err) {
+                debugLog('MathJax error (non-critical):', err);
+                console.warn('MathJax error (non-critical):', err);
+                // Show elements if error
+                scoreEl.style.opacity = '1';
+                percentageEl.style.opacity = '1';
+                document.getElementById('currentScoreText').style.opacity = '1';
+                document.getElementById('previousBestText').style.opacity = '1';
+                document.getElementById('totalBestScore').style.opacity = '1';
+                document.getElementById('overallPercentage').style.opacity = '1';
+            }
+        } else {
+            debugLog('MathJax not available - showing elements normally');
+            // No MathJax, show elements immediately
+            scoreEl.style.opacity = '1';
+            percentageEl.style.opacity = '1';
+            document.getElementById('currentScoreText').style.opacity = '1';
+            document.getElementById('previousBestText').style.opacity = '1';
+            document.getElementById('totalBestScore').style.opacity = '1';
+            document.getElementById('overallPercentage').style.opacity = '1';
+        }
 
         // Handle new record
         debugLog('Checking if new best:', isNewBest);
@@ -183,55 +221,57 @@ if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
 
 // Set subject information
 function setSubjectInfo(subject) {
+    debugLog('setSubjectInfo called with subject:', subject);
+
     const subjectInfo = {
-        'math': { 
-            en: 'Mathematics', 
-            ar: 'الرياضيات', 
-            icon: 'calculator-fill', 
-            color: 'primary' 
+        'math': {
+            en: 'Mathematics',
+            ar: 'الرياضيات',
+            icon: 'calculator-fill',
+            color: 'primary'
         },
-        'science': { 
-            en: 'Science', 
-            ar: 'العلوم', 
-            icon: 'flask', 
-            color: 'success' 
+        'science': {
+            en: 'Science',
+            ar: 'العلوم',
+            icon: 'flask',
+            color: 'success'
         },
-        'english': { 
-            en: 'English', 
-            ar: 'اللغة الإنجليزية', 
-            icon: 'book-fill', 
-            color: 'danger' 
+        'english': {
+            en: 'English',
+            ar: 'اللغة الإنجليزية',
+            icon: 'book-fill',
+            color: 'danger'
         },
-        'arabic': { 
-            en: 'Arabic', 
-            ar: 'اللغة العربية', 
-            icon: 'chat-square-text-fill', 
-            color: 'warning' 
+        'arabic': {
+            en: 'Arabic',
+            ar: 'اللغة العربية',
+            icon: 'chat-square-text-fill',
+            color: 'warning'
         }
     };
-    
+
     const info = subjectInfo[subject] || subjectInfo.math;
-    
-   // Update subject name - select the LAST span (the text span, not the icon wrapper)
-const nameEl = document.querySelector('#subjectName span:last-child');
-if (nameEl) {
-    nameEl.setAttribute('data-en', info.en);
-    nameEl.setAttribute('data-ar', info.ar);
-    nameEl.textContent = currentLanguage === 'ar' ? info.ar : info.en;
-    debugLog('Subject name updated');
-} else {
-    debugLog('WARNING: nameEl not found');
-}
+    debugLog('Subject info:', info);
 
-// Update icon
-const iconEl = document.getElementById('subjectIcon');
-if (iconEl) {
-    iconEl.className = `bi bi-${info.icon} me-2 text-${info.color}`;
-    debugLog('Icon updated');
-} else {
-    debugLog('ERROR: iconEl not found!');
-}
+    // Update subject name - select the LAST span (the text span, not the icon wrapper)
+    const nameEl = document.querySelector('#subjectName span:last-child');
+    if (nameEl) {
+        nameEl.setAttribute('data-en', info.en);
+        nameEl.setAttribute('data-ar', info.ar);
+        nameEl.textContent = currentLanguage === 'ar' ? info.ar : info.en;
+        debugLog('Subject name updated');
+    } else {
+        debugLog('WARNING: nameEl not found');
+    }
 
+    // Update icon
+    const iconEl = document.getElementById('subjectIcon');
+    if (iconEl) {
+        iconEl.className = `bi bi-${info.icon} me-2 text-${info.color}`;
+        debugLog('Icon updated');
+    } else {
+        debugLog('ERROR: iconEl not found!');
+    }
 }
 
 // Show new record celebration
@@ -256,12 +296,16 @@ function showNewRecordCelebration() {
     comparisonCard.classList.add('border', 'border-success', 'border-3');
 
     // Add New Record Ribbon
-    const scoreCard = document.querySelector('.card.shadow-lg');
-    if (scoreCard && !document.querySelector('.new-record-ribbon')) {
-        const ribbon = document.createElement('div');
-        ribbon.className = 'new-record-ribbon';
-        ribbon.textContent = currentLanguage === 'ar' ? 'رقم قياسي جديد' : 'NEW RECORD';
-        scoreCard.appendChild(ribbon);
+    try {
+        const scoreCard = document.querySelector('.card.shadow-lg');
+        if (scoreCard && !document.querySelector('.new-record-ribbon')) {
+            const ribbon = document.createElement('div');
+            ribbon.className = 'new-record-ribbon';
+            ribbon.textContent = currentLanguage === 'ar' ? 'رقم قياسي جديد' : 'NEW RECORD';
+            scoreCard.appendChild(ribbon);
+        }
+    } catch (err) {
+        console.warn('Could not add ribbon:', err);
     }
 
     // Show confetti animation
@@ -274,7 +318,7 @@ function showNewRecordCelebration() {
 // Show regular results
 function showRegularResults() {
     const titleEl = document.getElementById('resultTitle');
-    
+
     titleEl.setAttribute('data-en', 'Quiz Completed!');
     titleEl.setAttribute('data-ar', 'اكتمل الاختبار!');
     titleEl.textContent = currentLanguage === 'ar' ? 'اكتمل الاختبار!' : 'Quiz Completed!';
@@ -283,9 +327,9 @@ function showRegularResults() {
 // Show encouragement message
 function showEncouragementMessage(percentage, isNewBest) {
     const messageEl = document.getElementById('encouragementMessage');
-    
+
     let messageEn, messageAr;
-    
+
     if (isNewBest) {
         messageEn = "Congratulations! You've set a new personal record! Keep up the excellent work!";
         messageAr = "تهانينا! لقد حققت رقماً قياسياً جديداً! استمر في العمل الممتاز!";
@@ -302,7 +346,7 @@ function showEncouragementMessage(percentage, isNewBest) {
         messageEn = "Don't give up! Practice makes perfect. Try again!";
         messageAr = "لا تستسلم! الممارسة تصنع الكمال. حاول مرة أخرى!";
     }
-    
+
     messageEl.setAttribute('data-en', messageEn);
     messageEl.setAttribute('data-ar', messageAr);
     messageEl.textContent = currentLanguage === 'ar' ? messageAr : messageEn;
@@ -311,7 +355,7 @@ function showEncouragementMessage(percentage, isNewBest) {
 // Format time (seconds to MM:SS)
 function formatTime(seconds) {
     if (!seconds) return '0:00';
-    
+
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -327,14 +371,14 @@ function showConfetti() {
     const canvas = document.getElementById('confetti-canvas');
     canvas.style.display = 'block';
     const ctx = canvas.getContext('2d');
-    
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    
+
     const confetti = [];
     const confettiCount = 150;
     const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500'];
-    
+
     // Create confetti particles
     for (let i = 0; i < confettiCount; i++) {
         confetti.push({
@@ -348,12 +392,12 @@ function showConfetti() {
             tiltAngle: 0
         });
     }
-    
+
     let animationFrame;
-    
+
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
+
         confetti.forEach((particle, index) => {
             ctx.beginPath();
             ctx.lineWidth = particle.r / 2;
@@ -361,16 +405,16 @@ function showConfetti() {
             ctx.moveTo(particle.x + particle.tilt + particle.r / 4, particle.y);
             ctx.lineTo(particle.x + particle.tilt, particle.y + particle.tilt + particle.r / 4);
             ctx.stroke();
-            
+
             particle.tiltAngle += particle.tiltAngleIncremental;
             particle.y += (Math.cos(particle.d) + 3 + particle.r / 2) / 2;
             particle.tilt = Math.sin(particle.tiltAngle - index / 3) * 15;
-            
+
             if (particle.y > canvas.height) {
                 confetti.splice(index, 1);
             }
         });
-        
+
         if (confetti.length > 0) {
             animationFrame = requestAnimationFrame(draw);
         } else {
@@ -378,10 +422,9 @@ function showConfetti() {
             cancelAnimationFrame(animationFrame);
         }
     }
-    
-    
+
     draw();
-    
+
     // Auto-hide after 5 seconds
     setTimeout(() => {
         canvas.style.display = 'none';
