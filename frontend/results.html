@@ -382,28 +382,46 @@
 
 
 
+/* CSS Fraction Styling - Looks like LaTeX but instant! */
+.fraction {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: middle;
+    font-size: 0.9em;
+}
+
+.fraction .numerator {
+    border-bottom: 2px solid currentColor;
+    padding: 0 0.3em 0.1em;
+}
+
+.fraction .denominator {
+    padding: 0.1em 0.3em 0;
+}
+
+#scoreDisplay .fraction {
+    font-size: 3rem;
+}
+
+#scoreDisplay .fraction .numerator,
+#scoreDisplay .fraction .denominator {
+    font-weight: 900;
+    color: #667eea;
+}
+
+#currentScoreText .fraction,
+#previousBestText .fraction,
+#totalBestScore .fraction {
+    font-size: 1.2rem;
+}
 
 
 
 
     </style>
 
-    <!-- MathJax Configuration -->
-     <!-- MathJax Configuration -->
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['\\(', '\\)']]
-            },
-            startup: {
-                ready: () => {
-                    console.log('MathJax is loaded and ready!');
-                    MathJax.startup.defaultReady();
-                }
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+   
 
 </head>
 <body>
