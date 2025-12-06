@@ -389,17 +389,21 @@
     </style>
 
     <!-- MathJax Configuration -->
-    <script>
-        window.MathJax = {
-            startup: {
-                ready: () => {
-                    console.log('MathJax is loaded and ready!');
-                    MathJax.startup.defaultReady();
-                }
+  <script>
+    window.MathJax = {
+        startup: {
+            ready: () => {
+                console.log('MathJax is loaded and ready!');
+                MathJax.startup.defaultReady();
+                // Signal that MathJax is ready
+                window.mathJaxReady = true;
+                if (window.onMathJaxReady) window.onMathJaxReady();
             }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        }
+    };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
 </head>
 <body>
     <!-- Navigation Bar -->
