@@ -1285,8 +1285,14 @@ question.options.forEach((option, index) => {
     }
     
     // Open modal
-    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
-    modal.show();
+   // Open modal (get existing instance or create new one)
+const modalElement = document.getElementById('previewModal');
+let modal = bootstrap.Modal.getInstance(modalElement);
+if (!modal) {
+    modal = new bootstrap.Modal(modalElement);
+}
+modal.show();
+
 
    // Add keyboard navigation
     document.addEventListener('keydown', handlePreviewKeyboard);
