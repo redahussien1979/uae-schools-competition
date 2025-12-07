@@ -14,6 +14,9 @@ let currentPage = {
 // Track all loaded questions for navigation
 let allLoadedQuestions = [];
 let currentQuestionIndex = -1;
+let currentEditIndex = -1;
+
+
 
 // Track selected questions for batch delete
 let selectedQuestionIds = new Set();
@@ -955,6 +958,8 @@ async function editQuestion(questionId) {
     try {
         // Store the editing question ID for highlighting
         currentEditingQuestionId = questionId;
+currentEditIndex = allLoadedQuestions.findIndex(q => q._id === questionId);
+
 
         // Remove previous highlights and add to current row
         document.querySelectorAll('.highlight-row').forEach(row => {
@@ -1026,6 +1031,19 @@ async function editQuestion(questionId) {
             const modal = new bootstrap.Modal(document.getElementById('questionModal'));
             modal.show();
 
+// Add keyboard navigation for edit modal
+document.addEventListener('keydown', handleEditKeyboard);
+
+// Remove keyboard listener when modal closes
+document.getElementById('questionModal').addEventListener('hidden.bs.modal', function() {
+    document.removeEventListener('keydown', handleEditKeyboard);
+}, { once: true });
+
+
+
+
+
+           
         } else {
             alert(data.message || 'Failed to load question');
         }
@@ -2464,5 +2482,64 @@ function handlePreviewKeyboard(event) {
     } else if (event.key === 'ArrowRight') {
         event.preventDefault();
         nextQuestion();
+    }
+}
+
+
+
+// ========================================
+// EDIT MODAL NAVIGATION (Left/Right Arrows)
+// ========================================
+
+function previousEditQuestion() {
+    if (currentEditIndex > 0) {
+        currentEditIndex--;
+        const prevQ = allLoadedQuestions[currentEditIndex];
+        
+        // Close current modal and open edit for previous question
+        const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
+        modal.hide();
+        
+        setTimeout(() => {
+            editQuestion(prevQ._id);
+        }, 200);
+    }
+}
+
+function nextEditQuestion() {
+    if (currentEditIndex < allLoadedQuestions.length - 1) {
+        currentEditIndex++;
+        const nextQ = allLoadedQuestions[currentEditIndex];
+        
+        // Close current modal and open edit for next question
+        const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
+        modal.hide();
+        
+        setTimeout(() => {
+            editQuestion(nextQ._id);
+        }, 200);
+    }
+}
+
+function handleEditKeyboard(event) {
+    const editModal = document.getElementById('questionModal');
+    if (!editModal.classList.contains('show')) {
+        return;
+    }
+    
+    // Don't navigate if user is typing in an input/textarea
+    const activeElement = document.activeElement;
+    if (activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' || 
+        activeElement.tagName === 'SELECT') {
+        return;
+    }
+    
+    if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        previousEditQuestion();
+    } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        nextEditQuestion();
     }
 }
