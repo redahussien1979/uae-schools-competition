@@ -965,6 +965,11 @@ async function saveQuestion() {
 // Edit Question
 async function editQuestion(questionId) {
     const token = checkAdminAuth();
+    // Clean up any orphan backdrops first
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.body.style.removeProperty('overflow');
 
     try {
         // Store the editing question ID for highlighting
@@ -1215,6 +1220,11 @@ async function viewQuestion(questionId) {
 
 
 function displayQuestionPreview(question) {
+     // Clean up any orphan backdrops first
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.body.style.removeProperty('overflow');
     // Update subject badge
     const subjectNames = {
         'math': 'Mathematics',
