@@ -908,34 +908,45 @@ async function saveQuestion() {
         
         const data = await response.json();
         
-        if (data.success) {
-            alert(data.message);
+      if (data.success) {
+    showToast(data.message, 'success');
 
-            // Store the question ID for scrolling after reload
-            const savedQuestionId = questionId || data.questionId || currentEditingQuestionId;
+    // Store the question ID for scrolling after reload
+    const savedQuestionId = questionId || data.questionId || currentEditingQuestionId;
 
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
-            modal.hide();
+    // Reload questions list in background (don't close modal if editing)
+    await loadQuestions();
+    loadStatistics();
 
-            // Reload questions and scroll to the saved question
-            await loadQuestions();
-            loadStatistics();
+    // If adding new question, close modal. If editing, keep it open.
+    if (!questionId) {
+        // Adding new - close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
+        modal.hide();
+    } else {
+        // Editing - keep modal open, update the index in allLoadedQuestions
+        currentEditIndex = allLoadedQuestions.findIndex(q => q._id === savedQuestionId);
+        
+        // Update modal title
+        document.getElementById('questionModalTitle').textContent = 
+            `Edit Question (${currentEditIndex + 1} of ${allLoadedQuestions.length})`;
+    }
 
-            // After questions are loaded, scroll to the saved question
-            if (savedQuestionId) {
+
+               // Highlight the saved row in the table (if visible)
+    if (savedQuestionId) {
+        setTimeout(() => {
+            const savedRow = document.querySelector(`tr[data-question-id="${savedQuestionId}"]`);
+            if (savedRow) {
+                savedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                savedRow.classList.add('highlight-row');
                 setTimeout(() => {
-                    const savedRow = document.querySelector(`tr[data-question-id="${savedQuestionId}"]`);
-                    if (savedRow) {
-                        savedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Keep highlight for 3 seconds then remove
-                        setTimeout(() => {
-                            savedRow.classList.remove('highlight-row');
-                            currentEditingQuestionId = null;
-                        }, 3000);
-                    }
-                }, 500); // Wait for DOM to update
-            } else {
+                    savedRow.classList.remove('highlight-row');
+                }, 3000);
+            }
+        }, 500);
+    }
+ else {
                 // Clear highlight if no ID
                 currentEditingQuestionId = null;
             }
