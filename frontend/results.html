@@ -374,6 +374,15 @@
             }
         }
 
+/* Hide score elements until JavaScript populates them */
+.score-loading {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.score-loaded {
+    opacity: 1;
+}
 
 
 
@@ -472,8 +481,12 @@
                         </h3>
 
                         <div class="mb-4">
-                            <div class="score-display-enhanced mb-3" id="scoreDisplay">0/10</div>
-                            <div class="percentage-badge mb-4" id="percentageDisplay">0%</div>
+                            
+                            <div class="score-display-enhanced mb-3 score-loading" id="scoreDisplay"></div>
+
+                             <div class="percentage-badge mb-4 score-loading" id="percentageDisplay"></div>
+
+                         
                             <div class="stars-earned-display mt-4">
                                 <span class="stars-badge" id="starsEarned">+0 ⭐</span>
                                 <div class="mt-3">
@@ -487,11 +500,14 @@
                             <div class="row">
                                 <div class="col-6">
                                     <div class="text-muted small mb-2 text-uppercase" style="letter-spacing: 0.5px;" data-en="Your Score" data-ar="نتيجتك">Your Score</div>
-                                    <div class="h3 fw-bold mb-0 text-primary" id="currentScoreText">0/10</div>
+                                    <div class="h3 fw-bold mb-0 text-primary score-loading" id="currentScoreText"></div>
+
+
                                 </div>
                                 <div class="col-6">
                                     <div class="text-muted small mb-2 text-uppercase" style="letter-spacing: 0.5px;" data-en="Previous Best" data-ar="أفضل نتيجة سابقة">Previous Best</div>
-                                    <div class="h3 fw-bold mb-0 text-secondary" id="previousBestText">0/10</div>
+                                    <div class="h3 fw-bold mb-0 text-secondary score-loading" id="previousBestText"></div>
+
                                 </div>
                             </div>
                         </div>
@@ -512,7 +528,8 @@
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="opacity-75 small mb-2 text-uppercase" style="letter-spacing: 0.5px;" data-en="Total Best Score" data-ar="مجموع أفضل النتائج">Total Best Score</div>
-                                        <div class="h3 fw-bold mb-0" id="totalBestScore">0/40</div>
+                                        <div class="h3 fw-bold mb-0 score-loading" id="totalBestScore"></div>
+
                                     </div>
                                     <div class="col-6">
                                         <div class="opacity-75 small mb-2 text-uppercase" style="letter-spacing: 0.5px;" data-en="Overall Percentage" data-ar="النسبة المئوية">Overall Percentage</div>
