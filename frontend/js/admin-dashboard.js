@@ -2491,33 +2491,83 @@ function handlePreviewKeyboard(event) {
 // EDIT MODAL NAVIGATION (Left/Right Arrows)
 // ========================================
 
-function previousEditQuestion() {
+async function previousEditQuestion() {
     if (currentEditIndex > 0) {
         currentEditIndex--;
         const prevQ = allLoadedQuestions[currentEditIndex];
-        
-        // Close current modal and open edit for previous question
-        const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
-        modal.hide();
-        
-        setTimeout(() => {
-            editQuestion(prevQ._id);
-        }, 200);
+        await loadQuestionIntoEditForm(prevQ._id);
     }
 }
 
-function nextEditQuestion() {
+async function nextEditQuestion() {
     if (currentEditIndex < allLoadedQuestions.length - 1) {
         currentEditIndex++;
         const nextQ = allLoadedQuestions[currentEditIndex];
+        await loadQuestionIntoEditForm(nextQ._id);
+    }
+}
+
+async function loadQuestionIntoEditForm(questionId) {
+    const token = checkAdminAuth();
+    
+    try {
+        currentEditingQuestionId = questionId;
         
-        // Close current modal and open edit for next question
-        const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
-        modal.hide();
+        const response = await fetch(`${API_URL}/admin/questions/${questionId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         
-        setTimeout(() => {
-            editQuestion(nextQ._id);
-        }, 200);
+        const data = await response.json();
+        
+        if (data.success) {
+            const question = data.question;
+            
+            // Populate form fields
+            document.getElementById('questionId').value = question._id;
+            document.getElementById('subject').value = question.subject;
+            
+            // Uncheck all grades first, then check the right ones
+            document.querySelectorAll('.grade-checkbox').forEach(cb => cb.checked = false);
+            if (question.grades && Array.isArray(question.grades)) {
+                question.grades.forEach(g => {
+                    const checkbox = document.getElementById(`grade${g}`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            document.getElementById('questionType').value = question.questionType;
+            document.getElementById('questionTextEn').value = question.questionTextEn;
+            document.getElementById('questionTextAr').value = question.questionTextAr;
+            document.getElementById('correctAnswer').value = question.correctAnswer;
+            document.getElementById('imageUrl').value = question.imageUrl || '';
+            document.getElementById('imagePosition').value = question.imagePosition || 'below';
+            
+            // Handle options visibility
+            handleQuestionTypeChange();
+            
+            // Clear all options first
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`option${i}`).value = '';
+            }
+            
+            // Populate options if multiple choice
+            if (question.questionType === 'multiple_choice' && question.options) {
+                question.options.forEach((option, index) => {
+                    const optionInput = document.getElementById(`option${index + 1}`);
+                    if (optionInput) {
+                        optionInput.value = option;
+                    }
+                });
+            }
+            
+            // Update modal title to show position
+            document.getElementById('questionModalTitle').textContent = 
+                `Edit Question (${currentEditIndex + 1} of ${allLoadedQuestions.length})`;
+        }
+    } catch (error) {
+        console.error('Load question error:', error);
     }
 }
 
@@ -2527,7 +2577,7 @@ function handleEditKeyboard(event) {
         return;
     }
     
-    // Don't navigate if user is typing in an input/textarea
+    // Don't navigate if user is typing
     const activeElement = document.activeElement;
     if (activeElement.tagName === 'INPUT' || 
         activeElement.tagName === 'TEXTAREA' || 
@@ -2543,3 +2593,4 @@ function handleEditKeyboard(event) {
         nextEditQuestion();
     }
 }
+
