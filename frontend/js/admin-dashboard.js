@@ -522,7 +522,7 @@ async function loadQuestions(page = 1) {
         // Build query string with filters
         const params = new URLSearchParams({
             page: page,
-            limit: 150
+            limit: 250
         });
         
         if (questionFilters.subject) {
@@ -550,7 +550,7 @@ async function loadQuestions(page = 1) {
         const data = await response.json();
         
         if (data.success) {
-    const startSerial = ((page - 1) * 50) + 1;
+    const startSerial = ((page - 1) * 250) + 1;
     displayQuestions(data.questions, page === 1, startSerial);
             
             // Update load more button
