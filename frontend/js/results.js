@@ -133,6 +133,14 @@ function displayResults() {
         debugLog('Showing encouragement message');
         showEncouragementMessage(percentage, isNewBest);
 
+// Reveal all score elements with smooth transition
+document.querySelectorAll('.score-loading').forEach(el => {
+    el.classList.remove('score-loading');
+    el.classList.add('score-loaded');
+});
+
+
+       
         debugLog('displayResults() completed successfully!');
     } catch (error) {
         debugLog('CRITICAL ERROR in displayResults():', error);
