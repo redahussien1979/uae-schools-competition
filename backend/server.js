@@ -1286,6 +1286,53 @@ if (recent) {
 });
 
 
+
+
+// Get all unique paragraph GROUP IDs from database
+app.get('/admin/paragraph-groups', protectAdmin, async (req, res) => {
+    try {
+        const questions = await Question.find({
+            $or: [
+                { questionTextEn: { $regex: '\\[GROUP:', $options: 'i' } },
+                { questionTextAr: { $regex: '\\[GROUP:', $options: 'i' } }
+            ]
+        }).select('questionTextEn questionTextAr');
+        
+        const paragraphSet = new Set();
+        
+        questions.forEach(q => {
+            const combinedText = (q.questionTextEn || '') + ' ' + (q.questionTextAr || '');
+            const matches = combinedText.match(/\[GROUP:([^\]]+)\]/gi);
+            if (matches) {
+                matches.forEach(match => {
+                    const groupId = match.match(/\[GROUP:([^\]]+)\]/i)[1];
+                    paragraphSet.add(groupId);
+                });
+            }
+        });
+        
+        const sortedParagraphs = Array.from(paragraphSet).sort();
+        
+        res.json({
+            success: true,
+            paragraphs: sortedParagraphs
+        });
+    } catch (error) {
+        console.error('Get paragraph groups error:', error);
+        res.status(500).json({ success: false, message: 'Failed to get paragraph groups' });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
 // ========================================
 // DELETE QUESTION (ADMIN ONLY)
 // ========================================
