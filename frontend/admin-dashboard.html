@@ -851,11 +851,21 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="saveQuestion()">
-                    <i class="bi bi-check-circle me-2"></i>
-                    Save Question
+                <button type="button" class="btn btn-outline-secondary" onclick="previousEditQuestion()">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Previous
                 </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="nextEditQuestion()">
+                    Next
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveQuestion()">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Save Question
+                    </button>
+                </div>
             </div>
         </div>
     </div>

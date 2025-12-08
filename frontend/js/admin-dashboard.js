@@ -14,6 +14,7 @@ let currentPage = {
 // Track all loaded questions for navigation
 let allLoadedQuestions = [];
 let currentQuestionIndex = -1;
+let currentEditIndex = -1;
 
 // Track selected questions for batch delete
 let selectedQuestionIds = new Set();
@@ -908,32 +909,32 @@ async function saveQuestion() {
         if (data.success) {
             alert(data.message);
 
-            // Store the question ID for scrolling after reload
+            // Store the question ID for reloading
             const savedQuestionId = questionId || data.questionId || currentEditingQuestionId;
 
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
-            modal.hide();
-
-            // Reload questions and scroll to the saved question
+            // Reload questions in the background to update the table
             await loadQuestions();
             loadStatistics();
 
-            // After questions are loaded, scroll to the saved question
-            if (savedQuestionId) {
+            // If we were editing (not adding new), keep modal open and stay on same question
+            if (questionId && savedQuestionId) {
+                // Find the saved question's new index in the reloaded list
+                currentEditIndex = allLoadedQuestions.findIndex(q => q._id === savedQuestionId);
+
+                // Reload the question data into the form to show fresh data
+                await loadQuestionIntoEditForm(savedQuestionId);
+
+                // Highlight the row in the table
                 setTimeout(() => {
                     const savedRow = document.querySelector(`tr[data-question-id="${savedQuestionId}"]`);
                     if (savedRow) {
                         savedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Keep highlight for 3 seconds then remove
-                        setTimeout(() => {
-                            savedRow.classList.remove('highlight-row');
-                            currentEditingQuestionId = null;
-                        }, 3000);
                     }
-                }, 500); // Wait for DOM to update
+                }, 200);
             } else {
-                // Clear highlight if no ID
+                // For new questions, close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
+                if (modal) modal.hide();
                 currentEditingQuestionId = null;
             }
         } else {
@@ -955,6 +956,9 @@ async function editQuestion(questionId) {
     try {
         // Store the editing question ID for highlighting
         currentEditingQuestionId = questionId;
+
+        // Find the index of this question in the loaded questions for navigation
+        currentEditIndex = allLoadedQuestions.findIndex(q => q._id === questionId);
 
         // Remove previous highlights and add to current row
         document.querySelectorAll('.highlight-row').forEach(row => {
@@ -1019,12 +1023,24 @@ async function editQuestion(questionId) {
                 });
             }
 
-            // Update modal title
-            document.getElementById('questionModalTitle').textContent = 'Edit Question';
+            // Update modal title with position indicator
+            document.getElementById('questionModalTitle').textContent =
+                `Edit Question (${currentEditIndex + 1} of ${allLoadedQuestions.length})`;
 
             // Open modal
             const modal = new bootstrap.Modal(document.getElementById('questionModal'));
             modal.show();
+
+            // Update navigation button states
+            updateEditNavigationButtons();
+
+            // Add keyboard navigation
+            document.addEventListener('keydown', handleEditKeyboard);
+
+            // Remove keyboard listener when modal closes
+            document.getElementById('questionModal').addEventListener('hidden.bs.modal', function() {
+                document.removeEventListener('keydown', handleEditKeyboard);
+            }, { once: true });
 
         } else {
             alert(data.message || 'Failed to load question');
@@ -1035,7 +1051,157 @@ async function editQuestion(questionId) {
     }
 }
 
+// ========================================
+// EDIT QUESTION NAVIGATION
+// ========================================
 
+/**
+ * Load question data into edit form without closing/opening modal
+ */
+async function loadQuestionIntoEditForm(questionId) {
+    const token = checkAdminAuth();
+
+    try {
+        // Update highlight
+        currentEditingQuestionId = questionId;
+        document.querySelectorAll('.highlight-row').forEach(row => {
+            row.classList.remove('highlight-row');
+        });
+        const currentRow = document.querySelector(`tr[data-question-id="${questionId}"]`);
+        if (currentRow) {
+            currentRow.classList.add('highlight-row');
+            currentRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Fetch question data
+        const response = await fetch(`${API_URL}/admin/questions/${questionId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const question = data.question;
+
+            // Populate form
+            document.getElementById('questionId').value = question._id;
+            document.getElementById('subject').value = question.subject;
+
+            // Uncheck all grades first
+            document.querySelectorAll('.grade-checkbox').forEach(cb => cb.checked = false);
+            // Check the grades for this question
+            if (question.grades && Array.isArray(question.grades)) {
+                question.grades.forEach(g => {
+                    const checkbox = document.getElementById(`grade${g}`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+
+            document.getElementById('questionType').value = question.questionType;
+            document.getElementById('questionTextEn').value = question.questionTextEn;
+            document.getElementById('questionTextAr').value = question.questionTextAr;
+            document.getElementById('correctAnswer').value = question.correctAnswer;
+            document.getElementById('imageUrl').value = question.imageUrl || '';
+            document.getElementById('imagePosition').value = question.imagePosition || 'below';
+
+            // Handle question type
+            handleQuestionTypeChange();
+
+            // Clear and populate options if multiple choice
+            for (let i = 1; i <= 4; i++) {
+                const optionInput = document.getElementById(`option${i}`);
+                if (optionInput) {
+                    optionInput.value = '';
+                }
+            }
+            if (question.questionType === 'multiple_choice' && question.options) {
+                question.options.forEach((option, index) => {
+                    const optionInput = document.getElementById(`option${index + 1}`);
+                    if (optionInput) {
+                        optionInput.value = option;
+                    }
+                });
+            }
+
+            // Update modal title with position indicator
+            document.getElementById('questionModalTitle').textContent =
+                `Edit Question (${currentEditIndex + 1} of ${allLoadedQuestions.length})`;
+
+            // Update navigation button states
+            updateEditNavigationButtons();
+        } else {
+            alert(data.message || 'Failed to load question');
+        }
+    } catch (error) {
+        console.error('Load question into edit form error:', error);
+        alert('Failed to load question');
+    }
+}
+
+/**
+ * Navigate to previous question in edit form
+ */
+async function previousEditQuestion() {
+    if (currentEditIndex > 0) {
+        currentEditIndex--;
+        const prevQ = allLoadedQuestions[currentEditIndex];
+        await loadQuestionIntoEditForm(prevQ._id);
+    }
+}
+
+/**
+ * Navigate to next question in edit form
+ */
+async function nextEditQuestion() {
+    if (currentEditIndex < allLoadedQuestions.length - 1) {
+        currentEditIndex++;
+        const nextQ = allLoadedQuestions[currentEditIndex];
+        await loadQuestionIntoEditForm(nextQ._id);
+    }
+}
+
+/**
+ * Update Previous/Next button states for edit modal
+ */
+function updateEditNavigationButtons() {
+    const prevBtn = document.querySelector('#questionModal .modal-footer button[onclick="previousEditQuestion()"]');
+    const nextBtn = document.querySelector('#questionModal .modal-footer button[onclick="nextEditQuestion()"]');
+
+    if (prevBtn) {
+        prevBtn.disabled = (currentEditIndex <= 0);
+    }
+
+    if (nextBtn) {
+        nextBtn.disabled = (currentEditIndex >= allLoadedQuestions.length - 1);
+    }
+}
+
+/**
+ * Handle keyboard navigation in edit modal
+ */
+function handleEditKeyboard(event) {
+    // Only handle arrow keys when edit modal is visible
+    const questionModal = document.getElementById('questionModal');
+    if (!questionModal.classList.contains('show')) {
+        return;
+    }
+
+    // Don't navigate if user is typing in an input/textarea
+    const activeElement = document.activeElement;
+    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'SELECT')) {
+        return;
+    }
+
+    if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        previousEditQuestion();
+    } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        nextEditQuestion();
+    }
+}
 
 
 
