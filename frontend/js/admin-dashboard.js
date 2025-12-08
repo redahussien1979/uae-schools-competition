@@ -537,8 +537,12 @@ async function loadQuestions(page = 1) {
             params.append('search', questionFilters.search);
         }
         if (questionFilters.recent) {
-    params.append('recent', questionFilters.recent);
-}
+            params.append('recent', questionFilters.recent);
+        }
+        if (questionFilters.paragraph) {
+            params.append('paragraph', questionFilters.paragraph);
+        }
+        
         console.log('Loading questions with filters:', questionFilters);
         
         const response = await fetch(`${API_URL}/admin/questions?${params.toString()}`, {
@@ -550,8 +554,11 @@ async function loadQuestions(page = 1) {
         const data = await response.json();
         
         if (data.success) {
-    const startSerial = ((page - 1) * 400) + 1;
-    displayQuestions(data.questions, page === 1, startSerial);
+            const startSerial = ((page - 1) * 400) + 1;
+            displayQuestions(data.questions, page === 1, startSerial);
+            
+            // Populate paragraph filter dropdown with available GROUP IDs
+            populateParagraphFilter();
             
             // Update load more button
             const loadMoreBtn = document.getElementById('loadMoreQuestions');
@@ -602,6 +609,7 @@ async function loadQuestions(page = 1) {
 
 
 
+
 //here
 
 // Display questions (UPDATED WITH SERIAL & PREVIEW)
@@ -612,8 +620,13 @@ function displayQuestions(questions, replace = true, startSerial = 1) {
     // Store questions for navigation
     if (replace) {
         allLoadedQuestions = questions;
+               populateParagraphFilter();
+
+
     } else {
         allLoadedQuestions = allLoadedQuestions.concat(questions);
+                      populateParagraphFilter();
+
     }
     if (questions.length === 0) {
         tbody.innerHTML = `
@@ -1088,8 +1101,10 @@ let questionFilters = {
     subject: '',
     grade: '',
     search: '',
-    recent: ''
+    recent: '',
+    paragraph: ''
 };
+
 
 // Filter questions
 function filterQuestions() {
@@ -1098,6 +1113,8 @@ function filterQuestions() {
     questionFilters.grade = document.getElementById('filterGrade').value;
     questionFilters.search = document.getElementById('searchQuestion').value;
         questionFilters.recent = document.getElementById('filterRecent').value;
+    questionFilters.paragraph = document.getElementById('filterParagraph').value;
+
 
     // Update filter summary
     updateFilterSummary();
@@ -2615,3 +2632,49 @@ function handleEditKeyboard(event) {
     }
 }
 
+/**
+ * Extract unique paragraph GROUP IDs from all loaded questions
+ * and populate the filter dropdown
+ */
+function populateParagraphFilter() {
+    const paragraphSet = new Set();
+    
+    // Extract GROUP IDs from question text (both English and Arabic)
+    allLoadedQuestions.forEach(q => {
+        const textEn = q.questionTextEn || '';
+        const textAr = q.questionTextAr || '';
+        const combinedText = textEn + ' ' + textAr;
+        
+        // Match [GROUP:xxx] pattern
+        const matches = combinedText.match(/\[GROUP:([^\]]+)\]/gi);
+        if (matches) {
+            matches.forEach(match => {
+                const groupId = match.match(/\[GROUP:([^\]]+)\]/i)[1];
+                paragraphSet.add(groupId);
+            });
+        }
+    });
+    
+    // Sort the paragraph IDs
+    const sortedParagraphs = Array.from(paragraphSet).sort();
+    
+    // Populate the dropdown
+    const select = document.getElementById('filterParagraph');
+    const currentValue = select.value; // Preserve current selection
+    
+    // Clear existing options except the first one
+    select.innerHTML = '<option value="">All Questions</option>';
+    
+    // Add paragraph options
+    sortedParagraphs.forEach(paragraphId => {
+        const option = document.createElement('option');
+        option.value = paragraphId;
+        option.textContent = paragraphId;
+        select.appendChild(option);
+    });
+    
+    // Restore selection if it still exists
+    if (currentValue && sortedParagraphs.includes(currentValue)) {
+        select.value = currentValue;
+    }
+}
