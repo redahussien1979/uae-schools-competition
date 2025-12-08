@@ -1164,7 +1164,9 @@ app.get('/admin/attempts', protectAdmin, async (req, res) => {
 app.get('/admin/questions', protectAdmin, async (req, res) => {
     try {
      //   const { page = 1, limit = 50, subject = '', grade = '', search = '' } = req.query;
-       const { page = 1, limit = 50, subject = '', grade = '', search = '', recent = '' } = req.query; 
+      // const { page = 1, limit = 50, subject = '', grade = '', search = '', recent = '' } = req.query; 
+        const { page = 1, limit = 50, subject = '', grade = '', search = '', recent = '', paragraph = '' } = req.query;
+
         let query = {};
         
         // Filter by subject
@@ -1222,6 +1224,37 @@ if (recent) {
         console.log(`[ADMIN] Filtering questions after: ${startDate.toISOString()}`);
     }
 }
+
+        // Filter by paragraph GROUP ID
+        if (paragraph) {
+            const escapedParagraph = paragraph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const paragraphPattern = `\\[GROUP:${escapedParagraph}\\]`;
+            
+            // If there's already a $or query (from search), we need to use $and
+            if (query.$or) {
+                query.$and = [
+                    { $or: query.$or },
+                    {
+                        $or: [
+                            { questionTextEn: { $regex: paragraphPattern, $options: 'i' } },
+                            { questionTextAr: { $regex: paragraphPattern, $options: 'i' } }
+                        ]
+                    }
+                ];
+                delete query.$or;
+            } else {
+                query.$or = [
+                    { questionTextEn: { $regex: paragraphPattern, $options: 'i' } },
+                    { questionTextAr: { $regex: paragraphPattern, $options: 'i' } }
+                ];
+            }
+        }
+
+
+
+
+        
+        
         console.log('[ADMIN] Loading questions with filters:', query);
         
         const totalQuestions = await Question.countDocuments(query);
