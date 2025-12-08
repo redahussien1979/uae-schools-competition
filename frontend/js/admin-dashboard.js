@@ -2636,45 +2636,44 @@ function handleEditKeyboard(event) {
  * Extract unique paragraph GROUP IDs from all loaded questions
  * and populate the filter dropdown
  */
-function populateParagraphFilter() {
-    const paragraphSet = new Set();
+/**
+ * Fetch all unique paragraph GROUP IDs from database
+ * and populate the filter dropdown
+ */
+async function populateParagraphFilter() {
+    const token = checkAdminAuth();
     
-    // Extract GROUP IDs from question text (both English and Arabic)
-    allLoadedQuestions.forEach(q => {
-        const textEn = q.questionTextEn || '';
-        const textAr = q.questionTextAr || '';
-        const combinedText = textEn + ' ' + textAr;
+    try {
+        const response = await fetch(`${API_URL}/admin/paragraph-groups`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         
-        // Match [GROUP:xxx] pattern
-        const matches = combinedText.match(/\[GROUP:([^\]]+)\]/gi);
-        if (matches) {
-            matches.forEach(match => {
-                const groupId = match.match(/\[GROUP:([^\]]+)\]/i)[1];
-                paragraphSet.add(groupId);
+        const data = await response.json();
+        
+        if (data.success) {
+            const select = document.getElementById('filterParagraph');
+            const currentValue = select.value; // Preserve current selection
+            
+            // Clear existing options except the first one
+            select.innerHTML = '<option value="">All Questions</option>';
+            
+            // Add paragraph options
+            data.paragraphs.forEach(paragraphId => {
+                const option = document.createElement('option');
+                option.value = paragraphId;
+                option.textContent = paragraphId;
+                select.appendChild(option);
             });
+            
+            // Restore selection if it still exists
+            if (currentValue && data.paragraphs.includes(currentValue)) {
+                select.value = currentValue;
+            }
         }
-    });
-    
-    // Sort the paragraph IDs
-    const sortedParagraphs = Array.from(paragraphSet).sort();
-    
-    // Populate the dropdown
-    const select = document.getElementById('filterParagraph');
-    const currentValue = select.value; // Preserve current selection
-    
-    // Clear existing options except the first one
-    select.innerHTML = '<option value="">All Questions</option>';
-    
-    // Add paragraph options
-    sortedParagraphs.forEach(paragraphId => {
-        const option = document.createElement('option');
-        option.value = paragraphId;
-        option.textContent = paragraphId;
-        select.appendChild(option);
-    });
-    
-    // Restore selection if it still exists
-    if (currentValue && sortedParagraphs.includes(currentValue)) {
-        select.value = currentValue;
+    } catch (error) {
+        console.error('Failed to load paragraph groups:', error);
     }
 }
+
