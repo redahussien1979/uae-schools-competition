@@ -157,6 +157,120 @@
         
 
 
+/* Compact Edit Modal - Fit to Screen */
+#questionModal .modal-dialog {
+    max-width: 95vw;
+    max-height: 95vh;
+    margin: 1rem auto;
+}
+
+#questionModal .modal-content {
+    max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#questionModal .modal-body {
+    overflow-y: auto;
+    padding: 0.75rem;
+}
+
+#questionModal .modal-header,
+#questionModal .modal-footer {
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+}
+
+/* Smaller textareas */
+#questionModal #questionTextEn,
+#questionModal #questionTextAr {
+    font-size: 1rem;
+    rows: 2;
+}
+
+#questionModal textarea {
+    min-height: 50px !important;
+    max-height: 80px !important;
+}
+
+/* Compact form layout */
+#questionModal .row.g-3 {
+    --bs-gutter-y: 0.5rem;
+}
+
+#questionModal .form-label {
+    margin-bottom: 0.2rem;
+    font-size: 0.85rem;
+}
+
+/* Inline grade checkboxes */
+#questionModal #gradeCheckboxes {
+    padding: 0.5rem !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+#questionModal #gradeCheckboxes .form-check {
+    margin: 0;
+    padding-left: 1.5rem;
+    min-width: 80px;
+}
+
+/* Smaller LaTeX buttons */
+#questionModal .latex-btn-group {
+    margin-top: 0.25rem;
+    gap: 0.25rem;
+}
+
+#questionModal .latex-btn {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.75rem;
+}
+
+/* Compact options */
+#questionModal #optionsContainer .mb-2 {
+    margin-bottom: 0.4rem !important;
+}
+
+#questionModal #optionsContainer input {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Two-column layout for options on larger screens */
+@media (min-width: 768px) {
+    #questionModal #optionsContainer {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+    
+    #questionModal #optionsContainer > label {
+        grid-column: 1 / -1;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
 
 
 
@@ -545,7 +659,11 @@
 
 <!-- Add/Edit Question Modal -->
 <div class="modal fade" id="questionModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+     
+         <div class="modal-dialog modal-xl">
+
+
+
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="questionModalTitle">Add Question</h5>
