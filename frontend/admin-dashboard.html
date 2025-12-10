@@ -156,7 +156,6 @@
 
         
 
-
 /* Compact Edit Modal - Fit to Screen */
 #questionModal .modal-dialog {
     max-width: 95vw;
@@ -181,16 +180,11 @@
     padding: 0.5rem 1rem;
 }
 
-/* Smaller textareas */
+/* KEEP question text LARGE */
 #questionModal #questionTextEn,
 #questionModal #questionTextAr {
-    font-size: 1rem;
-    rows: 2;
-}
-
-#questionModal textarea {
-    min-height: 50px !important;
-    max-height: 80px !important;
+    font-size: 1.5rem;
+    min-height: 80px;
 }
 
 /* Compact form layout */
@@ -203,52 +197,75 @@
     font-size: 0.85rem;
 }
 
-/* Inline grade checkboxes */
+/* Inline grade checkboxes - single row */
 #questionModal #gradeCheckboxes {
-    padding: 0.5rem !important;
+    padding: 0.4rem !important;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    justify-content: space-between;
 }
 
 #questionModal #gradeCheckboxes .form-check {
     margin: 0;
     padding-left: 1.5rem;
-    min-width: 80px;
 }
 
 /* Smaller LaTeX buttons */
 #questionModal .latex-btn-group {
-    margin-top: 0.25rem;
-    gap: 0.25rem;
+    margin-top: 0.2rem;
+    gap: 0.2rem;
 }
 
 #questionModal .latex-btn {
-    padding: 0.15rem 0.35rem;
-    font-size: 0.75rem;
+    padding: 0.1rem 0.3rem;
+    font-size: 0.7rem;
 }
 
-/* Compact options */
+/* Compact options - 2 columns */
+#questionModal #optionsContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+}
+
+#questionModal #optionsContainer > label.form-label {
+    grid-column: 1 / -1;
+}
+
 #questionModal #optionsContainer .mb-2 {
-    margin-bottom: 0.4rem !important;
+    margin-bottom: 0 !important;
 }
 
 #questionModal #optionsContainer input {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.1rem;
 }
 
-/* Two-column layout for options on larger screens */
-@media (min-width: 768px) {
-    #questionModal #optionsContainer {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-    }
-    
-    #questionModal #optionsContainer > label {
-        grid-column: 1 / -1;
-    }
+#questionModal #optionsContainer .latex-btn-group {
+    display: none; /* Hide option latex buttons to save space */
+}
+
+/* Compact correct answer and image fields */
+#questionModal #correctAnswer {
+    padding: 0.3rem 0.5rem;
+    font-size: 1.1rem;
+}
+
+#questionModal #imageUrl,
+#questionModal #imagePosition {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+}
+
+/* Hide the big convert all button to save space */
+#questionModal .text-center.mb-3:has(.btn-success.btn-lg) {
+    margin-bottom: 0.5rem !important;
+}
+
+#questionModal .text-center.mb-3 .btn-lg {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
 }
 
 
