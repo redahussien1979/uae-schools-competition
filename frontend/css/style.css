@@ -1208,7 +1208,7 @@ small.text-muted i {
 [dir="rtl"] #questionText,
 [dir="rtl"] .question-text,
 [dir="rtl"] .all-questions-mode .question-text {
-    font-family: 'trado', sans-serif !important;
+    font-family: 'majalla', sans-serif !important;
 }
 
 /* Answer options text */
@@ -1225,7 +1225,7 @@ small.text-muted i {
 [dir="rtl"] .answer-option,
 [dir="rtl"] .option-text,
 [dir="rtl"] .answer-option .option-text {
-    font-family: 'trado', sans-serif !important;
+    font-family: 'majalla', sans-serif !important;
 }
 
 /* Text input answers */
@@ -1234,7 +1234,7 @@ small.text-muted i {
 }
 
 [dir="rtl"] #answerContainer input.form-control {
-    font-family: 'trado', sans-serif !important;
+    font-family: 'majalla', sans-serif !important;
 }
 
 /* Paragraph text (for reading passages) */
@@ -1243,5 +1243,5 @@ small.text-muted i {
 }
 
 [dir="rtl"] .paragraph-text {
-    font-family: 'trado', sans-serif !important;
+    font-family: 'majalla', sans-serif !important;
 }
