@@ -1445,6 +1445,47 @@ app.get('/admin/stats', protectAdmin, async (req, res) => {
             }
         ]);
 
+        // NEW: Arabic paragraph questions breakdown by grade
+        const arabicParagraphByGrade = await Question.aggregate([
+            {
+                $match: {
+                    subject: 'arabic'
+                }
+            },
+            {
+                $unwind: '$grades'
+            },
+            {
+                $project: {
+                    grade: '$grades',
+                    isParagraph: {
+                        $cond: {
+                            if: {
+                                $or: [
+                                    { $regexMatch: { input: '$questionTextEn', regex: /\[GROUP:/i } },
+                                    { $regexMatch: { input: '$questionTextAr', regex: /\[GROUP:/i } }
+                                ]
+                            },
+                            then: true,
+                            else: false
+                        }
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        grade: '$grade',
+                        isParagraph: '$isParagraph'
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { '_id.grade': 1 }
+            }
+        ]);
+
         res.json({
             success: true,
             stats: {
@@ -1456,7 +1497,8 @@ app.get('/admin/stats', protectAdmin, async (req, res) => {
                 recentAttempts,
                 questionsBySubject,
                 usersByGrade,
-                questionsByGradeAndSubject
+                questionsByGradeAndSubject,
+                arabicParagraphByGrade
             }
         });
 
