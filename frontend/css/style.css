@@ -1201,7 +1201,8 @@ small.text-muted i {
 .all-questions-mode .question-text {
     font-family: 'Poppins', sans-serif !important;
     font-weight: 500;
-  
+  font-size: 1.5rem; /* Add this line */
+
 }
 
 /* Arabic question text */
@@ -1217,7 +1218,7 @@ small.text-muted i {
 .answer-option .option-text {
     font-family: 'Poppins', sans-serif !important;
     font-weight: 400;
-       font-size: 1.25rem; /* or whatever size you prefer */
+       font-size: 1.35rem; /* or whatever size you prefer */
 
 }
 
@@ -1240,6 +1241,9 @@ small.text-muted i {
 /* Paragraph text (for reading passages) */
 .paragraph-text {
     font-family: 'Poppins', sans-serif !important;
+   font-size: 1.5rem; /* Add this line */
+
+
 }
 
 [dir="rtl"] .paragraph-text {
