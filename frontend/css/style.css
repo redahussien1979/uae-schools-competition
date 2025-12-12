@@ -16,6 +16,13 @@
     --silver: #C0C0C0;
     --bronze: #CD7F32;
 }
+/* Custom Majalla Font */
+@font-face {
+    font-family: 'Majalla';
+    src: url('../majalla.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
 
 /* ===== Global Styles ===== */
 body {
