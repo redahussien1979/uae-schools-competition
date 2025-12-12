@@ -120,7 +120,7 @@ async function loadStatistics() {
             displayQuestionsBySubject(stats.questionsBySubject);
 
             // Display questions breakdown by grade and subject
-            displayQuestionsBreakdown(stats.questionsByGradeAndSubject);
+            displayQuestionsBreakdown(stats.questionsByGradeAndSubject, stats.arabicParagraphByGrade);
         }
     } catch (error) {
         console.error('Load stats error:', error);
@@ -145,7 +145,7 @@ function displayQuestionsBySubject(data) {
 }
 
 // Display questions breakdown by grade and subject
-function displayQuestionsBreakdown(data) {
+function displayQuestionsBreakdown(data, arabicParagraphData) {
     const container = document.getElementById('questions-breakdown');
 
     // Subject names and colors
@@ -168,6 +168,25 @@ function displayQuestionsBreakdown(data) {
         }
         gradeData[grade][subject] = count;
     });
+
+    // Organize Arabic paragraph data by grade
+    const arabicParaByGrade = {};
+    if (arabicParagraphData) {
+        arabicParagraphData.forEach(item => {
+            const grade = item._id.grade;
+            const isParagraph = item._id.isParagraph;
+            const count = item.count;
+
+            if (!arabicParaByGrade[grade]) {
+                arabicParaByGrade[grade] = { paragraph: 0, normal: 0 };
+            }
+            if (isParagraph) {
+                arabicParaByGrade[grade].paragraph = count;
+            } else {
+                arabicParaByGrade[grade].normal = count;
+            }
+        });
+    }
 
     // Sort grades
     const sortedGrades = Object.keys(gradeData).sort((a, b) => a - b);
@@ -201,16 +220,37 @@ function displayQuestionsBreakdown(data) {
             const count = subjects[subject] || 0;
             const info = subjectInfo[subject];
 
-            html += `
-                <div class="d-flex justify-content-between align-items-center p-2 rounded"
-                     style="background-color: rgba(var(--bs-${info.color}-rgb), 0.1);">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-${info.icon} text-${info.color}"></i>
-                        <span class="small">${info.name}</span>
+            // Special display for Arabic with paragraph breakdown
+            if (subject === 'arabic' && arabicParaByGrade[grade]) {
+                const paraCount = arabicParaByGrade[grade].paragraph || 0;
+                const normalCount = arabicParaByGrade[grade].normal || 0;
+
+                html += `
+                    <div class="d-flex justify-content-between align-items-center p-2 rounded"
+                         style="background-color: rgba(var(--bs-${info.color}-rgb), 0.1);">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-${info.icon} text-${info.color}"></i>
+                            <span class="small">${info.name}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="badge bg-secondary" title="Paragraph Questions">${paraCount}</span>
+                            <span class="badge bg-${info.color}" title="Normal Questions">${normalCount}</span>
+                            <span class="badge bg-dark" title="Total">${count}</span>
+                        </div>
                     </div>
-                    <span class="badge bg-${info.color}">${count}</span>
-                </div>
-            `;
+                `;
+            } else {
+                html += `
+                    <div class="d-flex justify-content-between align-items-center p-2 rounded"
+                         style="background-color: rgba(var(--bs-${info.color}-rgb), 0.1);">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-${info.icon} text-${info.color}"></i>
+                            <span class="small">${info.name}</span>
+                        </div>
+                        <span class="badge bg-${info.color}">${count}</span>
+                    </div>
+                `;
+            }
         });
 
         html += `
