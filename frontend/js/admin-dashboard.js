@@ -2798,9 +2798,10 @@ async function loadViewQuestions() {
     try {
         // Build query string
         const params = new URLSearchParams({
+            page: 1,
             subject: subject,
             grade: grade,
-            limit: 500
+            limit: 1000
         });
 
         if (paragraph) {
