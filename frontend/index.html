@@ -119,6 +119,38 @@
             margin: 0 auto 20px;
             font-size: 2rem;
         }
+
+
+
+
+
+/* Flag behind trophy */
+.trophy-container {
+    position: relative;
+    display: inline-block;
+}
+
+.flag-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    height: auto;
+    opacity: 0.3;
+    z-index: 1;
+}
+
+.trophy-icon {
+    position: relative;
+    z-index: 2;
+}
+
+
+
+
+
+        
     </style>
 </head>
 <body>
@@ -209,11 +241,16 @@
                     </div>
                 </div>
                 
-                <div class="col-lg-6">
-                    <div class="text-center">
-                        <i class="bi bi-trophy-fill" style="font-size: 15rem; opacity: 0.2;"></i>
-                    </div>
-                </div>
+                     <div class="col-lg-6">
+    <div class="text-center">
+        <div class="trophy-container">
+            <img src="images/flag.jpeg" alt="UAE Flag" class="flag-bg">
+            <i class="bi bi-trophy-fill trophy-icon" style="font-size: 15rem; opacity: 0.2;"></i>
+        </div>
+    </div>
+</div>
+
+                
             </div>
         </div>
     </section>
