@@ -177,6 +177,19 @@
 [dir="ltr"] .all-questions-mode .question-text {
     font-size: 1.5rem !important;
 }
+/* RTL - Flip navigation arrows */
+[dir="rtl"] #prevBtn .bi-arrow-left::before {
+    content: "\F138"; /* arrow-right icon */
+}
+
+[dir="rtl"] #nextBtn .bi-arrow-right::before {
+    content: "\F12F"; /* arrow-left icon */
+}
+
+/* RTL - Reverse button order */
+[dir="rtl"] .d-flex.justify-content-between {
+    flex-direction: row-reverse;
+}
 
 
     </style>
