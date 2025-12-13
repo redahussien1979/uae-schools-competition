@@ -282,14 +282,127 @@
 
 
 
+/* ========================================
+   VIEW QUESTIONS (Quiz Format) STYLES
+   ======================================== */
 
+/* Question Item Card */
+.view-question-item {
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
 
+.view-question-item:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
 
+/* Question Number Badge */
+.view-question-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
 
-        
+/* Question Text */
+.view-question-text {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: #333;
+}
 
+.view-question-text-ar {
+    direction: rtl;
+    text-align: right;
+}
 
+/* Answer Options */
+.view-answer-option {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+}
 
+.view-answer-option:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+}
+
+.view-answer-option.correct {
+    background: #d4edda;
+    border-color: #28a745;
+}
+
+.view-option-label {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.view-option-text {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+/* Correct Answer Indicator */
+.view-correct-answer {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-weight: 600;
+}
+
+/* Question Image */
+.view-question-image {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Paragraph Container */
+.view-paragraph-container {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f0f4ff 100%);
+    border-left: 4px solid #2196F3;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.view-paragraph-text {
+    font-size: 1.3rem;
+    line-height: 1.8;
+    color: #333;
+}
+
+/* Subject Badge Colors */
+.badge-math { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.badge-science { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+.badge-english { background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); }
+.badge-arabic { background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: #333; }
 
     </style>
 </head>
@@ -322,6 +435,10 @@
                         <a class="nav-link" href="#" onclick="showSection('questions', event)">
                             <i class="bi bi-question-circle me-2"></i>
                             Questions
+                        </a>
+                        <a class="nav-link" href="#" onclick="showSection('viewquestions', event)">
+                            <i class="bi bi-eye me-2"></i>
+                            View Questions
                         </a>
                         <hr class="bg-white">
                         <a class="nav-link" href="#" onclick="adminLogout()">
@@ -659,7 +776,75 @@
     </div>
 </div>
 
+<!-- View Questions Section (Quiz Format) -->
+<div id="viewquestions-section" class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">
+            <i class="bi bi-eye me-2"></i>
+            View Questions (Quiz Format)
+        </h3>
+    </div>
 
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Subject *</label>
+                    <select class="form-select" id="viewFilterSubject" onchange="loadViewQuestions()">
+                        <option value="">Select Subject</option>
+                        <option value="math">Mathematics</option>
+                        <option value="science">Science</option>
+                        <option value="english">English</option>
+                        <option value="arabic">Arabic</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Grade *</label>
+                    <select class="form-select" id="viewFilterGrade" onchange="loadViewQuestions()">
+                        <option value="">Select Grade</option>
+                        <option value="4">Grade 4</option>
+                        <option value="5">Grade 5</option>
+                        <option value="6">Grade 6</option>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                        <option value="9">Grade 9</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Paragraph Group (Optional)</label>
+                    <select class="form-select" id="viewFilterParagraph" onchange="loadViewQuestions()">
+                        <option value="">All Questions</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100" onclick="loadViewQuestions()">
+                        <i class="bi bi-search me-2"></i>
+                        Load Questions
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions Count Info -->
+    <div id="viewQuestionsInfo" class="alert alert-info mb-4" style="display: none;">
+        <i class="bi bi-info-circle me-2"></i>
+        <span id="viewQuestionsCount">0</span> questions found
+    </div>
+
+    <!-- Questions Display Container -->
+    <div id="viewQuestionsContainer">
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-filter-circle" style="font-size: 4rem;"></i>
+            <h5 class="mt-3">Select Subject and Grade</h5>
+            <p>Choose a subject and grade above to view questions in quiz format</p>
+        </div>
+    </div>
+</div>
 
 
 

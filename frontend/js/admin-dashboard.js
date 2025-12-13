@@ -85,6 +85,8 @@ function showSection(section, event) {
         loadAttempts();
     } else if (section === 'questions') {
         loadQuestions();
+    } else if (section === 'viewquestions') {
+        populateViewParagraphFilter();
     }
 }
 
@@ -2715,5 +2717,333 @@ async function populateParagraphFilter() {
     } catch (error) {
         console.error('Failed to load paragraph groups:', error);
     }
+}
+
+
+// ========================================
+// VIEW QUESTIONS (Quiz Format) FUNCTIONS
+// ========================================
+
+/**
+ * Populate the paragraph filter for View Questions section
+ */
+async function populateViewParagraphFilter() {
+    const token = checkAdminAuth();
+
+    try {
+        const response = await fetch(`${API_URL}/admin/paragraph-groups`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const select = document.getElementById('viewFilterParagraph');
+            const currentValue = select.value;
+
+            select.innerHTML = '<option value="">All Questions</option>';
+
+            data.paragraphs.forEach(paragraphId => {
+                const option = document.createElement('option');
+                option.value = paragraphId;
+                option.textContent = paragraphId;
+                select.appendChild(option);
+            });
+
+            if (currentValue && data.paragraphs.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load paragraph groups:', error);
+    }
+}
+
+/**
+ * Load and display questions in quiz format
+ */
+async function loadViewQuestions() {
+    const token = checkAdminAuth();
+    const subject = document.getElementById('viewFilterSubject').value;
+    const grade = document.getElementById('viewFilterGrade').value;
+    const paragraph = document.getElementById('viewFilterParagraph').value;
+
+    const container = document.getElementById('viewQuestionsContainer');
+    const infoDiv = document.getElementById('viewQuestionsInfo');
+    const countSpan = document.getElementById('viewQuestionsCount');
+
+    // Validate required filters
+    if (!subject || !grade) {
+        container.innerHTML = `
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-exclamation-triangle" style="font-size: 4rem; color: #ffc107;"></i>
+                <h5 class="mt-3">Please Select Subject and Grade</h5>
+                <p>Both subject and grade are required to view questions</p>
+            </div>
+        `;
+        infoDiv.style.display = 'none';
+        return;
+    }
+
+    // Show loading
+    container.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+            <h5 class="mt-3">Loading questions...</h5>
+        </div>
+    `;
+
+    try {
+        // Build query string
+        const params = new URLSearchParams({
+            subject: subject,
+            grade: grade,
+            limit: 500
+        });
+
+        if (paragraph) {
+            params.append('paragraph', paragraph);
+        }
+
+        const response = await fetch(`${API_URL}/admin/questions?${params.toString()}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const questions = data.questions;
+
+            if (questions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox" style="font-size: 4rem;"></i>
+                        <h5 class="mt-3">No Questions Found</h5>
+                        <p>No questions match the selected filters</p>
+                    </div>
+                `;
+                infoDiv.style.display = 'none';
+                return;
+            }
+
+            // Show count
+            countSpan.textContent = questions.length;
+            infoDiv.style.display = 'block';
+
+            // Display questions in quiz format
+            displayViewQuestions(questions, subject);
+
+        } else {
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    ${data.message || 'Failed to load questions'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Load view questions error:', error);
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                Failed to load questions. Please try again.
+            </div>
+        `;
+    }
+}
+
+/**
+ * Display questions in quiz format
+ */
+function displayViewQuestions(questions, subject) {
+    const container = document.getElementById('viewQuestionsContainer');
+
+    // Subject info for styling
+    const subjectInfo = {
+        'math': { name: 'Mathematics', nameAr: 'الرياضيات', color: 'primary' },
+        'science': { name: 'Science', nameAr: 'العلوم', color: 'success' },
+        'english': { name: 'English', nameAr: 'اللغة الإنجليزية', color: 'danger' },
+        'arabic': { name: 'Arabic', nameAr: 'اللغة العربية', color: 'warning' }
+    };
+
+    const info = subjectInfo[subject] || { name: subject, nameAr: subject, color: 'secondary' };
+
+    let html = '';
+
+    // Check if questions have paragraph (grouped questions)
+    const paragraphQuestions = questions.filter(q => {
+        const textEn = q.questionTextEn || '';
+        const textAr = q.questionTextAr || '';
+        return textEn.includes('[PARAGRAPH]') || textAr.includes('[PARAGRAPH]');
+    });
+
+    if (paragraphQuestions.length > 0) {
+        // Extract and display paragraph
+        const firstParagraphQ = paragraphQuestions[0];
+        const paragraphMatch = (firstParagraphQ.questionTextEn || '').match(/\[PARAGRAPH\]([\s\S]*?)\[\/PARAGRAPH\]/) ||
+                              (firstParagraphQ.questionTextAr || '').match(/\[PARAGRAPH\]([\s\S]*?)\[\/PARAGRAPH\]/);
+
+        if (paragraphMatch) {
+            const paragraphText = paragraphMatch[1].trim();
+            html += `
+                <div class="view-paragraph-container mb-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-book-half me-2"></i>
+                        Reading Passage / نص القراءة
+                    </h6>
+                    <div class="view-paragraph-text" style="direction: ${subject === 'arabic' ? 'rtl' : 'ltr'};">
+                        ${paragraphText}
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Display each question
+    questions.forEach((question, index) => {
+        html += buildViewQuestionHTML(question, index + 1, subject, info);
+    });
+
+    container.innerHTML = html;
+
+    // Render MathJax for LaTeX
+    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+        MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
+    }
+}
+
+/**
+ * Build HTML for a single question in view mode
+ */
+function buildViewQuestionHTML(question, number, subject, info) {
+    // Clean question text (remove GROUP and PARAGRAPH tags)
+    let questionTextEn = (question.questionTextEn || '').replace(/\[GROUP:[^\]]+\]/g, '').replace(/\[PARAGRAPH\][\s\S]*?\[\/PARAGRAPH\]/g, '').trim();
+    let questionTextAr = (question.questionTextAr || '').replace(/\[GROUP:[^\]]+\]/g, '').replace(/\[PARAGRAPH\][\s\S]*?\[\/PARAGRAPH\]/g, '').trim();
+
+    // Normalize function for comparing answers
+    const normalize = (text) => {
+        return (text || '')
+            .replace(/\$/g, '')
+            .replace(/\\[\(\)]/g, '')
+            .replace(/[\u200B-\u200D\uFEFF]/g, '')
+            .replace(/\u200F|\u200E/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
+    let html = `
+        <div class="view-question-item">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="view-question-badge">
+                    Question ${number}
+                </div>
+                <div>
+                    <span class="badge bg-${info.color} me-2">${info.name}</span>
+                    <span class="badge bg-secondary">${question.questionType.replace('_', ' ')}</span>
+                </div>
+            </div>
+    `;
+
+    // Question Image (above)
+    if (question.imageUrl && question.imagePosition === 'above') {
+        html += `
+            <div class="text-center mb-3">
+                <img src="${question.imageUrl}" class="view-question-image" alt="Question Image">
+            </div>
+        `;
+    }
+
+    // Question Text (English)
+    if (questionTextEn) {
+        html += `
+            <div class="view-question-text mb-3">
+                <strong class="text-primary">EN:</strong> ${questionTextEn}
+            </div>
+        `;
+    }
+
+    // Question Text (Arabic)
+    if (questionTextAr) {
+        html += `
+            <div class="view-question-text view-question-text-ar mb-3">
+                <strong class="text-success">AR:</strong> ${questionTextAr}
+            </div>
+        `;
+    }
+
+    // Question Image (below - default)
+    if (question.imageUrl && question.imagePosition !== 'above') {
+        html += `
+            <div class="text-center mb-3">
+                <img src="${question.imageUrl}" class="view-question-image" alt="Question Image">
+            </div>
+        `;
+    }
+
+    // Answer Options
+    if (question.questionType === 'multiple_choice' && question.options && question.options.length > 0) {
+        html += '<div class="answer-options mt-3">';
+
+        question.options.forEach((option, idx) => {
+            const label = String.fromCharCode(65 + idx); // A, B, C, D
+            const isCorrect = normalize(option) === normalize(question.correctAnswer);
+
+            html += `
+                <div class="view-answer-option d-flex align-items-center ${isCorrect ? 'correct' : ''}">
+                    <div class="view-option-label me-3">${label}</div>
+                    <div class="view-option-text flex-grow-1">${option}</div>
+                    ${isCorrect ? '<i class="bi bi-check-circle-fill text-success ms-2" style="font-size: 1.5rem;"></i>' : ''}
+                </div>
+            `;
+        });
+
+        html += '</div>';
+
+    } else if (question.questionType === 'true_false') {
+        html += '<div class="answer-options mt-3">';
+
+        ['True', 'False'].forEach(option => {
+            const isCorrect = option === question.correctAnswer;
+
+            html += `
+                <div class="view-answer-option d-flex align-items-center ${isCorrect ? 'correct' : ''}">
+                    <div class="view-option-label me-3">${option === 'True' ? 'T' : 'F'}</div>
+                    <div class="view-option-text flex-grow-1">${option} / ${option === 'True' ? 'صح' : 'خطأ'}</div>
+                    ${isCorrect ? '<i class="bi bi-check-circle-fill text-success ms-2" style="font-size: 1.5rem;"></i>' : ''}
+                </div>
+            `;
+        });
+
+        html += '</div>';
+
+    } else if (question.questionType === 'text_input') {
+        html += `
+            <div class="view-correct-answer mt-3">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Correct Answer: ${question.correctAnswer}
+            </div>
+        `;
+    }
+
+    // If correct answer wasn't shown in options (for multiple choice validation)
+    if (question.questionType === 'multiple_choice') {
+        const correctFound = question.options && question.options.some(opt => normalize(opt) === normalize(question.correctAnswer));
+        if (!correctFound) {
+            html += `
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Note:</strong> Correct answer "${question.correctAnswer}" is not among the options!
+                </div>
+            `;
+        }
+    }
+
+    html += '</div>';
+
+    return html;
 }
 
