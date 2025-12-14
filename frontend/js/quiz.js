@@ -10,10 +10,29 @@ let currentQuizData = {
     questions: [],
     currentIndex: 0,
     answers: {},
+    shuffledOptions: {}, // Store shuffled options per question ID for consistency
     startTime: null,
     timerInterval: null,
     timeLimit: 900 // 15 minutes in seconds
 };
+
+// Fisher-Yates shuffle algorithm - returns a new shuffled array
+function shuffleArray(array) {
+    const shuffled = [...array]; // Create a copy to avoid mutating original
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// Get shuffled options for a question (creates and caches if not exists)
+function getShuffledOptions(question) {
+    if (!currentQuizData.shuffledOptions[question.id]) {
+        currentQuizData.shuffledOptions[question.id] = shuffleArray(question.options);
+    }
+    return currentQuizData.shuffledOptions[question.id];
+}
 
 // Activity and page visibility tracking
 let lastActivityTime = Date.now();
@@ -213,8 +232,9 @@ function displayAnswerOptions(question) {
     const savedAnswer = currentQuizData.answers[question.id];
 
     if (question.questionType === 'multiple_choice') {
-        // Multiple choice options
-        question.options.forEach((option, index) => {
+        // Multiple choice options - use shuffled order
+        const options = getShuffledOptions(question);
+        options.forEach((option, index) => {
             const optionDiv = document.createElement('div');
             optionDiv.className = 'answer-option';
             if (savedAnswer === option) {
@@ -739,15 +759,17 @@ function buildAnswerOptionsHTML(question, questionIndex) {
     let html = '';
     
     if (question.questionType === 'multiple_choice') {
-        question.options.forEach((option, idx) => {
+        // Use shuffled options for randomized order
+        const options = getShuffledOptions(question);
+        options.forEach((option, idx) => {
             const isSelected = savedAnswer === option;
             const label = String.fromCharCode(65 + idx); // A, B, C, D
-            
+
             // Escape quotes for onclick
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            
+
             html += `
-                <div class="answer-option ${isSelected ? 'selected' : ''}" 
+                <div class="answer-option ${isSelected ? 'selected' : ''}"
                      onclick="selectAnswerInParagraphMode('${question.id}', '${escapedOption}', ${questionIndex})">
                     <div class="d-flex align-items-center">
                         <div class="me-3">
