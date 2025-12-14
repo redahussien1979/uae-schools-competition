@@ -73,13 +73,13 @@
             <!-- Dashboard Link (shown only for logged-in users) -->
             <a href="dashboard.html" class="btn btn-outline-success btn-sm" id="dashboardLink" style="display: none;">
                 <i class="bi bi-speedometer2 me-1"></i>
-                <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
+                <span data-en="Dashboard" data-ar="لوحة التحكم"></span>
             </a>
             
             <!-- Login Button (hidden for logged-in users) -->
             <a href="login.html" class="btn btn-primary btn-sm" id="loginBtn">
                 <i class="bi bi-box-arrow-in-right me-1"></i>
-                <span data-en="Login" data-ar="دخول">Login</span>
+                <span data-en="Login" data-ar="دخول"></span>
             </a>
         </div>
     </div>
@@ -97,7 +97,7 @@
                 <span data-en="Leaderboard" data-ar="لوحة المتصدرين"></span>
             </h1>
             <p class="text-muted" data-en="See the top performers across all UAE schools" data-ar="شاهد أفضل الأداء في جميع مدارس الإمارات">
-                See the top performers across all UAE schools
+                
             </p>
         </div>
 
@@ -106,13 +106,13 @@
             <li class="nav-item">
                 <button class="nav-link active" id="studentsTab" onclick="switchTab('students')">
                     <i class="bi bi-people-fill me-2"></i>
-                    <span data-en="Students" data-ar="الطلاب">Students</span>
+                    <span data-en="Students" data-ar="الطلاب"></span>
                 </button>
             </li>
             <li class="nav-item">
                 <button class="nav-link" id="schoolsTab" onclick="switchTab('schools')">
                     <i class="bi bi-building me-2"></i>
-                    <span data-en="Schools" data-ar="المدارس">Schools</span>
+                    <span data-en="Schools" data-ar="المدارس"></span>
                 </button>
             </li>
         </ul>
@@ -124,10 +124,10 @@
                     
                     <!-- Grade Filter -->
                     <div class="col-md-6">
-                        <label class="form-label fw-bold" data-en="Filter by Grade:" data-ar="تصفية حسب الصف:">Filter by Grade:</label>
+                        <label class="form-label fw-bold" data-en="Filter by Grade:" data-ar="تصفية حسب الصف:"></label>
                         <div class="d-flex flex-wrap gap-2">
                             <button class="btn btn-outline-primary filter-btn active" onclick="filterByGrade('all')">
-                                <span data-en="All Grades" data-ar="جميع الصفوف">All Grades</span>
+                                <span data-en="All Grades" data-ar="جميع الصفوف"></span>
                             </button>
                             <button class="btn btn-outline-primary filter-btn" onclick="filterByGrade('4')">4</button>
                             <button class="btn btn-outline-primary filter-btn" onclick="filterByGrade('5')">5</button>
@@ -140,22 +140,22 @@
 
                     <!-- Subject Filter -->
                     <div class="col-md-6">
-                        <label class="form-label fw-bold" data-en="Filter by Subject:" data-ar="تصفية حسب المادة:">Filter by Subject:</label>
+                        <label class="form-label fw-bold" data-en="Filter by Subject:" data-ar="تصفية حسب المادة:"></label>
                         <div class="d-flex flex-wrap gap-2">
                             <button class="btn btn-outline-success filter-btn active" onclick="filterBySubject('overall')">
-                                <span data-en="Overall" data-ar="الإجمالي">Overall</span>
+                                <span data-en="Overall" data-ar="الإجمالي"></span>
                             </button>
                             <button class="btn btn-outline-success filter-btn" onclick="filterBySubject('math')">
-                                <span data-en="Math" data-ar="رياضيات">Math</span>
+                                <span data-en="Math" data-ar="رياضيات"></span>
                             </button>
                             <button class="btn btn-outline-success filter-btn" onclick="filterBySubject('science')">
-                                <span data-en="Science" data-ar="علوم">Science</span>
+                                <span data-en="Science" data-ar="علوم"></span>
                             </button>
                             <button class="btn btn-outline-success filter-btn" onclick="filterBySubject('english')">
-                                <span data-en="English" data-ar="إنجليزي">English</span>
+                                <span data-en="English" data-ar="إنجليزي"></span>
                             </button>
                             <button class="btn btn-outline-success filter-btn" onclick="filterBySubject('arabic')">
-                                <span data-en="Arabic" data-ar="عربي">Arabic</span>
+                                <span data-en="Arabic" data-ar="عربي"></span>
                             </button>
                         </div>
                     </div>
@@ -172,10 +172,10 @@
                     <table class="table table-hover mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="px-4 py-3" data-en="Rank" data-ar="الترتيب">Rank</th>
-                                <th class="px-4 py-3" data-en="Name" data-ar="الاسم">Name</th>
+                                <th class="px-4 py-3" data-en="Rank" data-ar="الترتيب"></th>
+                                <th class="px-4 py-3" data-en="Name" data-ar="الاسم"></th>
                                 <th class="px-4 py-3 d-none d-md-table-cell" id="tableHeader3">Grade</th>
-                                <th class="px-4 py-3 text-end" data-en="Score" data-ar="النتيجة">Score</th>
+                                <th class="px-4 py-3 text-end" data-en="Score" data-ar="النتيجة"></th>
                             </tr>
                         </thead>
                         <tbody id="leaderboardBody">
@@ -198,13 +198,13 @@
         <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
             <button class="btn btn-outline-primary" id="prevBtn" onclick="previousPage()" disabled>
                 <i class="bi bi-arrow-left me-2"></i>
-                <span data-en="Previous" data-ar="السابق">Previous</span>
+                <span data-en="Previous" data-ar="السابق"></span>
             </button>
             
             <span class="fw-bold" id="pageInfo">Page 1 of 1</span>
             
             <button class="btn btn-outline-primary" id="nextBtn" onclick="nextPage()">
-                <span data-en="Next" data-ar="التالي">Next</span>
+                <span data-en="Next" data-ar="التالي"></span>
                 <i class="bi bi-arrow-right ms-2"></i>
             </button>
         </div>
@@ -216,7 +216,7 @@
         <div class="container text-center">
             <p class="mb-0 text-muted">
                 <span data-en="© 2024 UAE Schools Competition. All rights reserved." data-ar="© 2024 مسابقة المدارس الإماراتية. جميع الحقوق محفوظة.">
-                    © 2024 UAE Schools Competition. All rights reserved.
+                    
                 </span>
             </p>
         </div>
