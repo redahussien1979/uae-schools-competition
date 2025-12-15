@@ -4,6 +4,23 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
+
+
+let paragraphProbability = 50; // Default 50%
+// GET probability
+app.get('/admin/paragraph-probability', authenticateToken, (req, res) => {
+    res.json({ success: true, probability: paragraphProbability });
+});
+
+// SET probability
+app.post('/admin/paragraph-probability', authenticateToken, (req, res) => {
+    paragraphProbability = req.body.probability;
+    res.json({ success: true, probability: paragraphProbability });
+});
+
+
+
+
 // Import User model and middleware
 const User = require('./models/User');
 const { protect } = require('./middleware/auth');
@@ -283,7 +300,9 @@ app.get('/quiz/start/:subject', protect, async (req, res) => {
 
         // If we have both types, randomly choose which mode to use (50/50)
         if (groupIds.length > 0 && normalQuestions.length >= 10) {
-            const useParagraphMode = Math.random() < 0.5;
+          //  const useParagraphMode = Math.random() < 0.5;
+            const useParagraphMode = Math.random() < (paragraphProbability / 100);
+
             console.log(`[QUIZ] Both types available - randomly chose: ${useParagraphMode ? 'PARAGRAPH' : 'NORMAL'} mode`);
 
             if (useParagraphMode) {
