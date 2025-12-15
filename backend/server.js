@@ -185,8 +185,32 @@ app.post('/login', async (req, res) => {
 // ========================================
 app.get('/me', protect, async (req, res) => {
     try {
-        // req.user is set by the protect middleware
         const user = req.user;
+
+        // Calculate rankings
+        let overallRank = 0;
+        let gradeRank = 0;
+        let schoolRank = 0;
+
+        // Only calculate if user has stars
+        if (user.totalStars > 0) {
+            // Overall Rank - count users with more stars
+            overallRank = await User.countDocuments({
+                totalStars: { $gt: user.totalStars }
+            }) + 1;
+
+            // Grade Rank - count users in same grade with more stars
+            gradeRank = await User.countDocuments({
+                grade: user.grade,
+                totalStars: { $gt: user.totalStars }
+            }) + 1;
+
+            // School Rank - count users in same school with more stars
+            schoolRank = await User.countDocuments({
+                school: user.school,
+                totalStars: { $gt: user.totalStars }
+            }) + 1;
+        }
 
         res.json({
             success: true,
@@ -202,7 +226,10 @@ app.get('/me', protect, async (req, res) => {
                 totalStars: user.totalStars || 0,
                 totalBestScore: user.totalBestScore,
                 totalAttempts: user.totalAttempts,
-                lastLogin: user.lastLogin
+                lastLogin: user.lastLogin,
+                overallRank: overallRank,
+                gradeRank: gradeRank,
+                schoolRank: schoolRank
             }
         });
     } catch (error) {
@@ -213,6 +240,7 @@ app.get('/me', protect, async (req, res) => {
         });
     }
 });
+
 
 
 
