@@ -22,7 +22,7 @@
     src: url('../majalla.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
-    font-display: block; /* Block text until font loads to prevent FOUT */
+    font-display: swap; /* Show fallback font immediately, swap when ready */
 }
 
 /* ===== Global Styles ===== */
