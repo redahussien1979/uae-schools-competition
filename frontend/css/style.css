@@ -1212,6 +1212,8 @@ small.text-muted i {
 [dir="rtl"] .question-text,
 [dir="rtl"] .all-questions-mode .question-text {
     font-family: 'majalla', sans-serif !important;
+       font-size: 2.5rem; /* Larger size for Arabic */
+
 }
 
 /* Answer options text */
@@ -1229,6 +1231,8 @@ small.text-muted i {
 [dir="rtl"] .option-text,
 [dir="rtl"] .answer-option .option-text {
     font-family: 'majalla', sans-serif !important;
+       font-size: 2.1rem; /* Larger size for Arabic */
+
 }
 
 /* Text input answers */
@@ -1250,4 +1254,6 @@ small.text-muted i {
 
 [dir="rtl"] .paragraph-text {
     font-family: 'majalla', sans-serif !important;
+       font-size: 2.1rem; /* Larger size for Arabic */
+
 }
