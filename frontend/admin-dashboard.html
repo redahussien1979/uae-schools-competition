@@ -468,6 +468,41 @@
     🔄 Migrate Questions (grade → grades)
 </button>
 
+
+
+<!-- Paragraph Probability Setting -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title fw-bold"><i class="bi bi-sliders me-2"></i>Paragraph vs Normal Questions</h5>
+        <p class="text-muted small mb-3">0% = Always normal | 100% = Always paragraph</p>
+        <div class="d-flex align-items-center gap-3">
+            <span>Normal</span>
+            <input type="range" id="probSlider" min="0" max="100" value="50" class="form-range" style="width:250px;">
+            <span>Paragraph</span>
+            <span class="badge bg-primary fs-6" id="probValue">50%</span>
+            <button class="btn btn-primary btn-sm" onclick="saveProbability()">Save</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    
+
                     <!-- Statistics Cards -->
                     <div class="row g-4 mb-4">
                         <div class="col-md-6 col-xl-3">
@@ -1373,6 +1408,33 @@ Q3: [GROUP:para1]السؤال ٣: عن ماذا كانت القصة؟</pre>
     </div>
 </div>
 
+
+    <script>
+const probSlider = document.getElementById('probSlider');
+probSlider.oninput = () => document.getElementById('probValue').textContent = probSlider.value + '%';
+
+fetch(`${API_URL}/admin/paragraph-probability`, {
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+}).then(r => r.json()).then(data => {
+    if (data.success) {
+        probSlider.value = data.probability;
+        document.getElementById('probValue').textContent = data.probability + '%';
+    }
+}).catch(() => {});
+
+function saveProbability() {
+    fetch(`${API_URL}/admin/paragraph-probability`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        },
+        body: JSON.stringify({ probability: parseInt(probSlider.value) })
+    }).then(r => r.json()).then(data => {
+        if (data.success) alert('Saved!');
+    });
+}
+</script>
 
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
