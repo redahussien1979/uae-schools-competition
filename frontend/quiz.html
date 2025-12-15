@@ -6,7 +6,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz - UAE Schools Competition</title>
-        <!-- Apply language BEFORE page renders (prevents flash) -->
+
+    <!-- Preconnect to Google Fonts for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Preload critical fonts to prevent FOUT (Flash of Unstyled Text) -->
+    <link rel="preload" href="majalla.ttf" as="font" type="font/ttf" crossorigin>
+
+    <!-- Apply language BEFORE page renders (prevents flash) -->
     <script>
         (function() {
             var savedLang = localStorage.getItem('preferredLanguage');
@@ -17,11 +25,55 @@
         })();
     </script>
 
+    <!-- Critical font-loading CSS to prevent FOUT -->
+    <style>
+        /* Hide text until fonts are ready */
+        .fonts-loading {
+            visibility: hidden;
+        }
+        .fonts-loaded,
+        .fonts-failed {
+            visibility: visible;
+        }
+    </style>
+    <script>
+        // Add fonts-loading class immediately
+        document.documentElement.classList.add('fonts-loading');
+
+        // Use Font Loading API to detect when fonts are ready
+        if ('fonts' in document) {
+            Promise.all([
+                document.fonts.load('400 1em Inter'),
+                document.fonts.load('400 1em Tajawal'),
+                document.fonts.load('400 1em Majalla')
+            ]).then(function() {
+                document.documentElement.classList.remove('fonts-loading');
+                document.documentElement.classList.add('fonts-loaded');
+            }).catch(function() {
+                // Fallback: show content even if fonts fail
+                document.documentElement.classList.remove('fonts-loading');
+                document.documentElement.classList.add('fonts-failed');
+            });
+
+            // Safety timeout: show content after 2 seconds max
+            setTimeout(function() {
+                if (document.documentElement.classList.contains('fonts-loading')) {
+                    document.documentElement.classList.remove('fonts-loading');
+                    document.documentElement.classList.add('fonts-loaded');
+                }
+            }, 2000);
+        } else {
+            // Browser doesn't support Font Loading API
+            document.documentElement.classList.remove('fonts-loading');
+            document.documentElement.classList.add('fonts-loaded');
+        }
+    </script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" id="bootstrap-rtl" disabled>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="preload" href="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" as="script">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" as="script">
 
     <link rel="stylesheet" href="css/style.css">
     
