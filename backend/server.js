@@ -7,16 +7,7 @@ const dotenv = require('dotenv');
 
 
 let paragraphProbability = 50; // Default 50%
-// GET probability
-app.get('/admin/paragraph-probability', authenticateToken, (req, res) => {
-    res.json({ success: true, probability: paragraphProbability });
-});
 
-// SET probability
-app.post('/admin/paragraph-probability', authenticateToken, (req, res) => {
-    paragraphProbability = req.body.probability;
-    res.json({ success: true, probability: paragraphProbability });
-});
 
 
 
@@ -635,6 +626,17 @@ app.get('/quiz/add-sample-questions', async (req, res) => {
 
 
 
+
+// GET probability
+app.get('/admin/paragraph-probability', authenticateToken, (req, res) => {
+    res.json({ success: true, probability: paragraphProbability });
+});
+
+// SET probability
+app.post('/admin/paragraph-probability', authenticateToken, (req, res) => {
+    paragraphProbability = req.body.probability;
+    res.json({ success: true, probability: paragraphProbability });
+});
 
 
 
