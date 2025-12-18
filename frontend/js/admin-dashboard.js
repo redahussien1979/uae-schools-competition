@@ -1407,10 +1407,51 @@ function editQuestionFromPreview() {
     // Close preview modal
     const previewModal = bootstrap.Modal.getInstance(document.getElementById('previewModal'));
     previewModal.hide();
-    
+
     // Open edit modal
     if (currentPreviewQuestionId) {
         editQuestion(currentPreviewQuestionId);
+    }
+}
+
+async function deleteQuestionFromPreview() {
+    if (!currentPreviewQuestionId) {
+        alert('No question selected');
+        return;
+    }
+
+    if (!confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
+        return;
+    }
+
+    const token = checkAdminAuth();
+
+    try {
+        const response = await fetch(`${API_URL}/admin/questions/${currentPreviewQuestionId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Close preview modal
+            const previewModal = bootstrap.Modal.getInstance(document.getElementById('previewModal'));
+            previewModal.hide();
+
+            alert('Question deleted successfully');
+
+            // Reload questions and statistics
+            loadQuestions();
+            loadStatistics();
+        } else {
+            alert(data.message || 'Failed to delete question');
+        }
+    } catch (error) {
+        console.error('Delete question error:', error);
+        alert('Failed to delete question');
     }
 }
 
