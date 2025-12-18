@@ -1415,18 +1415,22 @@ function editQuestionFromPreview() {
 }
 
 async function deleteQuestionFromPreview() {
+    // Validate question is selected
     if (!currentPreviewQuestionId) {
         alert('No question selected');
         return;
     }
 
+    // Confirm deletion
     if (!confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
         return;
     }
 
+    // Get admin token
     const token = checkAdminAuth();
 
     try {
+        // Make DELETE API request
         const response = await fetch(`${API_URL}/admin/questions/${currentPreviewQuestionId}`, {
             method: 'DELETE',
             headers: {
@@ -1437,13 +1441,30 @@ async function deleteQuestionFromPreview() {
         const data = await response.json();
 
         if (data.success) {
-            // Close preview modal
-            const previewModal = bootstrap.Modal.getInstance(document.getElementById('previewModal'));
-            previewModal.hide();
-
             alert('Question deleted successfully');
 
-            // Reload questions and statistics
+            // Remove the deleted question from the array
+            allLoadedQuestions.splice(currentQuestionIndex, 1);
+
+            // Determine which question to show next
+            if (allLoadedQuestions.length === 0) {
+                // No more questions - close the modal
+                const previewModal = bootstrap.Modal.getInstance(document.getElementById('previewModal'));
+                previewModal.hide();
+            } else {
+                // Adjust index if we deleted the last question
+                if (currentQuestionIndex >= allLoadedQuestions.length) {
+                    currentQuestionIndex = allLoadedQuestions.length - 1;
+                }
+
+                // Show the next question (or previous if we were at the end)
+                const nextQuestion = allLoadedQuestions[currentQuestionIndex];
+                currentPreviewQuestionId = nextQuestion._id;
+                displayQuestionPreview(nextQuestion);
+                updateNavigationButtons();
+            }
+
+            // Reload questions and statistics in the background
             loadQuestions();
             loadStatistics();
         } else {
@@ -1454,6 +1475,7 @@ async function deleteQuestionFromPreview() {
         alert('Failed to delete question');
     }
 }
+
 
 
 
