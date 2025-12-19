@@ -738,6 +738,8 @@ function displayParagraphMode() {
     
     paragraphTextEl.innerHTML = paragraphText;
     paragraphTextEl.setAttribute('dir', currentLanguage === 'ar' ? 'rtl' : 'ltr');
+   paragraphTextEl.style.textAlign = currentLanguage === 'ar' ? 'right' : 'left';  // ADD THIS LINE
+
     paragraphContainer.style.display = 'block';
     
     // Hide single question container
@@ -778,9 +780,10 @@ function displayParagraphMode() {
                     ${questionNumber}
                 </div>
                 
-                <div class="question-text" dir="${currentLanguage === 'ar' ? 'rtl' : 'ltr'}">
-                    ${questionText}
-                </div>
+              <div class="question-text" dir="${currentLanguage === 'ar' ? 'rtl' : 'ltr'}" style="text-align: ${currentLanguage === 'ar' ? 'right' : 'left'};">
+    ${questionText}
+</div>
+
                 
                 ${question.imageUrl ? `
                     <div class="mb-3 text-center">
