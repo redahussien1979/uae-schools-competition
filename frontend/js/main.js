@@ -120,9 +120,26 @@ function toggleLanguage() {
     // Save language preference
     localStorage.setItem('preferredLanguage', currentLanguage);
     
-    // If on quiz page, refresh the current question to show translated text
+    // If on quiz page, force direction and refresh the current question to show translated text
     if (typeof currentQuizData !== 'undefined' && currentQuizData.questions.length > 0) {
-        displayQuestion(currentQuizData.currentIndex);
+        // Force quiz direction based on new language
+        if (typeof forceQuizDirection === 'function') {
+            forceQuizDirection();
+        }
+
+        // Check if in paragraph mode
+        const hasParagraph = currentQuizData.questions.some(q => q.paragraphTextEn || q.paragraphTextAr);
+        if (hasParagraph) {
+            // Refresh paragraph mode display
+            if (typeof displayParagraphMode === 'function') {
+                displayParagraphMode();
+            }
+        } else {
+            // Refresh current question
+            if (typeof displayQuestion === 'function') {
+                displayQuestion(currentQuizData.currentIndex);
+            }
+        }
     }
 }
 

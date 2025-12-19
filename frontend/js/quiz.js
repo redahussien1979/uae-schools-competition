@@ -74,6 +74,30 @@ function checkAuth() {
     return true;
 }
 
+// Force quiz direction based on current language
+function forceQuizDirection() {
+    const html = document.documentElement;
+    const bootstrapRTL = document.getElementById('bootstrap-rtl');
+
+    if (currentLanguage === 'ar') {
+        // Force RTL for Arabic quiz
+        html.setAttribute('lang', 'ar');
+        html.setAttribute('dir', 'rtl');
+        if (bootstrapRTL) {
+            bootstrapRTL.disabled = false;
+        }
+        console.log('[QUIZ] Forced RTL direction for Arabic quiz');
+    } else {
+        // Force LTR for English quiz
+        html.setAttribute('lang', 'en');
+        html.setAttribute('dir', 'ltr');
+        if (bootstrapRTL) {
+            bootstrapRTL.disabled = true;
+        }
+        console.log('[QUIZ] Forced LTR direction for English quiz');
+    }
+}
+
 // Load quiz questions
 async function loadQuiz(subject) {
     showLoading(true);
@@ -98,14 +122,17 @@ async function loadQuiz(subject) {
             currentQuizData.timeLimit = data.timeLimit;
             currentQuizData.startTime = Date.now();
 
+            // Force the correct direction based on current language
+            forceQuizDirection();
+
             // Set subject name
             setSubjectInfo(subject);
 
             // Check if this is a paragraph-based quiz
             const hasParagraph = data.questions.some(q => q.paragraphTextEn || q.paragraphTextAr);
-            
+
             console.log('[QUIZ] Has paragraph:', hasParagraph);
-            
+
             if (hasParagraph) {
                 // Display all questions at once with paragraph
                 displayParagraphMode();
@@ -127,7 +154,7 @@ async function loadQuiz(subject) {
 
         } else {
 
-           
+
             alert(data.message || 'Failed to load quiz');
             window.location.href = 'dashboard.html';
         }
