@@ -120,13 +120,8 @@ function toggleLanguage() {
     // Save language preference
     localStorage.setItem('preferredLanguage', currentLanguage);
     
-    // If on quiz page, force direction and refresh the current question to show translated text
+    // If on quiz page, refresh the display to show translated text
     if (typeof currentQuizData !== 'undefined' && currentQuizData.questions.length > 0) {
-        // Force quiz direction based on new language
-        if (typeof forceQuizDirection === 'function') {
-            forceQuizDirection();
-        }
-
         // Check if in paragraph mode
         const hasParagraph = currentQuizData.questions.some(q => q.paragraphTextEn || q.paragraphTextAr);
         if (hasParagraph) {

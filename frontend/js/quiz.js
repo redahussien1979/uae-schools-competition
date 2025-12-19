@@ -74,30 +74,6 @@ function checkAuth() {
     return true;
 }
 
-// Force quiz direction based on current language
-function forceQuizDirection() {
-    const html = document.documentElement;
-    const bootstrapRTL = document.getElementById('bootstrap-rtl');
-
-    if (currentLanguage === 'ar') {
-        // Force RTL for Arabic quiz
-        html.setAttribute('lang', 'ar');
-        html.setAttribute('dir', 'rtl');
-        if (bootstrapRTL) {
-            bootstrapRTL.disabled = false;
-        }
-        console.log('[QUIZ] Forced RTL direction for Arabic quiz');
-    } else {
-        // Force LTR for English quiz
-        html.setAttribute('lang', 'en');
-        html.setAttribute('dir', 'ltr');
-        if (bootstrapRTL) {
-            bootstrapRTL.disabled = true;
-        }
-        console.log('[QUIZ] Forced LTR direction for English quiz');
-    }
-}
-
 // Load quiz questions
 async function loadQuiz(subject) {
     showLoading(true);
@@ -121,9 +97,6 @@ async function loadQuiz(subject) {
             currentQuizData.questions = data.questions;
             currentQuizData.timeLimit = data.timeLimit;
             currentQuizData.startTime = Date.now();
-
-            // Force the correct direction based on current language
-            forceQuizDirection();
 
             // Set subject name
             setSubjectInfo(subject);
@@ -212,6 +185,15 @@ function displayQuestion(index) {
     const questionText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
     questionTextEl.innerHTML = questionText;
 
+    // Force direction based on content language (not page language)
+    if (currentLanguage === 'ar') {
+        questionTextEl.setAttribute('dir', 'rtl');
+        questionTextEl.style.textAlign = 'right';
+    } else {
+        questionTextEl.setAttribute('dir', 'ltr');
+        questionTextEl.style.textAlign = 'left';
+    }
+
     // Show/hide image based on position
     const imageAboveContainer = document.getElementById('questionImageContainerAbove');
     const imageBelowContainer = document.getElementById('questionImageContainerBelow');
@@ -270,6 +252,16 @@ function displayAnswerOptions(question) {
             optionDiv.onclick = () => selectAnswer(question.id, option);
 
             const label = String.fromCharCode(65 + index); // A, B, C, D
+
+            // Force option direction based on content language
+            if (currentLanguage === 'ar') {
+                optionDiv.setAttribute('dir', 'rtl');
+                optionDiv.style.textAlign = 'right';
+            } else {
+                optionDiv.setAttribute('dir', 'ltr');
+                optionDiv.style.textAlign = 'left';
+            }
+
             optionDiv.innerHTML = `
                 <div class="d-flex align-items-center">
                     <div class="me-3">
@@ -295,6 +287,15 @@ function displayAnswerOptions(question) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
 
+            // Force option direction based on content language
+            if (currentLanguage === 'ar') {
+                optionDiv.setAttribute('dir', 'rtl');
+                optionDiv.style.textAlign = 'right';
+            } else {
+                optionDiv.setAttribute('dir', 'ltr');
+                optionDiv.style.textAlign = 'left';
+            }
+
             optionDiv.innerHTML = `<div class="text-center fw-bold fs-5">${displayText}</div>`;
             container.appendChild(optionDiv);
         });
@@ -307,6 +308,16 @@ function displayAnswerOptions(question) {
         input.placeholder = currentLanguage === 'ar' ? 'اكتب إجابتك هنا' : 'Type your answer here';
         input.value = savedAnswer || '';
         input.oninput = (e) => selectAnswer(question.id, e.target.value);
+
+        // Force input direction based on content language
+        if (currentLanguage === 'ar') {
+            input.setAttribute('dir', 'rtl');
+            input.style.textAlign = 'right';
+        } else {
+            input.setAttribute('dir', 'ltr');
+            input.style.textAlign = 'left';
+        }
+
         container.appendChild(input);
     }
 }
@@ -700,6 +711,7 @@ function displayParagraphMode() {
     
     paragraphTextEl.innerHTML = paragraphText;
     paragraphTextEl.setAttribute('dir', currentLanguage === 'ar' ? 'rtl' : 'ltr');
+    paragraphTextEl.style.textAlign = currentLanguage === 'ar' ? 'right' : 'left';
     paragraphContainer.style.display = 'block';
     
     // Hide single question container
@@ -739,8 +751,8 @@ function displayParagraphMode() {
                 <div class="question-number-badge">
                     ${questionNumber}
                 </div>
-                
-                <div class="question-text" dir="${currentLanguage === 'ar' ? 'rtl' : 'ltr'}">
+
+                <div class="question-text" dir="${currentLanguage === 'ar' ? 'rtl' : 'ltr'}" style="text-align: ${currentLanguage === 'ar' ? 'right' : 'left'};">
                     ${questionText}
                 </div>
                 
@@ -784,7 +796,11 @@ document.getElementById('totalQuestions').textContent = '10';
 function buildAnswerOptionsHTML(question, questionIndex) {
     const savedAnswer = currentQuizData.answers[question.id];
     let html = '';
-    
+
+    // Determine direction for options
+    const optionDir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+    const optionAlign = currentLanguage === 'ar' ? 'right' : 'left';
+
     if (question.questionType === 'multiple_choice') {
         // Use shuffled options for randomized order
         const options = getShuffledOptions(question);
@@ -797,6 +813,8 @@ function buildAnswerOptionsHTML(question, questionIndex) {
 
             html += `
                 <div class="answer-option ${isSelected ? 'selected' : ''}"
+                     dir="${optionDir}"
+                     style="text-align: ${optionAlign};"
                      onclick="selectAnswerInParagraphMode('${question.id}', '${escapedOption}', ${questionIndex})">
                     <div class="d-flex align-items-center">
                         <div class="me-3">
@@ -813,9 +831,11 @@ function buildAnswerOptionsHTML(question, questionIndex) {
             const displayText = currentLanguage === 'ar'
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
-            
+
             html += `
-                <div class="answer-option ${isSelected ? 'selected' : ''}" 
+                <div class="answer-option ${isSelected ? 'selected' : ''}"
+                     dir="${optionDir}"
+                     style="text-align: ${optionAlign};"
                      onclick="selectAnswerInParagraphMode('${question.id}', '${option}', ${questionIndex})">
                     <div class="text-center fw-bold fs-5">${displayText}</div>
                 </div>
@@ -824,14 +844,16 @@ function buildAnswerOptionsHTML(question, questionIndex) {
     } else if (question.questionType === 'text_input') {
         const value = (savedAnswer || '').replace(/"/g, '&quot;');
         html += `
-            <input type="text" 
-                   class="form-control form-control-lg" 
+            <input type="text"
+                   class="form-control form-control-lg"
+                   dir="${optionDir}"
+                   style="text-align: ${optionAlign};"
                    placeholder="${currentLanguage === 'ar' ? 'اكتب إجابتك هنا' : 'Type your answer here'}"
                    value="${value}"
                    oninput="selectAnswerInParagraphMode('${question.id}', this.value, ${questionIndex})" />
         `;
     }
-    
+
     return html;
 }
 
