@@ -16,6 +16,16 @@ let currentQuizData = {
     timeLimit: 900 // 15 minutes in seconds
 };
 
+/**
+ * Detect if text contains Arabic characters
+ * Returns true if text is Arabic - used for RTL/LTR direction
+ */
+function isArabicText(text) {
+    if (!text) return false;
+    const arabicPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+    return arabicPattern.test(text);
+}
+
 // Fisher-Yates shuffle algorithm - returns a new shuffled array
 function shuffleArray(array) {
     const shuffled = [...array]; // Create a copy to avoid mutating original
@@ -92,7 +102,7 @@ async function loadQuiz(subject) {
 
         showLoading(false);
 
-       if (data.success) {
+        if (data.success) {
             currentQuizData.subject = subject;
             currentQuizData.questions = data.questions;
             currentQuizData.timeLimit = data.timeLimit;
@@ -126,8 +136,6 @@ async function loadQuiz(subject) {
             lastActivityTime = Date.now();
 
         } else {
-
-           
             alert(data.message || 'Failed to load quiz');
             window.location.href = 'dashboard.html';
         }
@@ -172,10 +180,6 @@ function initializeProgressDots() {
 }
 
 
-
-
-
-// Display question
 // Display question
 function displayQuestion(index) {
     currentQuizData.currentIndex = index;
@@ -190,8 +194,8 @@ function displayQuestion(index) {
     const questionText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
     questionTextEl.innerHTML = questionText;
     
-    // Force direction based on content language (not page language)
-    if (currentLanguage === 'ar') {
+    // Force direction based on ACTUAL CONTENT language (not UI language)
+    if (isArabicText(questionText)) {
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
     } else {
@@ -237,12 +241,6 @@ function displayQuestion(index) {
 }
 
 
-
-
-
-
-
-// Display answer options based on question type
 // Display answer options based on question type
 function displayAnswerOptions(question) {
     const container = document.getElementById('answerContainer');
@@ -263,8 +261,8 @@ function displayAnswerOptions(question) {
 
             const label = String.fromCharCode(65 + index); // A, B, C, D
             
-            // Force option direction based on content language
-            if (currentLanguage === 'ar') {
+            // Force option direction based on ACTUAL CONTENT (not UI language)
+            if (isArabicText(option)) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
             } else {
@@ -297,8 +295,8 @@ function displayAnswerOptions(question) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
 
-            // Force option direction based on content language
-            if (currentLanguage === 'ar') {
+            // Force option direction based on ACTUAL CONTENT (not UI language)
+            if (isArabicText(displayText)) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
             } else {
@@ -319,8 +317,9 @@ function displayAnswerOptions(question) {
         input.value = savedAnswer || '';
         input.oninput = (e) => selectAnswer(question.id, e.target.value);
         
-        // Force input direction based on content language
-        if (currentLanguage === 'ar') {
+        // Force input direction based on ACTUAL question content
+        const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
+        if (isArabicText(qText)) {
             input.setAttribute('dir', 'rtl');
             input.style.textAlign = 'right';
         } else {
@@ -331,22 +330,6 @@ function displayAnswerOptions(question) {
         container.appendChild(input);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Select answer
@@ -737,8 +720,15 @@ function displayParagraphMode() {
     console.log('[QUIZ] Displaying paragraph:', paragraphText?.substring(0, 50) + '...');
     
     paragraphTextEl.innerHTML = paragraphText;
-    paragraphTextEl.setAttribute('dir', currentLanguage === 'ar' ? 'rtl' : 'ltr');
-   paragraphTextEl.style.textAlign = currentLanguage === 'ar' ? 'right' : 'left';  // ADD THIS LINE
+    
+    // Force direction based on ACTUAL CONTENT (not UI language)
+    if (isArabicText(paragraphText)) {
+        paragraphTextEl.setAttribute('dir', 'rtl');
+        paragraphTextEl.style.textAlign = 'right';
+    } else {
+        paragraphTextEl.setAttribute('dir', 'ltr');
+        paragraphTextEl.style.textAlign = 'left';
+    }
 
     paragraphContainer.style.display = 'block';
     
@@ -774,16 +764,19 @@ function displayParagraphMode() {
             ? `السؤال ${index + 1}` 
             : `Question ${index + 1}`;
         
+        // Determine direction based on ACTUAL CONTENT
+        const qDir = isArabicText(questionText) ? 'rtl' : 'ltr';
+        const qAlign = isArabicText(questionText) ? 'right' : 'left';
+        
         questionsHTML += `
             <div class="question-item" id="question-item-${index}">
                 <div class="question-number-badge">
                     ${questionNumber}
                 </div>
                 
-              <div class="question-text" dir="${currentLanguage === 'ar' ? 'rtl' : 'ltr'}" style="text-align: ${currentLanguage === 'ar' ? 'right' : 'left'};">
-    ${questionText}
-</div>
-
+                <div class="question-text" dir="${qDir}" style="text-align: ${qAlign};">
+                    ${questionText}
+                </div>
                 
                 ${question.imageUrl ? `
                     <div class="mb-3 text-center">
@@ -804,9 +797,8 @@ function displayParagraphMode() {
     document.getElementById('progressDots').style.display = 'none';
     
     // Update question counter
-  document.getElementById('currentQuestion').textContent = '10';
-document.getElementById('totalQuestions').textContent = '10';
-
+    document.getElementById('currentQuestion').textContent = '10';
+    document.getElementById('totalQuestions').textContent = '10';
     
     // Show submit button
     document.getElementById('submitBtn').classList.remove('d-none');
@@ -820,11 +812,6 @@ document.getElementById('totalQuestions').textContent = '10';
 }
 
 
-
-
-
-
-
 /**
  * Build answer options HTML for a question
  */
@@ -832,16 +819,16 @@ function buildAnswerOptionsHTML(question, questionIndex) {
     const savedAnswer = currentQuizData.answers[question.id];
     let html = '';
     
-    // Determine direction for options
-    const optionDir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
-    const optionAlign = currentLanguage === 'ar' ? 'right' : 'left';
-    
     if (question.questionType === 'multiple_choice') {
         const options = getShuffledOptions(question);
         options.forEach((option, idx) => {
             const isSelected = savedAnswer === option;
             const label = String.fromCharCode(65 + idx);
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            
+            // Determine direction based on ACTUAL CONTENT of each option
+            const optionDir = isArabicText(option) ? 'rtl' : 'ltr';
+            const optionAlign = isArabicText(option) ? 'right' : 'left';
 
             html += `
                 <div class="answer-option ${isSelected ? 'selected' : ''}" 
@@ -864,6 +851,10 @@ function buildAnswerOptionsHTML(question, questionIndex) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
             
+            // Determine direction based on ACTUAL CONTENT of display text
+            const optionDir = isArabicText(displayText) ? 'rtl' : 'ltr';
+            const optionAlign = isArabicText(displayText) ? 'right' : 'left';
+            
             html += `
                 <div class="answer-option ${isSelected ? 'selected' : ''}" 
                      dir="${optionDir}" 
@@ -875,6 +866,12 @@ function buildAnswerOptionsHTML(question, questionIndex) {
         });
     } else if (question.questionType === 'text_input') {
         const value = (savedAnswer || '').replace(/"/g, '&quot;');
+        
+        // Determine direction based on ACTUAL question content
+        const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
+        const optionDir = isArabicText(qText) ? 'rtl' : 'ltr';
+        const optionAlign = isArabicText(qText) ? 'right' : 'left';
+        
         html += `
             <input type="text" 
                    class="form-control form-control-lg" 
@@ -888,11 +885,6 @@ function buildAnswerOptionsHTML(question, questionIndex) {
     
     return html;
 }
-
-
-
-
-
 
 
 /**
