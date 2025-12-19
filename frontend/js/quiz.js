@@ -194,13 +194,15 @@ function displayQuestion(index) {
     const questionText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
     questionTextEl.innerHTML = questionText;
     
-    // Force direction based on ACTUAL CONTENT language (not UI language)
+    // Force direction and font based on ACTUAL CONTENT language
     if (isArabicText(questionText)) {
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
+        questionTextEl.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
     } else {
         questionTextEl.setAttribute('dir', 'ltr');
         questionTextEl.style.textAlign = 'left';
+        questionTextEl.style.fontFamily = "'Trebuchet MS', sans-serif";
     }
 
     // Show/hide image based on position
@@ -261,13 +263,15 @@ function displayAnswerOptions(question) {
 
             const label = String.fromCharCode(65 + index); // A, B, C, D
             
-            // Force option direction based on ACTUAL CONTENT (not UI language)
+            // Force direction and font based on ACTUAL CONTENT
             if (isArabicText(option)) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
+                optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
             } else {
                 optionDiv.setAttribute('dir', 'ltr');
                 optionDiv.style.textAlign = 'left';
+                optionDiv.style.fontFamily = "'Trebuchet MS', sans-serif";
             }
             
             optionDiv.innerHTML = `
@@ -295,13 +299,15 @@ function displayAnswerOptions(question) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
 
-            // Force option direction based on ACTUAL CONTENT (not UI language)
+            // Force direction and font based on ACTUAL CONTENT
             if (isArabicText(displayText)) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
+                optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
             } else {
                 optionDiv.setAttribute('dir', 'ltr');
                 optionDiv.style.textAlign = 'left';
+                optionDiv.style.fontFamily = "'Trebuchet MS', sans-serif";
             }
 
             optionDiv.innerHTML = `<div class="text-center fw-bold fs-5">${displayText}</div>`;
@@ -317,14 +323,16 @@ function displayAnswerOptions(question) {
         input.value = savedAnswer || '';
         input.oninput = (e) => selectAnswer(question.id, e.target.value);
         
-        // Force input direction based on ACTUAL question content
+        // Force direction and font based on ACTUAL question content
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
         if (isArabicText(qText)) {
             input.setAttribute('dir', 'rtl');
             input.style.textAlign = 'right';
+            input.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
         } else {
             input.setAttribute('dir', 'ltr');
             input.style.textAlign = 'left';
+            input.style.fontFamily = "'Trebuchet MS', sans-serif";
         }
         
         container.appendChild(input);
@@ -721,13 +729,15 @@ function displayParagraphMode() {
     
     paragraphTextEl.innerHTML = paragraphText;
     
-    // Force direction based on ACTUAL CONTENT (not UI language)
+    // Force direction and font based on ACTUAL CONTENT
     if (isArabicText(paragraphText)) {
         paragraphTextEl.setAttribute('dir', 'rtl');
         paragraphTextEl.style.textAlign = 'right';
+        paragraphTextEl.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
     } else {
         paragraphTextEl.setAttribute('dir', 'ltr');
         paragraphTextEl.style.textAlign = 'left';
+        paragraphTextEl.style.fontFamily = "'Trebuchet MS', sans-serif";
     }
 
     paragraphContainer.style.display = 'block';
@@ -764,9 +774,11 @@ function displayParagraphMode() {
             ? `السؤال ${index + 1}` 
             : `Question ${index + 1}`;
         
-        // Determine direction based on ACTUAL CONTENT
-        const qDir = isArabicText(questionText) ? 'rtl' : 'ltr';
-        const qAlign = isArabicText(questionText) ? 'right' : 'left';
+        // Determine direction and font based on ACTUAL CONTENT
+        const isArabic = isArabicText(questionText);
+        const qDir = isArabic ? 'rtl' : 'ltr';
+        const qAlign = isArabic ? 'right' : 'left';
+        const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
         
         questionsHTML += `
             <div class="question-item" id="question-item-${index}">
@@ -774,7 +786,7 @@ function displayParagraphMode() {
                     ${questionNumber}
                 </div>
                 
-                <div class="question-text" dir="${qDir}" style="text-align: ${qAlign};">
+                <div class="question-text" dir="${qDir}" style="text-align: ${qAlign}; font-family: ${qFont};">
                     ${questionText}
                 </div>
                 
@@ -815,6 +827,9 @@ function displayParagraphMode() {
 /**
  * Build answer options HTML for a question
  */
+/**
+ * Build answer options HTML for a question
+ */
 function buildAnswerOptionsHTML(question, questionIndex) {
     const savedAnswer = currentQuizData.answers[question.id];
     let html = '';
@@ -826,14 +841,16 @@ function buildAnswerOptionsHTML(question, questionIndex) {
             const label = String.fromCharCode(65 + idx);
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
-            // Determine direction based on ACTUAL CONTENT of each option
-            const optionDir = isArabicText(option) ? 'rtl' : 'ltr';
-            const optionAlign = isArabicText(option) ? 'right' : 'left';
+            // Determine direction and font based on ACTUAL CONTENT
+            const isArabic = isArabicText(option);
+            const optionDir = isArabic ? 'rtl' : 'ltr';
+            const optionAlign = isArabic ? 'right' : 'left';
+            const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
 
             html += `
                 <div class="answer-option ${isSelected ? 'selected' : ''}" 
                      dir="${optionDir}" 
-                     style="text-align: ${optionAlign};"
+                     style="text-align: ${optionAlign}; font-family: ${optionFont};"
                      onclick="selectAnswerInParagraphMode('${question.id}', '${escapedOption}', ${questionIndex})">
                     <div class="d-flex align-items-center">
                         <div class="me-3">
@@ -851,14 +868,16 @@ function buildAnswerOptionsHTML(question, questionIndex) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
             
-            // Determine direction based on ACTUAL CONTENT of display text
-            const optionDir = isArabicText(displayText) ? 'rtl' : 'ltr';
-            const optionAlign = isArabicText(displayText) ? 'right' : 'left';
+            // Determine direction and font based on ACTUAL CONTENT
+            const isArabic = isArabicText(displayText);
+            const optionDir = isArabic ? 'rtl' : 'ltr';
+            const optionAlign = isArabic ? 'right' : 'left';
+            const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
             
             html += `
                 <div class="answer-option ${isSelected ? 'selected' : ''}" 
                      dir="${optionDir}" 
-                     style="text-align: ${optionAlign};"
+                     style="text-align: ${optionAlign}; font-family: ${optionFont};"
                      onclick="selectAnswerInParagraphMode('${question.id}', '${option}', ${questionIndex})">
                     <div class="text-center fw-bold fs-5">${displayText}</div>
                 </div>
@@ -867,16 +886,18 @@ function buildAnswerOptionsHTML(question, questionIndex) {
     } else if (question.questionType === 'text_input') {
         const value = (savedAnswer || '').replace(/"/g, '&quot;');
         
-        // Determine direction based on ACTUAL question content
+        // Determine direction and font based on ACTUAL question content
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        const optionDir = isArabicText(qText) ? 'rtl' : 'ltr';
-        const optionAlign = isArabicText(qText) ? 'right' : 'left';
+        const isArabic = isArabicText(qText);
+        const optionDir = isArabic ? 'rtl' : 'ltr';
+        const optionAlign = isArabic ? 'right' : 'left';
+        const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
         
         html += `
             <input type="text" 
                    class="form-control form-control-lg" 
                    dir="${optionDir}"
-                   style="text-align: ${optionAlign};"
+                   style="text-align: ${optionAlign}; font-family: ${optionFont};"
                    placeholder="${currentLanguage === 'ar' ? 'اكتب إجابتك هنا' : 'Type your answer here'}"
                    value="${value}"
                    oninput="selectAnswerInParagraphMode('${question.id}', this.value, ${questionIndex})" />
@@ -885,7 +906,6 @@ function buildAnswerOptionsHTML(question, questionIndex) {
     
     return html;
 }
-
 
 /**
  * Select answer in paragraph mode
