@@ -1199,23 +1199,23 @@ small.text-muted i {
 /* Question text - English (LTR) */
 #questionText[dir="ltr"],
 .question-text[dir="ltr"] {
-    font-family: 'Trebuchet MS', sans-serif !important;
+    font-family: 'Tajawal', sans-serif !important;
     font-weight: 500;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
 }
 
 /* Question text - Arabic (RTL) */
 #questionText[dir="rtl"],
 .question-text[dir="rtl"] {
-    font-family: 'Majalla', 'Tajawal', sans-serif !important;
+    font-family: 'Tajawal', 'Tajawal', sans-serif !important;
     font-weight: 500;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
 }
 
 /* Answer options - English (LTR) */
 .answer-option[dir="ltr"],
 .answer-option[dir="ltr"] .option-text {
-    font-family: 'Trebuchet MS', sans-serif !important;
+    font-family: 'Tajawal', sans-serif !important;
     font-weight: 400;
     font-size: 1.5rem;
 }
@@ -1223,7 +1223,7 @@ small.text-muted i {
 /* Answer options - Arabic (RTL) */
 .answer-option[dir="rtl"],
 .answer-option[dir="rtl"] .option-text {
-    font-family: 'Majalla', 'Tajawal', sans-serif !important;
+    font-family: 'Tajawal', 'Tajawal', sans-serif !important;
     font-weight: 400;
     font-size: 1.5rem;
 }
@@ -1231,26 +1231,26 @@ small.text-muted i {
 /* Text input - English (LTR) */
 #answerContainer input.form-control[dir="ltr"],
 .answer-options-container input.form-control[dir="ltr"] {
-    font-family: 'Trebuchet MS', sans-serif !important;
+    font-family: 'Tajawal', sans-serif !important;
     font-size: 1.5rem;
 }
 
 /* Text input - Arabic (RTL) */
 #answerContainer input.form-control[dir="rtl"],
 .answer-options-container input.form-control[dir="rtl"] {
-    font-family: 'Majalla', 'Tajawal', sans-serif !important;
+    font-family: 'Tajawal', 'Tajawal', sans-serif !important;
     font-size: 1.5rem;
 }
 
 /* Paragraph text - English (LTR) */
 .paragraph-text[dir="ltr"] {
-    font-family: 'Trebuchet MS', sans-serif !important;
+    font-family: 'Tajawal', sans-serif !important;
     font-size: 1.5rem;
 }
 
 /* Paragraph text - Arabic (RTL) */
 .paragraph-text[dir="rtl"] {
-    font-family: 'Majalla', 'Tajawal', sans-serif !important;
+    font-family: 'Tajawal', 'Tajawal', sans-serif !important;
     font-size: 1.5rem;
 }
 
