@@ -1194,9 +1194,6 @@ small.text-muted i {
 
 
 
-
-/* ===== CUSTOM FONT FOR QUESTIONS AND OPTIONS ===== */
-
 /* ===== CUSTOM FONT FOR QUESTIONS AND OPTIONS ===== */
 
 /* Question text - English (LTR) */
@@ -1204,7 +1201,7 @@ small.text-muted i {
 .question-text[dir="ltr"] {
     font-family: 'Trebuchet MS', sans-serif !important;
     font-weight: 500;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
 }
 
 /* Question text - Arabic (RTL) */
@@ -1212,7 +1209,7 @@ small.text-muted i {
 .question-text[dir="rtl"] {
     font-family: 'Majalla', 'Tajawal', sans-serif !important;
     font-weight: 500;
-    font-size: 2.5rem;
+    font-size: 1.8rem;
 }
 
 /* Answer options - English (LTR) */
@@ -1220,7 +1217,7 @@ small.text-muted i {
 .answer-option[dir="ltr"] .option-text {
     font-family: 'Trebuchet MS', sans-serif !important;
     font-weight: 400;
-    font-size: 1.35rem;
+    font-size: 1.5rem;
 }
 
 /* Answer options - Arabic (RTL) */
@@ -1228,21 +1225,21 @@ small.text-muted i {
 .answer-option[dir="rtl"] .option-text {
     font-family: 'Majalla', 'Tajawal', sans-serif !important;
     font-weight: 400;
-    font-size: 2.1rem;
+    font-size: 1.5rem;
 }
 
 /* Text input - English (LTR) */
 #answerContainer input.form-control[dir="ltr"],
 .answer-options-container input.form-control[dir="ltr"] {
     font-family: 'Trebuchet MS', sans-serif !important;
-    font-size: 1.35rem;
+    font-size: 1.5rem;
 }
 
 /* Text input - Arabic (RTL) */
 #answerContainer input.form-control[dir="rtl"],
 .answer-options-container input.form-control[dir="rtl"] {
     font-family: 'Majalla', 'Tajawal', sans-serif !important;
-    font-size: 2.1rem;
+    font-size: 1.5rem;
 }
 
 /* Paragraph text - English (LTR) */
@@ -1254,5 +1251,6 @@ small.text-muted i {
 /* Paragraph text - Arabic (RTL) */
 .paragraph-text[dir="rtl"] {
     font-family: 'Majalla', 'Tajawal', sans-serif !important;
-    font-size: 2.1rem;
+    font-size: 1.5rem;
 }
+
