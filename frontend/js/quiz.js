@@ -275,8 +275,11 @@ function displayAnswerOptions(question) {
             }
             
             optionDiv.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
+
+            
+                <div class="d-flex align-items-center" style="gap: 1rem;">
+    <div>
+                    
                         <div class="option-label">${label}</div>
                     </div>
                     <div class="option-text">${option}</div>
