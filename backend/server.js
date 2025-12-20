@@ -1188,14 +1188,236 @@ app.get('/admin/attempts', protectAdmin, async (req, res) => {
         
     } catch (error) {
         console.error('Get attempts error:', error);
-        res.json({ 
-            success: false, 
-            message: 'Failed to get quiz attempts' 
+        res.json({
+            success: false,
+            message: 'Failed to get quiz attempts'
         });
     }
 });
 
+// ========================================
+// QUIZ ANALYTICS - GET ATTEMPTS WITH FILTERS (ADMIN ONLY)
+// ========================================
+app.get('/admin/analytics', protectAdmin, async (req, res) => {
+    try {
+        const { page = 1, limit = 50, subject = '', grade = '', period = '', search = '' } = req.query;
 
+        let query = {};
+
+        // Filter by subject
+        if (subject) {
+            query.subject = subject.toLowerCase();
+        }
+
+        // Filter by grade
+        if (grade) {
+            query.grade = parseInt(grade);
+        }
+
+        // Filter by time period
+        if (period) {
+            const now = new Date();
+            let startDate;
+
+            switch(period) {
+                case 'today':
+                    startDate = new Date(now.setHours(0, 0, 0, 0));
+                    break;
+                case 'week':
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+            }
+
+            if (startDate) {
+                query.completedAt = { $gte: startDate };
+            }
+        }
+
+        // Build the aggregation pipeline for user search
+        let pipeline = [];
+
+        // Match query first
+        if (Object.keys(query).length > 0) {
+            pipeline.push({ $match: query });
+        }
+
+        // Lookup user data
+        pipeline.push({
+            $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'userInfo'
+            }
+        });
+
+        pipeline.push({ $unwind: '$userInfo' });
+
+        // Filter by search (student name or username)
+        if (search) {
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { 'userInfo.fullName': new RegExp(search, 'i') },
+                        { 'userInfo.username': new RegExp(search, 'i') }
+                    ]
+                }
+            });
+        }
+
+        // Count total for pagination
+        const countPipeline = [...pipeline, { $count: 'total' }];
+        const countResult = await QuizAttempt.aggregate(countPipeline);
+        const totalAttempts = countResult.length > 0 ? countResult[0].total : 0;
+
+        // Calculate summary stats
+        const statsPipeline = [...pipeline, {
+            $group: {
+                _id: null,
+                avgScore: { $avg: '$score' },
+                totalQuizzes: { $sum: 1 },
+                perfectScores: { $sum: { $cond: [{ $eq: ['$score', 10] }, 1, 0] } },
+                avgTimeTaken: { $avg: '$timeTaken' }
+            }
+        }];
+        const statsResult = await QuizAttempt.aggregate(statsPipeline);
+        const stats = statsResult.length > 0 ? statsResult[0] : {
+            avgScore: 0,
+            totalQuizzes: 0,
+            perfectScores: 0,
+            avgTimeTaken: 0
+        };
+
+        // Add sorting and pagination
+        pipeline.push({ $sort: { completedAt: -1 } });
+        pipeline.push({ $skip: (parseInt(page) - 1) * parseInt(limit) });
+        pipeline.push({ $limit: parseInt(limit) });
+
+        // Project fields
+        pipeline.push({
+            $project: {
+                _id: 1,
+                subject: 1,
+                grade: 1,
+                score: 1,
+                totalQuestions: 1,
+                timeTaken: 1,
+                completedAt: 1,
+                questions: 1,
+                answers: 1,
+                isBestScore: 1,
+                user: {
+                    _id: '$userInfo._id',
+                    fullName: '$userInfo.fullName',
+                    username: '$userInfo.username',
+                    grade: '$userInfo.grade',
+                    school: '$userInfo.school'
+                }
+            }
+        });
+
+        const attempts = await QuizAttempt.aggregate(pipeline);
+
+        console.log(`[ANALYTICS] Found ${attempts.length} attempts (total: ${totalAttempts})`);
+
+        res.json({
+            success: true,
+            attempts,
+            stats: {
+                totalQuizzes: stats.totalQuizzes,
+                avgScore: Math.round(stats.avgScore * 10) / 10,
+                avgPercentage: Math.round((stats.avgScore / 10) * 100),
+                perfectScores: stats.perfectScores,
+                avgTimeTaken: Math.round(stats.avgTimeTaken || 0)
+            },
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(totalAttempts / parseInt(limit)),
+                totalAttempts
+            }
+        });
+
+    } catch (error) {
+        console.error('[ANALYTICS] Get analytics error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to get analytics data'
+        });
+    }
+});
+
+// ========================================
+// GET SINGLE QUIZ ATTEMPT DETAILS (ADMIN ONLY)
+// ========================================
+app.get('/admin/analytics/:attemptId', protectAdmin, async (req, res) => {
+    try {
+        const { attemptId } = req.params;
+
+        // Get the quiz attempt with user info
+        const attempt = await QuizAttempt.findById(attemptId)
+            .populate('user', 'fullName username grade school');
+
+        if (!attempt) {
+            return res.json({
+                success: false,
+                message: 'Quiz attempt not found'
+            });
+        }
+
+        // Get the questions for this attempt
+        const questionIds = attempt.questions || [];
+        const questions = await Question.find({ _id: { $in: questionIds } });
+
+        // Build questions with answers
+        const questionsWithAnswers = questions.map(q => {
+            const questionId = q._id.toString();
+            const userAnswer = attempt.answers ? attempt.answers.get(questionId) : null;
+
+            // Check if answer is correct
+            const isCorrect = userAnswer &&
+                userAnswer.toString().trim().toLowerCase() ===
+                q.correctAnswer.toString().trim().toLowerCase();
+
+            return {
+                _id: q._id,
+                questionTextEn: q.questionTextEn,
+                questionTextAr: q.questionTextAr,
+                questionType: q.questionType,
+                options: q.options,
+                correctAnswer: q.correctAnswer,
+                userAnswer: userAnswer || 'No answer',
+                isCorrect: isCorrect,
+                imageUrl: q.imageUrl
+            };
+        });
+
+        res.json({
+            success: true,
+            attempt: {
+                _id: attempt._id,
+                subject: attempt.subject,
+                grade: attempt.grade,
+                score: attempt.score,
+                totalQuestions: attempt.totalQuestions,
+                timeTaken: attempt.timeTaken,
+                completedAt: attempt.completedAt,
+                isBestScore: attempt.isBestScore,
+                user: attempt.user
+            },
+            questions: questionsWithAnswers
+        });
+
+    } catch (error) {
+        console.error('[ANALYTICS] Get attempt details error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to get quiz attempt details'
+        });
+    }
+});
 
 // ========================================
 // GET ALL QUESTIONS (ADMIN ONLY) - WITH FILTERS

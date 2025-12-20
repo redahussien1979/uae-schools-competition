@@ -87,6 +87,8 @@ function showSection(section, event) {
         loadQuestions();
     } else if (section === 'viewquestions') {
         populateViewParagraphFilter();
+    } else if (section === 'analytics') {
+        loadAnalytics();
     }
 }
 
@@ -3108,5 +3110,365 @@ function buildViewQuestionHTML(question, number, subject, info) {
     html += '</div>';
 
     return html;
+}
+
+// ========================================
+// QUIZ ANALYTICS FUNCTIONS
+// ========================================
+
+// State for analytics
+let analyticsPage = 1;
+let analyticsSearchTimeout;
+
+/**
+ * Debounce search for analytics
+ */
+function debounceAnalyticsSearch() {
+    clearTimeout(analyticsSearchTimeout);
+    analyticsSearchTimeout = setTimeout(() => {
+        loadAnalytics();
+    }, 500);
+}
+
+/**
+ * Load quiz analytics data
+ */
+async function loadAnalytics(page = 1) {
+    const token = checkAdminAuth();
+    const tbody = document.getElementById('analyticsTableBody');
+
+    // Get filter values
+    const subject = document.getElementById('analyticsFilterSubject').value;
+    const grade = document.getElementById('analyticsFilterGrade').value;
+    const period = document.getElementById('analyticsFilterPeriod').value;
+    const search = document.getElementById('analyticsSearchStudent').value;
+
+    // Show loading
+    if (page === 1) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Loading analytics...</p>
+                </td>
+            </tr>
+        `;
+    }
+
+    try {
+        // Build query string
+        const params = new URLSearchParams({
+            page: page,
+            limit: 50
+        });
+
+        if (subject) params.append('subject', subject);
+        if (grade) params.append('grade', grade);
+        if (period) params.append('period', period);
+        if (search) params.append('search', search);
+
+        const response = await fetch(`${API_URL}/admin/analytics?${params.toString()}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update summary cards
+            updateAnalyticsSummary(data.stats);
+
+            // Update count badge
+            document.getElementById('analyticsCount').textContent = data.pagination.totalAttempts;
+
+            // Display attempts
+            const startSerial = ((page - 1) * 50) + 1;
+            displayAnalyticsAttempts(data.attempts, page === 1, startSerial);
+
+            // Update load more button
+            const loadMoreBtn = document.getElementById('loadMoreAnalytics');
+            if (data.pagination.currentPage >= data.pagination.totalPages) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'block';
+            }
+
+            analyticsPage = page;
+        } else {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-danger">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p class="mt-2">${data.message || 'Failed to load analytics'}</p>
+                    </td>
+                </tr>
+            `;
+        }
+    } catch (error) {
+        console.error('Load analytics error:', error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4 text-danger">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                    <p class="mt-2">Failed to load analytics. Please try again.</p>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+/**
+ * Update analytics summary cards
+ */
+function updateAnalyticsSummary(stats) {
+    document.getElementById('analytics-total-quizzes').textContent = stats.totalQuizzes || 0;
+    document.getElementById('analytics-avg-score').textContent = (stats.avgPercentage || 0) + '%';
+    document.getElementById('analytics-perfect-scores').textContent = stats.perfectScores || 0;
+
+    // Format time
+    const seconds = stats.avgTimeTaken || 0;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSecs = Math.round(seconds % 60);
+    document.getElementById('analytics-avg-time').textContent = `${minutes}m ${remainingSecs}s`;
+}
+
+/**
+ * Display analytics attempts in table
+ */
+function displayAnalyticsAttempts(attempts, replace = true, startSerial = 1) {
+    const tbody = document.getElementById('analyticsTableBody');
+
+    if (attempts.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                    <p class="mt-3">No quiz attempts found with current filters</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    let html = '';
+
+    attempts.forEach((attempt, index) => {
+        const serial = startSerial + index;
+        const date = new Date(attempt.completedAt).toLocaleString();
+        const percentage = Math.round((attempt.score / 10) * 100);
+
+        // Format time
+        const seconds = attempt.timeTaken || 0;
+        const minutes = Math.floor(seconds / 60);
+        const remainingSecs = Math.round(seconds % 60);
+        const timeStr = `${minutes}:${remainingSecs.toString().padStart(2, '0')}`;
+
+        // Score color
+        let scoreColor = 'text-danger';
+        if (percentage >= 80) scoreColor = 'text-success';
+        else if (percentage >= 60) scoreColor = 'text-warning';
+
+        html += `
+            <tr>
+                <td class="px-4 py-3">${serial}</td>
+                <td class="px-4 py-3">
+                    <strong>${attempt.user?.fullName || 'Unknown'}</strong><br>
+                    <small class="text-muted">${attempt.user?.school || ''}</small>
+                </td>
+                <td class="px-4 py-3">
+                    <span class="badge bg-info text-capitalize">${attempt.subject}</span>
+                </td>
+                <td class="px-4 py-3">
+                    <span class="badge bg-primary">Grade ${attempt.user?.grade || attempt.grade || '-'}</span>
+                </td>
+                <td class="px-4 py-3">
+                    <strong class="${scoreColor}">${percentage}%</strong>
+                    <small class="text-muted">(${attempt.score}/10)</small>
+                    ${attempt.isBestScore ? '<i class="bi bi-star-fill text-warning ms-1" title="Best Score"></i>' : ''}
+                </td>
+                <td class="px-4 py-3">
+                    <span class="text-muted">${timeStr}</span>
+                </td>
+                <td class="px-4 py-3">
+                    <small class="text-muted">${date}</small>
+                </td>
+                <td class="px-4 py-3">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewQuizDetails('${attempt._id}')" title="View Details">
+                        <i class="bi bi-eye"></i> Details
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    if (replace) {
+        tbody.innerHTML = html;
+    } else {
+        tbody.innerHTML += html;
+    }
+}
+
+/**
+ * Load more analytics
+ */
+function loadMoreAnalytics() {
+    loadAnalytics(analyticsPage + 1);
+}
+
+/**
+ * View detailed quiz attempt with questions and answers
+ */
+async function viewQuizDetails(attemptId) {
+    const token = checkAdminAuth();
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('quizDetailsModal'));
+    modal.show();
+
+    // Show loading in questions container
+    const questionsContainer = document.getElementById('detailQuestionsContainer');
+    questionsContainer.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Loading quiz details...</p>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`${API_URL}/admin/analytics/${attemptId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const attempt = data.attempt;
+            const questions = data.questions;
+
+            // Populate student info
+            document.getElementById('detailStudentName').textContent = attempt.user?.fullName || 'Unknown';
+            document.getElementById('detailStudentUsername').textContent = attempt.user?.username || '-';
+            document.getElementById('detailStudentSchool').textContent = attempt.user?.school || '-';
+            document.getElementById('detailStudentGrade').textContent = `Grade ${attempt.user?.grade || attempt.grade || '-'}`;
+
+            // Populate quiz summary
+            document.getElementById('detailSubject').textContent = attempt.subject.charAt(0).toUpperCase() + attempt.subject.slice(1);
+            document.getElementById('detailScore').innerHTML = `<strong class="${attempt.score >= 8 ? 'text-success' : attempt.score >= 6 ? 'text-warning' : 'text-danger'}">${attempt.score}/10</strong> (${Math.round((attempt.score / 10) * 100)}%)`;
+
+            const seconds = attempt.timeTaken || 0;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSecs = Math.round(seconds % 60);
+            document.getElementById('detailTimeTaken').textContent = `${minutes}m ${remainingSecs}s`;
+
+            document.getElementById('detailDate').textContent = new Date(attempt.completedAt).toLocaleString();
+
+            // Display questions with answers
+            displayQuizQuestions(questions);
+
+        } else {
+            questionsContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    ${data.message || 'Failed to load quiz details'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Load quiz details error:', error);
+        questionsContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                Failed to load quiz details. Please try again.
+            </div>
+        `;
+    }
+}
+
+/**
+ * Display questions with user answers in the modal
+ */
+function displayQuizQuestions(questions) {
+    const container = document.getElementById('detailQuestionsContainer');
+
+    if (!questions || questions.length === 0) {
+        container.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                No questions found for this quiz attempt.
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+
+    questions.forEach((q, index) => {
+        const isCorrect = q.isCorrect;
+        const bgClass = isCorrect ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger';
+        const iconClass = isCorrect ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger';
+
+        // Clean question text (remove GROUP and PARAGRAPH tags)
+        let questionText = (q.questionTextEn || q.questionTextAr || '').replace(/\[GROUP:[^\]]+\]/g, '').replace(/\[PARAGRAPH\][\s\S]*?\[\/PARAGRAPH\]/g, '').trim();
+
+        html += `
+            <div class="card mb-3 ${bgClass}" style="border-width: 2px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">
+                            <span class="badge bg-secondary me-2">Q${index + 1}</span>
+                            ${questionText.substring(0, 150)}${questionText.length > 150 ? '...' : ''}
+                        </h6>
+                        <i class="bi ${iconClass}" style="font-size: 1.5rem;"></i>
+                    </div>
+
+                    ${q.imageUrl ? `<img src="${q.imageUrl}" class="img-fluid rounded mb-3" style="max-height: 200px;">` : ''}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>User's Answer:</strong></p>
+                            <p class="mb-0 ${isCorrect ? 'text-success' : 'text-danger'}">
+                                <i class="bi ${isCorrect ? 'bi-check' : 'bi-x'} me-1"></i>
+                                ${q.userAnswer || '<em>No answer provided</em>'}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Correct Answer:</strong></p>
+                            <p class="mb-0 text-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                ${q.correctAnswer}
+                            </p>
+                        </div>
+                    </div>
+
+                    ${q.questionType === 'multiple_choice' && q.options && q.options.length > 0 ? `
+                        <div class="mt-3">
+                            <p class="mb-2"><strong>Options:</strong></p>
+                            <div class="row">
+                                ${q.options.map((opt, idx) => {
+                                    const label = String.fromCharCode(65 + idx);
+                                    const isThisCorrect = opt.toLowerCase().trim() === (q.correctAnswer || '').toLowerCase().trim();
+                                    const isUserAnswer = opt.toLowerCase().trim() === (q.userAnswer || '').toLowerCase().trim();
+                                    let optClass = '';
+                                    if (isThisCorrect) optClass = 'text-success fw-bold';
+                                    if (isUserAnswer && !isThisCorrect) optClass = 'text-danger';
+                                    return `<div class="col-6"><span class="${optClass}">${label}. ${opt}</span></div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    // Render MathJax for LaTeX
+    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+        MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
+    }
 }
 
