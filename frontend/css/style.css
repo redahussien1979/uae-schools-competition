@@ -1254,3 +1254,22 @@ small.text-muted i {
     font-size: 1.5rem;
 }
 
+/* Encouragement Message Styling */
+.encouragement-message {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 1rem;
+    padding: 1.5rem 2rem;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+}
+
+.encouragement-message p {
+    color: #333 !important;
+    font-weight: 600;
+    font-size: 1.3rem;
+    line-height: 1.6;
+}
+
+[dir="rtl"] .encouragement-message p {
+    font-family: 'Tajawal', sans-serif;
+}
