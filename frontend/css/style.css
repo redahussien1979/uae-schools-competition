@@ -1201,7 +1201,7 @@ small.text-muted i {
 .question-text[dir="ltr"] {
     font-family: 'Tajawal', sans-serif !important;
     font-weight: 500;
-    font-size: 1.5rem;
+    font-size: 2rem;
 }
 
 /* Question text - Arabic (RTL) */
@@ -1209,7 +1209,7 @@ small.text-muted i {
 .question-text[dir="rtl"] {
     font-family: 'Tajawal', 'Tajawal', sans-serif !important;
     font-weight: 500;
-    font-size: 1.5rem;
+    font-size: 2rem;
 }
 
 /* Answer options - English (LTR) */
