@@ -1264,7 +1264,7 @@ small.text-muted i {
 }
 
 .encouragement-message p {
-    color: #333 !important;
+    color: #fff !important;
     font-weight: 600;
     font-size: 1.3rem;
     line-height: 1.6;
