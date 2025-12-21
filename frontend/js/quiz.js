@@ -200,7 +200,7 @@ if (currentLanguage === 'ar' || isArabicText(questionText)) {
 
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
-        questionTextEl.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
+        questionTextEl.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
     } else {
         questionTextEl.setAttribute('dir', 'ltr');
         questionTextEl.style.textAlign = 'left';
@@ -270,7 +270,7 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
 
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
-                optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
+                optionDiv.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
             } else {
                 optionDiv.setAttribute('dir', 'ltr');
                 optionDiv.style.textAlign = 'left';
@@ -309,7 +309,7 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
             if (currentLanguage === 'ar' || isArabicText(displayText)) {
                optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
-                optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
+                optionDiv.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
             } else {
                 optionDiv.setAttribute('dir', 'ltr');
                 optionDiv.style.textAlign = 'left';
@@ -334,7 +334,7 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
         if (currentLanguage === 'ar' || isArabicText(qText)) {
             input.setAttribute('dir', 'rtl');
             input.style.textAlign = 'right';
-            input.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
+            input.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
         } else {
             input.setAttribute('dir', 'ltr');
             input.style.textAlign = 'left';
@@ -742,7 +742,7 @@ function displayParagraphMode() {
     if (isArabicText(paragraphText)) {
         paragraphTextEl.setAttribute('dir', 'rtl');
         paragraphTextEl.style.textAlign = 'right';
-        paragraphTextEl.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
+        paragraphTextEl.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
     } else {
         paragraphTextEl.setAttribute('dir', 'ltr');
         paragraphTextEl.style.textAlign = 'left';
@@ -787,7 +787,7 @@ function displayParagraphMode() {
       const isArabic = isParagraphArabic;
 const qDir = isArabic ? 'rtl' : 'ltr';
 const qAlign = isArabic ? 'right' : 'left';
-const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
+const qFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
 
         
        questionsHTML += `
@@ -859,7 +859,7 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
             const isArabic = isParagraphArabic || isArabicText(option);
            const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
-            const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
+            const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
 
             html += `
                <div class="answer-option ${isSelected ? 'selected' : ''}" 
@@ -887,7 +887,7 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
            const isArabic = isParagraphArabic || isArabicText(displayText);
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
-            const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
+            const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
             
             html += `
                 <div class="answer-option ${isSelected ? 'selected' : ''}" 
@@ -906,7 +906,7 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
         const isArabic = isParagraphArabic || isArabicText(qText);
         const optionDir = isArabic ? 'rtl' : 'ltr';
         const optionAlign = isArabic ? 'right' : 'left';
-        const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
+        const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
         
         html += `
             <input type="text" 
