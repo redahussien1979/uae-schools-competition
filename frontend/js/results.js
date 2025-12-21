@@ -283,6 +283,109 @@ function retryQuiz() {
     window.location.href = `quiz.html?subject=${currentSubject}`;
 }
 
+// Toggle quiz details section
+let detailsVisible = false;
+
+function toggleQuizDetails() {
+    const section = document.getElementById('quizDetailsSection');
+    const icon = document.getElementById('toggleDetailsIcon');
+    const btnText = document.getElementById('toggleDetailsBtnText');
+
+    detailsVisible = !detailsVisible;
+
+    if (detailsVisible) {
+        section.style.display = 'block';
+        icon.className = 'bi bi-chevron-up ms-2';
+        btnText.setAttribute('data-en', 'Hide Quiz Details');
+        btnText.setAttribute('data-ar', 'إخفاء تفاصيل الاختبار');
+        btnText.textContent = currentLanguage === 'ar' ? 'إخفاء تفاصيل الاختبار' : 'Hide Quiz Details';
+
+        // Populate the details if not already done
+        if (!document.getElementById('quizDetailsContent').innerHTML.trim()) {
+            displayQuestionDetails();
+        }
+    } else {
+        section.style.display = 'none';
+        icon.className = 'bi bi-chevron-down ms-2';
+        btnText.setAttribute('data-en', 'View Quiz Details');
+        btnText.setAttribute('data-ar', 'عرض تفاصيل الاختبار');
+        btnText.textContent = currentLanguage === 'ar' ? 'عرض تفاصيل الاختبار' : 'View Quiz Details';
+    }
+}
+
+// Display question details
+function displayQuestionDetails() {
+    const container = document.getElementById('quizDetailsContent');
+    const questions = resultsData.questionDetails;
+
+    if (!questions || questions.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-info-circle fs-3 mb-2"></i>
+                <p data-en="No question details available" data-ar="لا تتوفر تفاصيل الأسئلة">
+                    No question details available
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+
+    questions.forEach((q, index) => {
+        const isArabic = currentLanguage === 'ar';
+        const questionText = isArabic && q.questionTextAr ? q.questionTextAr : q.questionText;
+        const statusClass = q.isCorrect ? 'correct' : 'incorrect';
+        const statusIcon = q.isCorrect ? '✓' : '✗';
+
+        // Get display values for answers
+        let userAnswerDisplay = q.userAnswer;
+        let correctAnswerDisplay = q.correctAnswer;
+
+        // For MCQ, convert option index to actual text
+        if (q.questionType === 'mcq' && q.options) {
+            const options = isArabic && q.optionsAr ? q.optionsAr : q.options;
+            const optionIndex = parseInt(q.userAnswer);
+            if (!isNaN(optionIndex) && options[optionIndex]) {
+                userAnswerDisplay = options[optionIndex];
+            }
+            const correctIndex = parseInt(q.correctAnswer);
+            if (!isNaN(correctIndex) && options[correctIndex]) {
+                correctAnswerDisplay = options[correctIndex];
+            }
+        }
+
+        html += `
+            <div class="question-item ${statusClass}">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="question-number">${index + 1}</span>
+                    <div class="flex-grow-1">
+                        <p class="mb-3 fw-medium">${questionText}</p>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <span class="text-muted small" data-en="Your answer:" data-ar="إجابتك:">
+                                ${isArabic ? 'إجابتك:' : 'Your answer:'}
+                            </span>
+                            <span class="answer-badge ${q.isCorrect ? 'correct-answer' : 'wrong-answer'}">
+                                ${userAnswerDisplay} ${statusIcon}
+                            </span>
+                            ${!q.isCorrect ? `
+                                <span class="text-muted small ms-2" data-en="Correct:" data-ar="الصحيح:">
+                                    ${isArabic ? 'الصحيح:' : 'Correct:'}
+                                </span>
+                                <span class="answer-badge correct-answer">
+                                    ${correctAnswerDisplay} ✓
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
 // Show confetti animation
 function showConfetti() {
     const canvas = document.getElementById('confetti-canvas');

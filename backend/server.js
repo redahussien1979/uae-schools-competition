@@ -455,14 +455,15 @@ app.post('/quiz/submit', protect, async (req, res) => {
             _id: { $in: questionIds } 
         });
         
-        // Calculate score
+        // Calculate score and build question details for results
         let correctCount = 0;
-        
+        const questionDetails = [];
+
         questions.forEach(question => {
             const userAnswer = answers[question._id.toString()];
-            
+
             if (!userAnswer) return;
-            
+
             // Check if answer is correct
             const isCorrect = checkAnswer(
                 question.questionType,
@@ -470,10 +471,22 @@ app.post('/quiz/submit', protect, async (req, res) => {
                 question.correctAnswer,
                 question.alternativeAnswers
             );
-            
+
             if (isCorrect) {
                 correctCount++;
             }
+
+            // Store question details for results page
+            questionDetails.push({
+                questionText: question.questionText,
+                questionTextAr: question.questionTextAr,
+                questionType: question.questionType,
+                options: question.options,
+                optionsAr: question.optionsAr,
+                userAnswer: userAnswer,
+                correctAnswer: question.correctAnswer,
+                isCorrect: isCorrect
+            });
         });
         
       //  const totalQuestions = questions.length;
@@ -527,7 +540,8 @@ app.post('/quiz/submit', protect, async (req, res) => {
             previousBest: currentBest,
             timeTaken: timeTaken,
             totalBestScore: user.totalBestScore,
-            attemptId: quizAttempt._id
+            attemptId: quizAttempt._id,
+            questionDetails: questionDetails
         });
         
     } catch (error) {

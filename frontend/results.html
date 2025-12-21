@@ -430,6 +430,97 @@
     color: white;
 }
 
+/* Quiz Details Styles */
+.question-item {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.question-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.question-item.correct {
+    border-left: 4px solid #28a745;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.05), transparent);
+}
+
+.question-item.incorrect {
+    border-left: 4px solid #dc3545;
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.05), transparent);
+}
+
+.question-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.question-item.correct .question-number {
+    background: #28a745;
+    color: white;
+}
+
+.question-item.incorrect .question-number {
+    background: #dc3545;
+    color: white;
+}
+
+.answer-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.answer-badge.user-answer {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.answer-badge.correct-answer {
+    background: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+.answer-badge.wrong-answer {
+    background: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+    text-decoration: line-through;
+}
+
+#toggleDetailsBtn {
+    transition: all 0.3s ease;
+}
+
+#toggleDetailsBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+#quizDetailsSection {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
     </style>
 
@@ -544,6 +635,28 @@
                             </div>
                         </div>
 
+                    </div>
+                </div>
+
+                <!-- Quiz Details Toggle Button -->
+                <div class="text-center mb-4">
+                    <button class="btn btn-outline-primary btn-lg px-4" id="toggleDetailsBtn" onclick="toggleQuizDetails()">
+                        <i class="bi bi-list-check me-2"></i>
+                        <span data-en="View Quiz Details" data-ar="عرض تفاصيل الاختبار" id="toggleDetailsBtnText">View Quiz Details</span>
+                        <i class="bi bi-chevron-down ms-2" id="toggleDetailsIcon"></i>
+                    </button>
+                </div>
+
+                <!-- Quiz Details Collapsible Section -->
+                <div class="card shadow-sm border-0 rounded-4 mb-4" id="quizDetailsSection" style="display: none;">
+                    <div class="card-header bg-light py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-journal-text me-2 text-primary"></i>
+                            <span data-en="Question Review" data-ar="مراجعة الأسئلة">Question Review</span>
+                        </h5>
+                    </div>
+                    <div class="card-body p-4" id="quizDetailsContent">
+                        <!-- Questions will be populated by JavaScript -->
                     </div>
                 </div>
 
