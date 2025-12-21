@@ -257,6 +257,7 @@ function getRankBadge(rank) {
 }
 
 // Update pagination controls
+// Update pagination controls
 function updatePagination(pagination) {
     const { currentPage, totalPages, totalCount } = pagination;
     
@@ -274,7 +275,19 @@ function updatePagination(pagination) {
     // Update next button
     const nextBtn = document.getElementById('nextBtn');
     nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+    
+    // Update arrow direction based on language
+    const prevArrow = prevBtn.querySelector('i');
+    const nextArrow = nextBtn.querySelector('i');
+    if (currentLanguage === 'ar') {
+        prevArrow.className = 'bi bi-arrow-right me-2';  // Flip for RTL
+        nextArrow.className = 'bi bi-arrow-left ms-2';   // Flip for RTL
+    } else {
+        prevArrow.className = 'bi bi-arrow-left me-2';   // Normal LTR
+        nextArrow.className = 'bi bi-arrow-right ms-2';  // Normal LTR
+    }
 }
+
 
 // Previous page
 function previousPage() {
