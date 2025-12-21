@@ -806,7 +806,9 @@ const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', s
                 ` : ''}
                 
                 <div class="answer-options-container" id="answer-container-${index}">
-                    ${buildAnswerOptionsHTML(question, index)}
+                    ${buildAnswerOptionsHTML(question, index, isParagraphArabic)}
+
+
                 </div>
             </div>
         `;
@@ -839,7 +841,9 @@ const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', s
 /**
  * Build answer options HTML for a question
  */
-function buildAnswerOptionsHTML(question, questionIndex) {
+function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
+
+
     const savedAnswer = currentQuizData.answers[question.id];
     let html = '';
     
