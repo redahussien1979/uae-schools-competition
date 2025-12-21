@@ -539,6 +539,83 @@ app.post('/quiz/submit', protect, async (req, res) => {
     }
 });
 
+// ========================================
+// GET QUIZ ATTEMPT DETAILS (STUDENT - OWN ATTEMPTS ONLY)
+// ========================================
+app.get('/quiz/attempt/:attemptId', protect, async (req, res) => {
+    try {
+        const { attemptId } = req.params;
+        const userId = req.user._id;
+
+        // Get the quiz attempt
+        const attempt = await QuizAttempt.findById(attemptId);
+
+        if (!attempt) {
+            return res.json({
+                success: false,
+                message: 'Quiz attempt not found'
+            });
+        }
+
+        // Verify that this attempt belongs to the current user
+        if (attempt.user.toString() !== userId.toString()) {
+            return res.json({
+                success: false,
+                message: 'Unauthorized - This is not your quiz attempt'
+            });
+        }
+
+        // Get the questions for this attempt
+        const questionIds = attempt.questions || [];
+        const questions = await Question.find({ _id: { $in: questionIds } });
+
+        // Build questions with answers
+        const questionsWithAnswers = questions.map(q => {
+            const questionId = q._id.toString();
+            const userAnswer = attempt.answers ? attempt.answers.get(questionId) : null;
+
+            // Check if answer is correct
+            const isCorrect = userAnswer &&
+                userAnswer.toString().trim().toLowerCase() ===
+                q.correctAnswer.toString().trim().toLowerCase();
+
+            return {
+                _id: q._id,
+                questionTextEn: q.questionTextEn,
+                questionTextAr: q.questionTextAr,
+                questionType: q.questionType,
+                options: q.options,
+                correctAnswer: q.correctAnswer,
+                userAnswer: userAnswer || 'No answer',
+                isCorrect: isCorrect,
+                imageUrl: q.imageUrl
+            };
+        });
+
+        res.json({
+            success: true,
+            attempt: {
+                _id: attempt._id,
+                subject: attempt.subject,
+                grade: attempt.grade,
+                score: attempt.score,
+                totalQuestions: attempt.totalQuestions,
+                timeTaken: attempt.timeTaken,
+                completedAt: attempt.completedAt,
+                isBestScore: attempt.isBestScore
+            },
+            questions: questionsWithAnswers
+        });
+
+    } catch (error) {
+        console.error('Get quiz attempt details error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to load quiz attempt details'
+        });
+    }
+});
+
 // Helper function to check if answer is correct
 function checkAnswer(questionType, userAnswer, correctAnswer, alternativeAnswers = []) {
     // Normalize answers (trim, lowercase)

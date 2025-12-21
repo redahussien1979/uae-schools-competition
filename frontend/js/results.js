@@ -380,7 +380,7 @@ async function viewAttemptDetails() {
 
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/admin/analytics/${currentAttemptId}`, {
+        const response = await fetch(`${API_URL}/quiz/attempt/${currentAttemptId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
