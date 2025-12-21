@@ -792,7 +792,8 @@ const qFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-
         
        questionsHTML += `
     <div class="question-item" id="question-item-${index}" dir="${qDir}" style="text-align: ${qAlign};">
-        <div class="question-number-badge">
+    
+        <div class="question-number-badge" style="font-family: ${qFont};">
             ${questionNumber}
         </div>
                 
