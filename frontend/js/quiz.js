@@ -727,6 +727,8 @@ function displayParagraphMode() {
     const paragraphText = currentLanguage === 'ar' 
         ? paragraphQuestion.paragraphTextAr 
         : paragraphQuestion.paragraphTextEn;
+   const isParagraphArabic = isArabicText(paragraphText);
+
     
     console.log('[QUIZ] Displaying paragraph:', paragraphText?.substring(0, 50) + '...');
     
@@ -773,7 +775,7 @@ function displayParagraphMode() {
             ? question.questionTextAr 
             : question.questionTextEn;
         
-        const questionNumber = currentLanguage === 'ar' 
+        const questionNumber = isParagraphArabic 
             ? `السؤال ${index + 1}` 
             : `Question ${index + 1}`;
         
