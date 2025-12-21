@@ -283,8 +283,8 @@ function updatePagination(pagination) {
         prevArrow.className = 'bi bi-arrow-right me-2';  // Flip for RTL
         nextArrow.className = 'bi bi-arrow-left ms-2';   // Flip for RTL
     } else {
-        nextArrow.className = 'bi bi-arrow-left me-2';   // Normal LTR
-        prevArrow.className = 'bi bi-arrow-right ms-2';  // Normal LTR
+        nextArrow.className = 'bi bi-arrow-right me-2';   // Normal LTR
+        prevArrow.className = 'bi bi-arrow-left ms-2';  // Normal LTR
     }
 }
 
