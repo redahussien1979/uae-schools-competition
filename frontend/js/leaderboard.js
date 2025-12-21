@@ -11,7 +11,7 @@ let currentState = {
     grade: 'all',         // 'all' or 4-9
     subject: 'overall',   // 'overall', 'math', 'science', 'english', 'arabic'
     page: 1,
-    limit: 30
+    limit: 20
 };
 
 // Load leaderboard when page loads
