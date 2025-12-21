@@ -433,7 +433,23 @@
 
     </style>
 
-   
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            startup: {
+                ready: () => {
+                    console.log('MathJax is loaded and ready');
+                    MathJax.startup.defaultReady();
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 </head>
 <body>
@@ -569,6 +585,16 @@
                     </div>
                 </div>
 
+                <!-- View Details Button (New Row) -->
+                <div class="row g-3 mt-2">
+                    <div class="col-12">
+                        <button class="btn btn-info btn-fancy w-100 btn-lg" onclick="viewAttemptDetails()" id="viewDetailsBtn">
+                            <i class="bi bi-clipboard-data-fill me-2"></i>
+                            <span data-en="View Quiz Attempt Details" data-ar="عرض تفاصيل محاولة الاختبار"></span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Encouragement Message -->
                 <div class="text-center mt-5">
                     <div class="encouragement-message">
@@ -583,6 +609,67 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Quiz Attempt Details Modal -->
+    <div class="modal fade" id="quizDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h5 class="modal-title">
+                        <i class="bi bi-journal-text me-2"></i>
+                        <span data-en="Quiz Attempt Details" data-ar="تفاصيل محاولة الاختبار"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Quiz Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="fw-bold mb-3">
+                                        <i class="bi bi-clipboard-data me-2"></i>
+                                        <span data-en="Quiz Summary" data-ar="ملخص الاختبار"></span>
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <p class="mb-1"><strong data-en="Subject:" data-ar="المادة:"></strong> <span id="detailSubject" class="badge bg-info">-</span></p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <p class="mb-1"><strong data-en="Score:" data-ar="الدرجة:"></strong> <span id="detailScore">-</span></p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <p class="mb-1"><strong data-en="Time Taken:" data-ar="الوقت المستغرق:"></strong> <span id="detailTimeTaken">-</span></p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <p class="mb-0"><strong data-en="Date:" data-ar="التاريخ:"></strong> <span id="detailDate">-</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Questions and Answers -->
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-list-check me-2"></i>
+                        <span data-en="Questions & Answers" data-ar="الأسئلة والإجابات"></span>
+                    </h6>
+                    <div id="detailQuestionsContainer">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2 text-muted" data-en="Loading questions..." data-ar="جاري تحميل الأسئلة..."></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <span data-en="Close" data-ar="إغلاق"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Confetti Animation for New Record -->

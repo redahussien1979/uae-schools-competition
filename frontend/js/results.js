@@ -4,6 +4,7 @@
 
 let resultsData = null;
 let currentSubject = '';
+let currentAttemptId = null;
 
 // ===== DEBUG MODE =====
 const DEBUG = true;
@@ -42,6 +43,10 @@ function loadResults() {
     try {
         resultsData = JSON.parse(resultsStr);
         debugLog('Parsed resultsData:', resultsData);
+
+        // Save attemptId for viewing details later
+        currentAttemptId = resultsData.attemptId;
+        debugLog('Current attemptId:', currentAttemptId);
 
         // Get subject from URL or results
         const urlParams = new URLSearchParams(window.location.search);
@@ -347,4 +352,165 @@ function showConfetti() {
             cancelAnimationFrame(animationFrame);
         }
     }, 5000);
+}
+
+// ===== QUIZ ATTEMPT DETAILS FUNCTIONS =====
+
+/**
+ * View quiz attempt details in modal
+ */
+async function viewAttemptDetails() {
+    if (!currentAttemptId) {
+        alert(currentLanguage === 'ar' ? 'معرف المحاولة غير متاح' : 'Attempt ID not available');
+        return;
+    }
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('quizDetailsModal'));
+    modal.show();
+
+    // Reset container to loading state
+    const questionsContainer = document.getElementById('detailQuestionsContainer');
+    questionsContainer.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">${currentLanguage === 'ar' ? 'جاري تحميل الأسئلة...' : 'Loading questions...'}</p>
+        </div>
+    `;
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/admin/analytics/${currentAttemptId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.attempt) {
+            const attempt = data.attempt;
+            const questions = data.questions || [];
+
+            // Populate quiz summary
+            document.getElementById('detailSubject').textContent = attempt.subject.charAt(0).toUpperCase() + attempt.subject.slice(1);
+            document.getElementById('detailScore').innerHTML = `<strong class="${attempt.score >= 8 ? 'text-success' : attempt.score >= 6 ? 'text-warning' : 'text-danger'}">${attempt.score}/10</strong> (${Math.round((attempt.score / 10) * 100)}%)`;
+
+            const seconds = attempt.timeTaken || 0;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSecs = Math.round(seconds % 60);
+            document.getElementById('detailTimeTaken').textContent = `${minutes}m ${remainingSecs}s`;
+
+            document.getElementById('detailDate').textContent = new Date(attempt.completedAt).toLocaleString();
+
+            // Display questions with answers
+            displayQuizQuestions(questions);
+
+        } else {
+            questionsContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    ${data.message || (currentLanguage === 'ar' ? 'فشل تحميل تفاصيل الاختبار' : 'Failed to load quiz details')}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Load quiz details error:', error);
+        questionsContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                ${currentLanguage === 'ar' ? 'فشل تحميل تفاصيل الاختبار. يرجى المحاولة مرة أخرى.' : 'Failed to load quiz details. Please try again.'}
+            </div>
+        `;
+    }
+}
+
+/**
+ * Display questions with user answers in the modal
+ */
+function displayQuizQuestions(questions) {
+    const container = document.getElementById('detailQuestionsContainer');
+
+    if (!questions || questions.length === 0) {
+        container.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                ${currentLanguage === 'ar' ? 'لم يتم العثور على أسئلة لهذه المحاولة.' : 'No questions found for this quiz attempt.'}
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+
+    questions.forEach((q, index) => {
+        const isCorrect = q.isCorrect;
+        const bgClass = isCorrect ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger';
+        const iconClass = isCorrect ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger';
+
+        // Clean question text (remove GROUP and PARAGRAPH tags)
+        let questionText = (q.questionTextEn || q.questionTextAr || '').replace(/\[GROUP:[^\]]+\]/g, '').replace(/\[PARAGRAPH\][\s\S]*?\[\/PARAGRAPH\]/g, '').trim();
+
+        // Use the correct language for question text
+        if (currentLanguage === 'ar' && q.questionTextAr) {
+            questionText = q.questionTextAr.replace(/\[GROUP:[^\]]+\]/g, '').replace(/\[PARAGRAPH\][\s\S]*?\[\/PARAGRAPH\]/g, '').trim();
+        }
+
+        html += `
+            <div class="card mb-3 ${bgClass}" style="border-width: 2px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">
+                            <span class="badge bg-secondary me-2">${currentLanguage === 'ar' ? 'س' : 'Q'}${index + 1}</span>
+                            ${questionText.substring(0, 150)}${questionText.length > 150 ? '...' : ''}
+                        </h6>
+                        <i class="bi ${iconClass}" style="font-size: 1.5rem;"></i>
+                    </div>
+
+                    ${q.imageUrl ? `<img src="${q.imageUrl}" class="img-fluid rounded mb-3" style="max-height: 200px;">` : ''}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>${currentLanguage === 'ar' ? 'إجابتك:' : "Your Answer:"}</strong></p>
+                            <p class="mb-0 ${isCorrect ? 'text-success' : 'text-danger'}">
+                                <i class="bi ${isCorrect ? 'bi-check' : 'bi-x'} me-1"></i>
+                                ${q.userAnswer || `<em>${currentLanguage === 'ar' ? 'لم يتم تقديم إجابة' : 'No answer provided'}</em>`}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>${currentLanguage === 'ar' ? 'الإجابة الصحيحة:' : "Correct Answer:"}</strong></p>
+                            <p class="mb-0 text-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                ${q.correctAnswer}
+                            </p>
+                        </div>
+                    </div>
+
+                    ${q.questionType === 'multiple_choice' && q.options && q.options.length > 0 ? `
+                        <div class="mt-3">
+                            <p class="mb-2"><strong>${currentLanguage === 'ar' ? 'الخيارات:' : 'Options:'}</strong></p>
+                            <div class="row">
+                                ${q.options.map((opt, idx) => {
+                                    const label = String.fromCharCode(65 + idx);
+                                    const isThisCorrect = opt.toLowerCase().trim() === (q.correctAnswer || '').toLowerCase().trim();
+                                    const isUserAnswer = opt.toLowerCase().trim() === (q.userAnswer || '').toLowerCase().trim();
+                                    let optClass = '';
+                                    if (isThisCorrect) optClass = 'text-success fw-bold';
+                                    if (isUserAnswer && !isThisCorrect) optClass = 'text-danger';
+                                    return `<div class="col-6"><span class="${optClass}">${label}. ${opt}</span></div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    // Render MathJax for LaTeX if available
+    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+        MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
+    }
 }
