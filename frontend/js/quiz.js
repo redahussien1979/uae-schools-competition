@@ -193,9 +193,9 @@ function displayQuestion(index) {
     const questionTextEl = document.getElementById('questionText');
     const questionText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
     questionTextEl.innerHTML = questionText;
-    
-    // Force direction and font based on ACTUAL CONTENT language
-    if (isArabicText(questionText)) {
+
+    // Force direction based on global language setting OR actual content
+    if (currentLanguage === 'ar' || isArabicText(questionText)) {
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
         questionTextEl.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -262,9 +262,9 @@ function displayAnswerOptions(question) {
             optionDiv.onclick = () => selectAnswer(question.id, option);
 
             const label = String.fromCharCode(65 + index); // A, B, C, D
-            
-            // Force direction and font based on ACTUAL CONTENT
-            if (isArabicText(option)) {
+
+            // Force direction based on global language setting OR actual content
+            if (currentLanguage === 'ar' || isArabicText(option)) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -302,8 +302,8 @@ function displayAnswerOptions(question) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
 
-            // Force direction and font based on ACTUAL CONTENT
-            if (isArabicText(displayText)) {
+            // Force direction based on global language setting OR actual content
+            if (currentLanguage === 'ar' || isArabicText(displayText)) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -325,10 +325,10 @@ function displayAnswerOptions(question) {
         input.placeholder = currentLanguage === 'ar' ? 'اكتب إجابتك هنا' : 'Type your answer here';
         input.value = savedAnswer || '';
         input.oninput = (e) => selectAnswer(question.id, e.target.value);
-        
-        // Force direction and font based on ACTUAL question content
+
+        // Force direction based on global language setting OR actual question content
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        if (isArabicText(qText)) {
+        if (currentLanguage === 'ar' || isArabicText(qText)) {
             input.setAttribute('dir', 'rtl');
             input.style.textAlign = 'right';
             input.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -843,9 +843,9 @@ function buildAnswerOptionsHTML(question, questionIndex) {
             const isSelected = savedAnswer === option;
             const label = String.fromCharCode(65 + idx);
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            
-            // Determine direction and font based on ACTUAL CONTENT
-            const isArabic = isArabicText(option);
+
+            // Determine direction based on global language setting OR actual content
+            const isArabic = currentLanguage === 'ar' || isArabicText(option);
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
@@ -870,9 +870,9 @@ function buildAnswerOptionsHTML(question, questionIndex) {
             const displayText = currentLanguage === 'ar'
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
-            
-            // Determine direction and font based on ACTUAL CONTENT
-            const isArabic = isArabicText(displayText);
+
+            // Determine direction based on global language setting OR actual content
+            const isArabic = currentLanguage === 'ar' || isArabicText(displayText);
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
@@ -888,10 +888,10 @@ function buildAnswerOptionsHTML(question, questionIndex) {
         });
     } else if (question.questionType === 'text_input') {
         const value = (savedAnswer || '').replace(/"/g, '&quot;');
-        
-        // Determine direction and font based on ACTUAL question content
+
+        // Determine direction based on global language setting OR actual question content
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        const isArabic = isArabicText(qText);
+        const isArabic = currentLanguage === 'ar' || isArabicText(qText);
         const optionDir = isArabic ? 'rtl' : 'ltr';
         const optionAlign = isArabic ? 'right' : 'left';
         const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
