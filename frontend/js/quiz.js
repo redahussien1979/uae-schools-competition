@@ -779,7 +779,7 @@ function displayParagraphMode() {
             ? question.questionTextAr 
             : question.questionTextEn;
         
-        const questionNumber = currentLanguage === 'ar' 
+       const questionNumber = isParagraphArabic
             ? `السؤال ${index + 1}` 
             : `Question ${index + 1}`;
         
