@@ -789,11 +789,11 @@ const qAlign = isArabic ? 'right' : 'left';
 const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
 
         
-        questionsHTML += `
-            <div class="question-item" id="question-item-${index}">
-                <div class="question-number-badge">
-                    ${questionNumber}
-                </div>
+       questionsHTML += `
+    <div class="question-item" id="question-item-${index}" dir="${qDir}" style="text-align: ${qAlign};">
+        <div class="question-number-badge">
+            ${questionNumber}
+        </div>
                 
                 <div class="question-text" dir="${qDir}" style="text-align: ${qAlign}; font-family: ${qFont};">
                     ${questionText}
