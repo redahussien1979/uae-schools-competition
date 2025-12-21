@@ -191,8 +191,11 @@ async function loadLeaderboard() {
 // Display students in table
 function displayStudents(students) {
     const tbody = document.getElementById('leaderboardBody');
-    
-    if (!students || students.length === 0) {
+
+    // Ensure we only display up to the limit (defensive check)
+    const displayStudents = students ? students.slice(0, currentState.limit) : [];
+
+    if (displayStudents.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="4" class="text-center empty-state text-muted">
@@ -205,10 +208,10 @@ function displayStudents(students) {
         `;
         return;
     }
-    
+
     let html = '';
-    
-    students.forEach((student, index) => {
+
+    displayStudents.forEach((student, index) => {
         const rankBadge = getRankBadge(student.rank);
         
         html += `
@@ -243,8 +246,11 @@ function displayStudents(students) {
 // Display schools in table
 function displaySchools(schools) {
     const tbody = document.getElementById('leaderboardBody');
-    
-    if (!schools || schools.length === 0) {
+
+    // Ensure we only display up to the limit (defensive check)
+    const displaySchools = schools ? schools.slice(0, currentState.limit) : [];
+
+    if (displaySchools.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="4" class="text-center empty-state text-muted">
@@ -257,10 +263,10 @@ function displaySchools(schools) {
         `;
         return;
     }
-    
+
     let html = '';
-    
-    schools.forEach((school, index) => {
+
+    displaySchools.forEach((school, index) => {
         const rankBadge = getRankBadge(school.rank);
         
         html += `

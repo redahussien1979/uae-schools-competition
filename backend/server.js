@@ -828,6 +828,10 @@ app.get('/leaderboard/students', async (req, res) => {
     try {
         const { grade, subject, page = 1, limit = 20 } = req.query;
 
+        // Ensure limit is a valid number and cap at 20
+        const parsedLimit = Math.min(Math.max(parseInt(limit) || 20, 1), 20);
+        const parsedPage = Math.max(parseInt(page) || 1, 1);
+
         let query = {};
 
         // Filter by grade if provided
@@ -850,8 +854,8 @@ app.get('/leaderboard/students', async (req, res) => {
         const students = await User.find(query)
             .select('fullName grade school bestScores totalBestScore starsPerSubject totalStars totalAttempts')
             .sort({ [sortField]: -1, totalAttempts: 1, createdAt: 1 })
-            .limit(parseInt(limit))
-            .skip((parseInt(page) - 1) * parseInt(limit));
+            .skip((parsedPage - 1) * parsedLimit)
+            .limit(parsedLimit);
 
         // Format response
         const formattedStudents = students.map((student, index) => {
@@ -867,7 +871,7 @@ app.get('/leaderboard/students', async (req, res) => {
             const percentage = Math.round((bestScore / maxScore) * 100);
 
             return {
-                rank: ((parseInt(page) - 1) * parseInt(limit)) + index + 1,
+                rank: ((parsedPage - 1) * parsedLimit) + index + 1,
                 name: student.fullName,
                 grade: student.grade,
                 school: student.school,
@@ -877,15 +881,15 @@ app.get('/leaderboard/students', async (req, res) => {
                 percentage: percentage
             };
         });
-        
+
         res.json({
             success: true,
             students: formattedStudents,
             pagination: {
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(totalCount / parseInt(limit)),
+                currentPage: parsedPage,
+                totalPages: Math.ceil(totalCount / parsedLimit),
                 totalCount: totalCount,
-                limit: parseInt(limit)
+                limit: parsedLimit
             }
         });
         
@@ -904,7 +908,11 @@ app.get('/leaderboard/students', async (req, res) => {
 app.get('/leaderboard/schools', async (req, res) => {
     try {
         const { grade, subject, page = 1, limit = 20 } = req.query;
-        
+
+        // Ensure limit is a valid number and cap at 20
+        const parsedLimit = Math.min(Math.max(parseInt(limit) || 20, 1), 20);
+        const parsedPage = Math.max(parseInt(page) || 1, 1);
+
         let matchQuery = {};
         
         // Filter by grade if provided
@@ -937,10 +945,10 @@ app.get('/leaderboard/schools', async (req, res) => {
         ];
         
         const allSchools = await User.aggregate(pipeline);
-        
+
         // Apply pagination
-        const startIndex = (parseInt(page) - 1) * parseInt(limit);
-        const endIndex = startIndex + parseInt(limit);
+        const startIndex = (parsedPage - 1) * parsedLimit;
+        const endIndex = startIndex + parsedLimit;
         const paginatedSchools = allSchools.slice(startIndex, endIndex);
         
         // Format response
@@ -965,10 +973,10 @@ app.get('/leaderboard/schools', async (req, res) => {
             success: true,
             schools: formattedSchools,
             pagination: {
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(allSchools.length / parseInt(limit)),
+                currentPage: parsedPage,
+                totalPages: Math.ceil(allSchools.length / parsedLimit),
                 totalCount: allSchools.length,
-                limit: parseInt(limit)
+                limit: parsedLimit
             }
         });
         
