@@ -195,8 +195,7 @@ function displayQuestion(index) {
     questionTextEl.innerHTML = questionText;
     
     // Force direction and font based on ACTUAL CONTENT language
-if (currentLanguage === 'ar' || isArabicText(questionText)) {
-
+    if (isArabicText(questionText)) {
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
         questionTextEl.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -265,8 +264,7 @@ function displayAnswerOptions(question) {
             const label = String.fromCharCode(65 + index); // A, B, C, D
             
             // Force direction and font based on ACTUAL CONTENT
-if (currentLanguage === 'ar' || isArabicText(option)) {
-
+            if (isArabicText(option)) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -305,8 +303,8 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
                 : option;
 
             // Force direction and font based on ACTUAL CONTENT
-            if (currentLanguage === 'ar' || isArabicText(displayText)) {
-               optionDiv.setAttribute('dir', 'rtl');
+            if (isArabicText(displayText)) {
+                optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
             } else {
@@ -330,7 +328,7 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
         
         // Force direction and font based on ACTUAL question content
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        if (currentLanguage === 'ar' || isArabicText(qText)) {
+        if (isArabicText(qText)) {
             input.setAttribute('dir', 'rtl');
             input.style.textAlign = 'right';
             input.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -729,9 +727,6 @@ function displayParagraphMode() {
     const paragraphText = currentLanguage === 'ar' 
         ? paragraphQuestion.paragraphTextAr 
         : paragraphQuestion.paragraphTextEn;
-   const isParagraphArabic = isArabicText(paragraphText);
-
-
     
     console.log('[QUIZ] Displaying paragraph:', paragraphText?.substring(0, 50) + '...');
     
@@ -783,17 +778,17 @@ function displayParagraphMode() {
             : `Question ${index + 1}`;
         
         // Determine direction and font based on ACTUAL CONTENT
-      const isArabic = isParagraphArabic;
-const qDir = isArabic ? 'rtl' : 'ltr';
-const qAlign = isArabic ? 'right' : 'left';
-const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
-
+        const isArabic = isArabicText(questionText);
+        const qDir = isArabic ? 'rtl' : 'ltr';
+        const qAlign = isArabic ? 'right' : 'left';
+        const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
         
-       questionsHTML += `
+        questionsHTML += `
     <div class="question-item" id="question-item-${index}" dir="${qDir}" style="text-align: ${qAlign};">
         <div class="question-number-badge">
             ${questionNumber}
         </div>
+
                 
                 <div class="question-text" dir="${qDir}" style="text-align: ${qAlign}; font-family: ${qFont};">
                     ${questionText}
@@ -806,9 +801,7 @@ const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', s
                 ` : ''}
                 
                 <div class="answer-options-container" id="answer-container-${index}">
-                    ${buildAnswerOptionsHTML(question, index, isParagraphArabic)}
-
-
+                    ${buildAnswerOptionsHTML(question, index)}
                 </div>
             </div>
         `;
@@ -841,9 +834,7 @@ const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', s
 /**
  * Build answer options HTML for a question
  */
-function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
-
-
+function buildAnswerOptionsHTML(question, questionIndex) {
     const savedAnswer = currentQuizData.answers[question.id];
     let html = '';
     
@@ -855,8 +846,8 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
             // Determine direction and font based on ACTUAL CONTENT
-            const isArabic = isParagraphArabic || isArabicText(option);
-           const optionDir = isArabic ? 'rtl' : 'ltr';
+            const isArabic = isArabicText(option);
+            const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
 
@@ -882,7 +873,7 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
                 : option;
             
             // Determine direction and font based on ACTUAL CONTENT
-           const isArabic = isParagraphArabic || isArabicText(displayText);
+            const isArabic = isArabicText(displayText);
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
@@ -901,7 +892,7 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
         
         // Determine direction and font based on ACTUAL question content
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        const isArabic = isParagraphArabic || isArabicText(qText);
+        const isArabic = isArabicText(qText);
         const optionDir = isArabic ? 'rtl' : 'ltr';
         const optionAlign = isArabic ? 'right' : 'left';
         const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
