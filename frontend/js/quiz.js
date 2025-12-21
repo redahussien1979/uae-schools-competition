@@ -204,7 +204,7 @@ if (currentLanguage === 'ar' || isArabicText(questionText)) {
     } else {
         questionTextEl.setAttribute('dir', 'ltr');
         questionTextEl.style.textAlign = 'left';
-        questionTextEl.style.fontFamily = "'Trebuchet MS', sans-serif";
+        questionTextEl.style.fontFamily = "'Tajawal', sans-serif";
     }
 
     // Show/hide image based on position
@@ -274,7 +274,7 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
             } else {
                 optionDiv.setAttribute('dir', 'ltr');
                 optionDiv.style.textAlign = 'left';
-                optionDiv.style.fontFamily = "'Trebuchet MS', sans-serif";
+                optionDiv.style.fontFamily = "'Tajawal', sans-serif";
             }
             
             optionDiv.innerHTML = `
@@ -313,7 +313,7 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
             } else {
                 optionDiv.setAttribute('dir', 'ltr');
                 optionDiv.style.textAlign = 'left';
-                optionDiv.style.fontFamily = "'Trebuchet MS', sans-serif";
+                optionDiv.style.fontFamily = "'Tajawal', sans-serif";
             }
 
             optionDiv.innerHTML = `<div class="text-center fw-bold fs-5">${displayText}</div>`;
@@ -338,7 +338,7 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
         } else {
             input.setAttribute('dir', 'ltr');
             input.style.textAlign = 'left';
-            input.style.fontFamily = "'Trebuchet MS', sans-serif";
+            input.style.fontFamily = "'Tajawal', sans-serif";
         }
         
         container.appendChild(input);
@@ -746,7 +746,7 @@ function displayParagraphMode() {
     } else {
         paragraphTextEl.setAttribute('dir', 'ltr');
         paragraphTextEl.style.textAlign = 'left';
-        paragraphTextEl.style.fontFamily = "'Trebuchet MS', sans-serif";
+        paragraphTextEl.style.fontFamily = "'Tajawal', sans-serif";
     }
 
     paragraphContainer.style.display = 'block';
@@ -787,7 +787,7 @@ function displayParagraphMode() {
       const isArabic = isParagraphArabic;
 const qDir = isArabic ? 'rtl' : 'ltr';
 const qAlign = isArabic ? 'right' : 'left';
-const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
+const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
 
         
        questionsHTML += `
@@ -859,7 +859,7 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
             const isArabic = isParagraphArabic || isArabicText(option);
            const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
-            const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
+            const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
 
             html += `
                 <div class="answer-option ${isSelected ? 'selected' : ''}" 
@@ -886,7 +886,7 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
            const isArabic = isParagraphArabic || isArabicText(displayText);
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
-            const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
+            const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
             
             html += `
                 <div class="answer-option ${isSelected ? 'selected' : ''}" 
@@ -905,7 +905,7 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
         const isArabic = isParagraphArabic || isArabicText(qText);
         const optionDir = isArabic ? 'rtl' : 'ltr';
         const optionAlign = isArabic ? 'right' : 'left';
-        const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
+        const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
         
         html += `
             <input type="text" 
