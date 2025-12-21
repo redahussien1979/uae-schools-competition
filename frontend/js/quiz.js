@@ -1,4 +1,3 @@
-newwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 
 /* ============================================
    Quiz Page JavaScript
