@@ -23,7 +23,57 @@ window.addEventListener('DOMContentLoaded', function() {
     checkAuthStatus();
 
     loadLeaderboard();
+
+    // Update arrows on initial load
+    updatePaginationArrows();
 });
+
+// Listen for language changes
+document.addEventListener('languageChanged', function() {
+    // Update pagination text and arrows when language changes
+    updatePaginationOnLanguageChange();
+});
+
+// Update pagination when language changes
+function updatePaginationOnLanguageChange() {
+    const pageInfo = document.getElementById('pageInfo');
+    if (pageInfo) {
+        // Extract current page numbers from existing text
+        const match = pageInfo.textContent.match(/\d+/g);
+        if (match && match.length >= 2) {
+            const currentPage = parseInt(match[0]);
+            const totalPages = parseInt(match[1]);
+            const pageText = currentLanguage === 'ar'
+                ? `صفحة ${currentPage} من ${totalPages}`
+                : `Page ${currentPage} of ${totalPages}`;
+            pageInfo.textContent = pageText;
+        }
+    }
+
+    // Update arrow directions
+    updatePaginationArrows();
+}
+
+// Update arrow directions based on language
+function updatePaginationArrows() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    if (prevBtn && nextBtn) {
+        const prevArrow = prevBtn.querySelector('i');
+        const nextArrow = nextBtn.querySelector('i');
+
+        if (prevArrow && nextArrow) {
+            if (currentLanguage === 'ar') {
+                prevArrow.className = 'bi bi-arrow-right me-2';  // Flip for RTL
+                nextArrow.className = 'bi bi-arrow-left ms-2';   // Flip for RTL
+            } else {
+                prevArrow.className = 'bi bi-arrow-left me-2';   // Normal LTR
+                nextArrow.className = 'bi bi-arrow-right ms-2';  // Normal LTR
+            }
+        }
+    }
+}
 
 // Check authentication status and update navigation
 function checkAuthStatus() {
@@ -259,21 +309,24 @@ function getRankBadge(rank) {
 // Update pagination controls
 function updatePagination(pagination) {
     const { currentPage, totalPages, totalCount } = pagination;
-    
+
     // Update page info
     const pageInfo = document.getElementById('pageInfo');
-    const pageText = currentLanguage === 'ar' 
-        ? `صفحة ${currentPage} من ${totalPages}` 
+    const pageText = currentLanguage === 'ar'
+        ? `صفحة ${currentPage} من ${totalPages}`
         : `Page ${currentPage} of ${totalPages}`;
     pageInfo.textContent = pageText;
-    
+
     // Update prev button
     const prevBtn = document.getElementById('prevBtn');
     prevBtn.disabled = currentPage === 1;
-    
+
     // Update next button
     const nextBtn = document.getElementById('nextBtn');
     nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+
+    // Update arrow directions based on language
+    updatePaginationArrows();
 }
 
 // Previous page
