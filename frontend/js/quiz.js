@@ -1,3 +1,5 @@
+newwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+
 /* ============================================
    Quiz Page JavaScript
    ============================================ */
@@ -195,7 +197,8 @@ function displayQuestion(index) {
     questionTextEl.innerHTML = questionText;
     
     // Force direction and font based on ACTUAL CONTENT language
-    if (currentLanguage === 'ar' || isArabicText(questionText)) {
+if (currentLanguage === 'ar' || isArabicText(questionText)) {
+
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
         questionTextEl.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -264,7 +267,8 @@ function displayAnswerOptions(question) {
             const label = String.fromCharCode(65 + index); // A, B, C, D
             
             // Force direction and font based on ACTUAL CONTENT
-            if (currentLanguage === 'ar' || isArabicText(option)) {
+if (currentLanguage === 'ar' || isArabicText(option)) {
+
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
@@ -304,7 +308,7 @@ function displayAnswerOptions(question) {
 
             // Force direction and font based on ACTUAL CONTENT
             if (currentLanguage === 'ar' || isArabicText(displayText)) {
-                optionDiv.setAttribute('dir', 'rtl');
+               optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "'Majalla', 'Tajawal', sans-serif";
             } else {
@@ -729,6 +733,7 @@ function displayParagraphMode() {
         : paragraphQuestion.paragraphTextEn;
    const isParagraphArabic = isArabicText(paragraphText);
 
+
     
     console.log('[QUIZ] Displaying paragraph:', paragraphText?.substring(0, 50) + '...');
     
@@ -742,7 +747,7 @@ function displayParagraphMode() {
     } else {
         paragraphTextEl.setAttribute('dir', 'ltr');
         paragraphTextEl.style.textAlign = 'left';
-        paragraphTextEl.style.fontFamily = "'Tajawal', sans-serif";
+        paragraphTextEl.style.fontFamily = "'Trebuchet MS', sans-serif";
     }
 
     paragraphContainer.style.display = 'block';
@@ -775,22 +780,22 @@ function displayParagraphMode() {
             ? question.questionTextAr 
             : question.questionTextEn;
         
-        const questionNumber = isParagraphArabic 
+        const questionNumber = currentLanguage === 'ar' 
             ? `السؤال ${index + 1}` 
             : `Question ${index + 1}`;
         
         // Determine direction and font based on ACTUAL CONTENT
-        const isArabic = isArabicText(questionText);
-        const qDir = isArabic ? 'rtl' : 'ltr';
-        const qAlign = isArabic ? 'right' : 'left';
-        const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
+      const isArabic = isParagraphArabic;
+const qDir = isArabic ? 'rtl' : 'ltr';
+const qAlign = isArabic ? 'right' : 'left';
+const qFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
+
         
-        questionsHTML += `
+       questionsHTML += `
     <div class="question-item" id="question-item-${index}" dir="${qDir}" style="text-align: ${qAlign};">
         <div class="question-number-badge">
             ${questionNumber}
         </div>
-
                 
                 <div class="question-text" dir="${qDir}" style="text-align: ${qAlign}; font-family: ${qFont};">
                     ${questionText}
@@ -803,7 +808,9 @@ function displayParagraphMode() {
                 ` : ''}
                 
                 <div class="answer-options-container" id="answer-container-${index}">
-                    ${buildAnswerOptionsHTML(question, index)}
+                    ${buildAnswerOptionsHTML(question, index, isParagraphArabic)}
+
+
                 </div>
             </div>
         `;
@@ -836,7 +843,9 @@ function displayParagraphMode() {
 /**
  * Build answer options HTML for a question
  */
-function buildAnswerOptionsHTML(question, questionIndex) {
+function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
+
+
     const savedAnswer = currentQuizData.answers[question.id];
     let html = '';
     
@@ -848,8 +857,8 @@ function buildAnswerOptionsHTML(question, questionIndex) {
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
             // Determine direction and font based on ACTUAL CONTENT
-            const isArabic = currentLanguage === 'ar' || isArabicText(option);
-            const optionDir = isArabic ? 'rtl' : 'ltr';
+            const isArabic = isParagraphArabic || isArabicText(option);
+           const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
 
@@ -875,7 +884,7 @@ function buildAnswerOptionsHTML(question, questionIndex) {
                 : option;
             
             // Determine direction and font based on ACTUAL CONTENT
-            const isArabic = currentLanguage === 'ar' || isArabicText(displayText);
+           const isArabic = isParagraphArabic || isArabicText(displayText);
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
@@ -894,7 +903,7 @@ function buildAnswerOptionsHTML(question, questionIndex) {
         
         // Determine direction and font based on ACTUAL question content
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        const isArabic = currentLanguage === 'ar' || isArabicText(qText);
+        const isArabic = isParagraphArabic || isArabicText(qText);
         const optionDir = isArabic ? 'rtl' : 'ltr';
         const optionAlign = isArabic ? 'right' : 'left';
         const optionFont = isArabic ? "'Majalla', 'Tajawal', sans-serif" : "'Trebuchet MS', sans-serif";
