@@ -742,7 +742,7 @@ function displayParagraphMode() {
     } else {
         paragraphTextEl.setAttribute('dir', 'ltr');
         paragraphTextEl.style.textAlign = 'left';
-        paragraphTextEl.style.fontFamily = "'Trebuchet MS', sans-serif";
+        paragraphTextEl.style.fontFamily = "'Tajawal', sans-serif";
     }
 
     paragraphContainer.style.display = 'block';
