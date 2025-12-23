@@ -514,3 +514,20 @@ function displayQuizQuestions(questions) {
         MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
     }
 }
+
+/**
+ * Print quiz attempt details
+ */
+function printQuizDetails() {
+    // Wait for MathJax to finish rendering before printing
+    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+        MathJax.typesetPromise().then(() => {
+            window.print();
+        }).catch((err) => {
+            console.log('MathJax error before print:', err);
+            window.print();
+        });
+    } else {
+        window.print();
+    }
+}

@@ -519,6 +519,120 @@ background: linear-gradient(135deg, #90EE90, #7FD87F, #90EE90);
     color: white;
 }
 
+/* ===== PRINT STYLES ===== */
+@media print {
+    /* Hide all unnecessary elements */
+    nav, footer, .modal-header .btn-close, .modal-footer,
+    .sidebar, .navbar, button:not(.print-only) {
+        display: none !important;
+    }
+
+    /* Reset modal styling for print */
+    .modal {
+        position: static !important;
+        display: block !important;
+        background: white !important;
+    }
+
+    .modal-dialog {
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .modal-content {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .modal-header {
+        background: white !important;
+        color: black !important;
+        border-bottom: 2px solid #333 !important;
+        padding: 15px 0 !important;
+    }
+
+    .modal-body {
+        padding: 15px 0 !important;
+    }
+
+    /* Print-friendly question cards */
+    .card {
+        page-break-inside: avoid;
+        border: 1px solid #333 !important;
+        margin-bottom: 15px !important;
+        background: white !important;
+    }
+
+    /* Ensure colored borders remain visible in print */
+    .border-success {
+        border-color: #198754 !important;
+        border-width: 2px !important;
+    }
+
+    .border-danger {
+        border-color: #dc3545 !important;
+        border-width: 2px !important;
+    }
+
+    /* Make text more readable for print */
+    .text-success {
+        color: #198754 !important;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .text-warning {
+        color: #856404 !important;
+    }
+
+    /* Ensure badges are visible */
+    .badge {
+        border: 1px solid #333;
+        color: black !important;
+        background: white !important;
+    }
+
+    /* Icons for print */
+    .bi-check-circle-fill::before {
+        content: "✓ ";
+    }
+
+    .bi-x-circle-fill::before {
+        content: "✗ ";
+    }
+
+    /* Images */
+    img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+    }
+
+    /* Summary section */
+    .bg-light {
+        background: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+    }
+
+    /* Page breaks */
+    h6 {
+        page-break-after: avoid;
+    }
+
+    /* Font sizes */
+    body {
+        font-size: 12pt;
+    }
+
+    h5 {
+        font-size: 18pt;
+    }
+
+    h6 {
+        font-size: 14pt;
+    }
+}
 
     </style>
 
@@ -753,6 +867,10 @@ background: linear-gradient(135deg, #90EE90, #7FD87F, #90EE90);
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="printQuizDetails()">
+                        <i class="bi bi-printer me-2"></i>
+                        <span data-en="Print" data-ar="طباعة"></span>
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <span data-en="Close" data-ar="إغلاق"></span>
                     </button>
