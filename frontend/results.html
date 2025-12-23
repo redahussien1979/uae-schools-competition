@@ -521,9 +521,14 @@ background: linear-gradient(135deg, #90EE90, #7FD87F, #90EE90);
 
 /* ===== PRINT STYLES ===== */
 @media print {
-    /* Hide all unnecessary elements */
-    nav, footer, .modal-header .btn-close, .modal-footer,
-    .sidebar, .navbar, button:not(.print-only) {
+    /* Hide everything except the quiz details modal */
+    body > *:not(#quizDetailsModal) {
+        display: none !important;
+    }
+
+    /* Hide unnecessary modal elements */
+    .modal-header .btn-close, .modal-footer,
+    button:not(.print-only) {
         display: none !important;
     }
 
