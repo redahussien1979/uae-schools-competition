@@ -195,9 +195,8 @@ function displayQuestion(index) {
     const questionText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
     questionTextEl.innerHTML = questionText;
     
-    // Force direction and font based on ACTUAL CONTENT language
-if (currentLanguage === 'ar' || isArabicText(questionText)) {
-
+    // Force direction and font based on ACTUAL CONTENT language (ignore UI language)
+    if (isArabicText(questionText)) {
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
         questionTextEl.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -265,9 +264,8 @@ function displayAnswerOptions(question) {
 
             const label = String.fromCharCode(65 + index); // A, B, C, D
             
-            // Force direction and font based on ACTUAL CONTENT
-if (currentLanguage === 'ar' || isArabicText(option)) {
-
+            // Force direction and font based on ACTUAL CONTENT (ignore UI language)
+            if (isArabicText(option)) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -305,8 +303,8 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
 
-            // Force direction and font based on ACTUAL CONTENT
-            if (currentLanguage === 'ar' || isArabicText(displayText)) {
+            // Force direction and font based on ACTUAL CONTENT (ignore UI language)
+            if (isArabicText(displayText)) {
                optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -329,9 +327,9 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
         input.value = savedAnswer || '';
         input.oninput = (e) => selectAnswer(question.id, e.target.value);
         
-        // Force direction and font based on ACTUAL question content
+        // Force direction and font based on ACTUAL question content (ignore UI language)
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        if (currentLanguage === 'ar' || isArabicText(qText)) {
+        if (isArabicText(qText)) {
             input.setAttribute('dir', 'rtl');
             input.style.textAlign = 'right';
             input.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -856,8 +854,8 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
             const label = String.fromCharCode(65 + idx);
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
-            // Determine direction and font based on ACTUAL CONTENT
-            const isArabic = isParagraphArabic || isArabicText(option);
+            // Determine direction and font based on ACTUAL CONTENT (ignore UI language)
+            const isArabic = isArabicText(option);
            const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
@@ -884,8 +882,8 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
             
-            // Determine direction and font based on ACTUAL CONTENT
-           const isArabic = isParagraphArabic || isArabicText(displayText);
+            // Determine direction and font based on ACTUAL CONTENT (ignore UI language)
+           const isArabic = isArabicText(displayText);
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
@@ -902,9 +900,9 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
     } else if (question.questionType === 'text_input') {
         const value = (savedAnswer || '').replace(/"/g, '&quot;');
         
-        // Determine direction and font based on ACTUAL question content
+        // Determine direction and font based on ACTUAL question content (ignore UI language)
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        const isArabic = isParagraphArabic || isArabicText(qText);
+        const isArabic = isArabicText(qText);
         const optionDir = isArabic ? 'rtl' : 'ltr';
         const optionAlign = isArabic ? 'right' : 'left';
         const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
