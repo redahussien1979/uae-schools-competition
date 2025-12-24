@@ -195,8 +195,11 @@ function displayQuestion(index) {
     const questionText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
     questionTextEl.innerHTML = questionText;
     
-    // Force direction and font based on ACTUAL CONTENT language (ignore UI language)
-    if (isArabicText(questionText)) {
+    // Force direction and font based on content (for English quiz, ignore UI language)
+    const shouldAlignByContent = currentQuizData.subject === 'english';
+    const shouldBeRTL = shouldAlignByContent ? isArabicText(questionText) : (currentLanguage === 'ar' || isArabicText(questionText));
+
+    if (shouldBeRTL) {
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
         questionTextEl.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -264,8 +267,11 @@ function displayAnswerOptions(question) {
 
             const label = String.fromCharCode(65 + index); // A, B, C, D
             
-            // Force direction and font based on ACTUAL CONTENT (ignore UI language)
-            if (isArabicText(option)) {
+            // Force direction and font (for English quiz, ignore UI language)
+            const shouldAlignByContent = currentQuizData.subject === 'english';
+            const shouldBeRTL = shouldAlignByContent ? isArabicText(option) : (currentLanguage === 'ar' || isArabicText(option));
+
+            if (shouldBeRTL) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -303,8 +309,11 @@ function displayAnswerOptions(question) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
 
-            // Force direction and font based on ACTUAL CONTENT (ignore UI language)
-            if (isArabicText(displayText)) {
+            // Force direction and font (for English quiz, ignore UI language)
+            const shouldAlignByContent = currentQuizData.subject === 'english';
+            const shouldBeRTL = shouldAlignByContent ? isArabicText(displayText) : (currentLanguage === 'ar' || isArabicText(displayText));
+
+            if (shouldBeRTL) {
                optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -327,9 +336,12 @@ function displayAnswerOptions(question) {
         input.value = savedAnswer || '';
         input.oninput = (e) => selectAnswer(question.id, e.target.value);
         
-        // Force direction and font based on ACTUAL question content (ignore UI language)
+        // Force direction and font (for English quiz, ignore UI language)
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        if (isArabicText(qText)) {
+        const shouldAlignByContent = currentQuizData.subject === 'english';
+        const shouldBeRTL = shouldAlignByContent ? isArabicText(qText) : (currentLanguage === 'ar' || isArabicText(qText));
+
+        if (shouldBeRTL) {
             input.setAttribute('dir', 'rtl');
             input.style.textAlign = 'right';
             input.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -854,8 +866,9 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
             const label = String.fromCharCode(65 + idx);
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
-            // Determine direction and font based on ACTUAL CONTENT (ignore UI language)
-            const isArabic = isArabicText(option);
+            // Determine direction and font (for English quiz, ignore UI language)
+            const shouldAlignByContent = currentQuizData.subject === 'english';
+            const isArabic = shouldAlignByContent ? isArabicText(option) : (isParagraphArabic || isArabicText(option));
            const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
@@ -882,8 +895,9 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
             
-            // Determine direction and font based on ACTUAL CONTENT (ignore UI language)
-           const isArabic = isArabicText(displayText);
+            // Determine direction and font (for English quiz, ignore UI language)
+            const shouldAlignByContent = currentQuizData.subject === 'english';
+           const isArabic = shouldAlignByContent ? isArabicText(displayText) : (isParagraphArabic || isArabicText(displayText));
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
@@ -900,9 +914,10 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
     } else if (question.questionType === 'text_input') {
         const value = (savedAnswer || '').replace(/"/g, '&quot;');
         
-        // Determine direction and font based on ACTUAL question content (ignore UI language)
+        // Determine direction and font (for English quiz, ignore UI language)
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        const isArabic = isArabicText(qText);
+        const shouldAlignByContent = currentQuizData.subject === 'english';
+        const isArabic = shouldAlignByContent ? isArabicText(qText) : (isParagraphArabic || isArabicText(qText));
         const optionDir = isArabic ? 'rtl' : 'ltr';
         const optionAlign = isArabic ? 'right' : 'left';
         const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
