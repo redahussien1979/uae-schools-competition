@@ -195,9 +195,11 @@ function displayQuestion(index) {
     const questionText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
     questionTextEl.innerHTML = questionText;
     
-    // Force direction and font based on ACTUAL CONTENT language
-if (currentLanguage === 'ar' || isArabicText(questionText)) {
+    // Force direction and font based on content (for English quiz, ignore UI language)
+    const shouldAlignByContent = currentQuizData.subject === 'english';
+    const shouldBeRTL = shouldAlignByContent ? isArabicText(questionText) : (currentLanguage === 'ar' || isArabicText(questionText));
 
+    if (shouldBeRTL) {
         questionTextEl.setAttribute('dir', 'rtl');
         questionTextEl.style.textAlign = 'right';
         questionTextEl.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -265,9 +267,11 @@ function displayAnswerOptions(question) {
 
             const label = String.fromCharCode(65 + index); // A, B, C, D
             
-            // Force direction and font based on ACTUAL CONTENT
-if (currentLanguage === 'ar' || isArabicText(option)) {
+            // Force direction and font (for English quiz, ignore UI language)
+            const shouldAlignByContent = currentQuizData.subject === 'english';
+            const shouldBeRTL = shouldAlignByContent ? isArabicText(option) : (currentLanguage === 'ar' || isArabicText(option));
 
+            if (shouldBeRTL) {
                 optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -278,11 +282,8 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
             }
             
             optionDiv.innerHTML = `
-
-            
                 <div class="d-flex align-items-center" style="gap: 1rem;">
-    <div>
-                    
+                    <div>
                         <div class="option-label">${label}</div>
                     </div>
                     <div class="option-text">${option}</div>
@@ -305,8 +306,11 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
 
-            // Force direction and font based on ACTUAL CONTENT
-            if (currentLanguage === 'ar' || isArabicText(displayText)) {
+            // Force direction and font (for English quiz, ignore UI language)
+            const shouldAlignByContent = currentQuizData.subject === 'english';
+            const shouldBeRTL = shouldAlignByContent ? isArabicText(displayText) : (currentLanguage === 'ar' || isArabicText(displayText));
+
+            if (shouldBeRTL) {
                optionDiv.setAttribute('dir', 'rtl');
                 optionDiv.style.textAlign = 'right';
                 optionDiv.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -329,9 +333,12 @@ if (currentLanguage === 'ar' || isArabicText(option)) {
         input.value = savedAnswer || '';
         input.oninput = (e) => selectAnswer(question.id, e.target.value);
         
-        // Force direction and font based on ACTUAL question content
+        // Force direction and font (for English quiz, ignore UI language)
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        if (currentLanguage === 'ar' || isArabicText(qText)) {
+        const shouldAlignByContent = currentQuizData.subject === 'english';
+        const shouldBeRTL = shouldAlignByContent ? isArabicText(qText) : (currentLanguage === 'ar' || isArabicText(qText));
+
+        if (shouldBeRTL) {
             input.setAttribute('dir', 'rtl');
             input.style.textAlign = 'right';
             input.style.fontFamily = "' Tajawal', 'Tajawal', sans-serif";
@@ -730,9 +737,7 @@ function displayParagraphMode() {
     const paragraphText = currentLanguage === 'ar' 
         ? paragraphQuestion.paragraphTextAr 
         : paragraphQuestion.paragraphTextEn;
-   const isParagraphArabic = isArabicText(paragraphText);
-
-
+    const isParagraphArabic = isArabicText(paragraphText);
     
     console.log('[QUIZ] Displaying paragraph:', paragraphText?.substring(0, 50) + '...');
     
@@ -779,23 +784,21 @@ function displayParagraphMode() {
             ? question.questionTextAr 
             : question.questionTextEn;
         
-       const questionNumber = isParagraphArabic
+        const questionNumber = isParagraphArabic
             ? `السؤال ${index + 1}` 
             : `Question ${index + 1}`;
         
         // Determine direction and font based on ACTUAL CONTENT
-      const isArabic = isParagraphArabic;
-const qDir = isArabic ? 'rtl' : 'ltr';
-const qAlign = isArabic ? 'right' : 'left';
-const qFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
-
+        const isArabic = isParagraphArabic;
+        const qDir = isArabic ? 'rtl' : 'ltr';
+        const qAlign = isArabic ? 'right' : 'left';
+        const qFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
         
-       questionsHTML += `
-    <div class="question-item" id="question-item-${index}" dir="${qDir}" style="text-align: ${qAlign};">
-    
-        <div class="question-number-badge" style="font-family: ${qFont};">
-            ${questionNumber}
-        </div>
+        questionsHTML += `
+            <div class="question-item" id="question-item-${index}" dir="${qDir}" style="text-align: ${qAlign};">
+                <div class="question-number-badge" style="font-family: ${qFont};">
+                    ${questionNumber}
+                </div>
                 
                 <div class="question-text" dir="${qDir}" style="text-align: ${qAlign}; font-family: ${qFont};">
                     ${questionText}
@@ -809,8 +812,6 @@ const qFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-
                 
                 <div class="answer-options-container" id="answer-container-${index}">
                     ${buildAnswerOptionsHTML(question, index, isParagraphArabic)}
-
-
                 </div>
             </div>
         `;
@@ -840,12 +841,7 @@ const qFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-
 /**
  * Build answer options HTML for a question
  */
-/**
- * Build answer options HTML for a question
- */
 function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
-
-
     const savedAnswer = currentQuizData.answers[question.id];
     let html = '';
     
@@ -856,25 +852,25 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
             const label = String.fromCharCode(65 + idx);
             const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
-            // Determine direction and font based on ACTUAL CONTENT
-            const isArabic = isParagraphArabic || isArabicText(option);
-           const optionDir = isArabic ? 'rtl' : 'ltr';
+            // Determine direction and font (for English quiz, ignore UI language)
+            const shouldAlignByContent = currentQuizData.subject === 'english';
+            const isArabic = shouldAlignByContent ? isArabicText(option) : (isParagraphArabic || isArabicText(option));
+            const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
 
             html += `
-               <div class="answer-option ${isSelected ? 'selected' : ''}" 
-     dir="${optionDir}" 
-     style="text-align: ${optionAlign}; font-family: ${optionFont};"
-     onclick="selectAnswerInParagraphMode('${question.id}', '${escapedOption}', ${questionIndex})">
-    <div class="d-flex align-items-center" style="gap: 1rem;">
-        <div>
-            <div class="option-label">${label}</div>
-        </div>
-        <div class="option-text">${option}</div>
-    </div>
-</div>
-
+                <div class="answer-option ${isSelected ? 'selected' : ''}" 
+                     dir="${optionDir}" 
+                     style="text-align: ${optionAlign}; font-family: ${optionFont};"
+                     onclick="selectAnswerInParagraphMode('${question.id}', '${escapedOption}', ${questionIndex})">
+                    <div class="d-flex align-items-center" style="gap: 1rem;">
+                        <div>
+                            <div class="option-label">${label}</div>
+                        </div>
+                        <div class="option-text">${option}</div>
+                    </div>
+                </div>
             `;
         });
     } else if (question.questionType === 'true_false') {
@@ -884,8 +880,9 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
                 ? (option === 'True' ? 'صح' : 'خطأ')
                 : option;
             
-            // Determine direction and font based on ACTUAL CONTENT
-           const isArabic = isParagraphArabic || isArabicText(displayText);
+            // Determine direction and font (for English quiz, ignore UI language)
+            const shouldAlignByContent = currentQuizData.subject === 'english';
+            const isArabic = shouldAlignByContent ? isArabicText(displayText) : (isParagraphArabic || isArabicText(displayText));
             const optionDir = isArabic ? 'rtl' : 'ltr';
             const optionAlign = isArabic ? 'right' : 'left';
             const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
@@ -902,9 +899,10 @@ function buildAnswerOptionsHTML(question, questionIndex, isParagraphArabic) {
     } else if (question.questionType === 'text_input') {
         const value = (savedAnswer || '').replace(/"/g, '&quot;');
         
-        // Determine direction and font based on ACTUAL question content
+        // Determine direction and font (for English quiz, ignore UI language)
         const qText = currentLanguage === 'ar' ? question.questionTextAr : question.questionTextEn;
-        const isArabic = isParagraphArabic || isArabicText(qText);
+        const shouldAlignByContent = currentQuizData.subject === 'english';
+        const isArabic = shouldAlignByContent ? isArabicText(qText) : (isParagraphArabic || isArabicText(qText));
         const optionDir = isArabic ? 'rtl' : 'ltr';
         const optionAlign = isArabic ? 'right' : 'left';
         const optionFont = isArabic ? "' Tajawal', 'Tajawal', sans-serif" : "'Tajawal', sans-serif";
