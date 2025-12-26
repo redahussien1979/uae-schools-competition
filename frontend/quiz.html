@@ -4,9 +4,70 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz - UAE Schools Competition</title>
-        <!-- Apply language BEFORE page renders (prevents flash) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+    <!-- Primary Meta Tags -->
+    <title>Quiz - UAE Schools Competition | Test Your Knowledge in Math, Science & More</title>
+    <meta name="title" content="Quiz - UAE Schools Competition | Test Your Knowledge in Math, Science & More">
+    <meta name="description" content="Take interactive quizzes in Math, Science, English, and Arabic. Join thousands of UAE students competing across the Emirates. 10 questions, 15 minutes, unlimited practice.">
+    <meta name="keywords" content="UAE quiz, school competition, Math quiz, Science quiz, English quiz, Arabic quiz, Emirates education, student competition, online quiz, UAE students, Dubai schools, Abu Dhabi schools">
+    <meta name="author" content="UAE Schools Competition">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English, Arabic">
+    <meta name="revisit-after" content="7 days">
+    <meta name="theme-color" content="#667eea">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://quizuae.ae/quiz.html">
+    <meta property="og:title" content="Quiz - UAE Schools Competition | Test Your Knowledge">
+    <meta property="og:description" content="Challenge yourself with interactive quizzes in Math, Science, English, and Arabic. Compete with students across the UAE and climb the leaderboard!">
+    <meta property="og:image" content="https://quizuae.ae/images/quiz-share.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_AE">
+    <meta property="og:locale:alternate" content="ar_AE">
+    <meta property="og:site_name" content="UAE Schools Competition">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://quizuae.ae/quiz.html">
+    <meta name="twitter:title" content="Quiz - UAE Schools Competition | Test Your Knowledge">
+    <meta name="twitter:description" content="Challenge yourself with interactive quizzes in Math, Science, English, and Arabic. Compete with students across the UAE!">
+    <meta name="twitter:image" content="https://quizuae.ae/images/quiz-share.jpg">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://quizuae.ae/quiz.html">
+
+    <!-- Alternate Language Versions -->
+    <link rel="alternate" hreflang="en" href="https://quizuae.ae/quiz.html?lang=en">
+    <link rel="alternate" hreflang="ar" href="https://quizuae.ae/quiz.html?lang=ar">
+    <link rel="alternate" hreflang="x-default" href="https://quizuae.ae/quiz.html">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+    <!-- DNS Prefetch for Performance -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+    <!-- Apple Mobile Web App -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UAE Quiz">
+
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+
+    <!-- Security -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <!-- Apply language BEFORE page renders (prevents flash) -->
     <script>
         (function() {
             var savedLang = localStorage.getItem('preferredLanguage');
@@ -15,6 +76,57 @@
                 document.documentElement.setAttribute('dir', 'rtl');
             }
         })();
+    </script>
+
+    <!-- Structured Data - Quiz Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Quiz",
+      "name": "UAE Schools Competition Quiz",
+      "description": "Interactive educational quiz platform for UAE students covering Math, Science, English, and Arabic subjects",
+      "provider": {
+        "@type": "EducationalOrganization",
+        "name": "UAE Schools Competition",
+        "url": "https://quizuae.ae",
+        "logo": "https://quizuae.ae/images/logo.png",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "AE",
+          "addressRegion": "UAE"
+        }
+      },
+      "educationalLevel": "Secondary School",
+      "inLanguage": ["en", "ar"],
+      "timeRequired": "PT15M",
+      "numberOfQuestions": 10,
+      "assesses": ["Mathematics", "Science", "English", "Arabic"],
+      "educationalUse": "Assessment"
+    }
+    </script>
+
+    <!-- Structured Data - BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://quizuae.ae/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Dashboard",
+        "item": "https://quizuae.ae/dashboard.html"
+      },{
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Quiz",
+        "item": "https://quizuae.ae/quiz.html"
+      }]
+    }
     </script>
 
 <!-- Critical font-loading CSS to prevent FOUT -->
