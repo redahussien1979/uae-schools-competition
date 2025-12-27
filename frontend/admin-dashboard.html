@@ -491,6 +491,10 @@
                             <i class="bi bi-eye me-2"></i>
                             View Questions
                         </a>
+                        <a class="nav-link" href="#" onclick="showSection('passwordreset', event)">
+                            <i class="bi bi-key me-2"></i>
+                            Password Reset
+                        </a>
                         <hr class="bg-white">
                         <a class="nav-link" href="#" onclick="adminLogout()">
                             <i class="bi bi-box-arrow-right me-2"></i>
@@ -1148,6 +1152,84 @@
             <i class="bi bi-filter-circle" style="font-size: 4rem;"></i>
             <h5 class="mt-3">Select Subject and Grade</h5>
             <p>Choose a subject and grade above to view questions in quiz format</p>
+        </div>
+    </div>
+</div>
+
+<!-- Password Reset Section -->
+<div id="passwordreset-section" class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">
+            <i class="bi bi-key me-2"></i>
+            Password Reset
+        </h3>
+    </div>
+
+    <!-- Security Info Alert -->
+    <div class="alert alert-info mb-4">
+        <h5 class="alert-heading">
+            <i class="bi bi-shield-check me-2"></i>
+            Secure Password Management
+        </h5>
+        <p class="mb-2">Passwords are encrypted and cannot be viewed. When a user forgets their password:</p>
+        <ol class="mb-0">
+            <li>Search for the user below</li>
+            <li>Click "Reset Password" to generate a temporary password</li>
+            <li>Give the temporary password to the user</li>
+            <li>User should change it after logging in</li>
+        </ol>
+    </div>
+
+    <!-- Search User -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title fw-bold mb-3">
+                <i class="bi bi-search me-2"></i>
+                Search User
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Search by Username</label>
+                    <input type="text" class="form-control" id="searchUsername" placeholder="Enter username...">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Search by Full Name</label>
+                    <input type="text" class="form-control" id="searchFullName" placeholder="Enter full name...">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Filter by School</label>
+                    <select class="form-select" id="searchSchool">
+                        <option value="">All Schools</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary" onclick="searchUsersForReset()">
+                        <i class="bi bi-search me-2"></i>
+                        Search Users
+                    </button>
+                    <button class="btn btn-secondary ms-2" onclick="loadAllUsersForReset()">
+                        <i class="bi bi-people me-2"></i>
+                        Load All Users
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users List -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title fw-bold mb-3">
+                <i class="bi bi-people me-2"></i>
+                Users
+            </h5>
+            <div id="usersListForReset">
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-search" style="font-size: 4rem;"></i>
+                    <h5 class="mt-3">Search for Users</h5>
+                    <p>Use the search above to find users who need password reset</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

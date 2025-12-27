@@ -3472,3 +3472,203 @@ function displayQuizQuestions(questions) {
     }
 }
 
+
+// ============================================
+// PASSWORD RESET FUNCTIONS
+// ============================================
+
+// Load all users for password reset
+async function loadAllUsersForReset() {
+    const token = checkAdminAuth();
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_URL}/admin/users`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            displayUsersForReset(data.users);
+            // Populate schools dropdown
+            populateSchoolsDropdown(data.users);
+        } else {
+            alert('Failed to load users: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+        alert('Error loading users. Please try again.');
+    }
+}
+
+// Search users for password reset
+async function searchUsersForReset() {
+    const token = checkAdminAuth();
+    if (!token) return;
+
+    const username = document.getElementById('searchUsername').value.trim();
+    const fullName = document.getElementById('searchFullName').value.trim();
+    const school = document.getElementById('searchSchool').value;
+
+    try {
+        const response = await fetch(`${API_URL}/admin/users`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            let filteredUsers = data.users;
+
+            // Filter by username
+            if (username) {
+                filteredUsers = filteredUsers.filter(user =>
+                    user.username.toLowerCase().includes(username.toLowerCase())
+                );
+            }
+
+            // Filter by full name
+            if (fullName) {
+                filteredUsers = filteredUsers.filter(user =>
+                    user.fullName.toLowerCase().includes(fullName.toLowerCase())
+                );
+            }
+
+            // Filter by school
+            if (school) {
+                filteredUsers = filteredUsers.filter(user => user.school === school);
+            }
+
+            displayUsersForReset(filteredUsers);
+        } else {
+            alert('Failed to search users: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error searching users:', error);
+        alert('Error searching users. Please try again.');
+    }
+}
+
+// Display users in password reset section
+function displayUsersForReset(users) {
+    const container = document.getElementById('usersListForReset');
+
+    if (users.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox" style="font-size: 4rem;"></i>
+                <h5 class="mt-3">No Users Found</h5>
+                <p>Try adjusting your search filters</p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Grade</th>
+                        <th>School</th>
+                        <th>Total Score</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    users.forEach(user => {
+        html += `
+            <tr>
+                <td><strong>${user.username}</strong></td>
+                <td>${user.fullName}</td>
+                <td>Grade ${user.grade}</td>
+                <td>${user.school}</td>
+                <td><span class="badge bg-primary">${user.totalBestScore || 0}</span></td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="resetUserPassword('${user._id}', '${user.username}', '${user.fullName}')">
+                        <i class="bi bi-key me-1"></i>
+                        Reset Password
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// Populate schools dropdown
+function populateSchoolsDropdown(users) {
+    const schools = [...new Set(users.map(u => u.school))].sort();
+    const dropdown = document.getElementById('searchSchool');
+
+    dropdown.innerHTML = '<option value="">All Schools</option>';
+    schools.forEach(school => {
+        dropdown.innerHTML += `<option value="${school}">${school}</option>`;
+    });
+}
+
+// Reset user password
+async function resetUserPassword(userId, username, fullName) {
+    const confirmation = confirm(
+        `Reset password for:\n\nUsername: ${username}\nName: ${fullName}\n\n` +
+        `This will generate a temporary password that you can give to the user.\n\n` +
+        `Continue?`
+    );
+
+    if (!confirmation) return;
+
+    const token = checkAdminAuth();
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_URL}/admin/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ userId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Show success message with temporary password
+            alert(
+                `✅ Password Reset Successful!\n\n` +
+                `Username: ${username}\n` +
+                `Temporary Password: ${data.temporaryPassword}\n\n` +
+                `⚠️ IMPORTANT: Give this password to the user.\n` +
+                `They should change it after logging in.\n\n` +
+                `Copy this password now - it won't be shown again!`
+            );
+
+            // Optional: Copy to clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(data.temporaryPassword);
+                alert('✅ Temporary password copied to clipboard!');
+            }
+        } else {
+            alert('Failed to reset password: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        alert('Error resetting password. Please try again.');
+    }
+}

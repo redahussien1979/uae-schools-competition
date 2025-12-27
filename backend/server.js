@@ -1239,6 +1239,57 @@ app.get('/admin/users', protectAdmin, async (req, res) => {
 });
 
 // ========================================
+// RESET USER PASSWORD (ADMIN ONLY)
+// ========================================
+app.post('/admin/reset-password', protectAdmin, async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        // Validate userId
+        if (!userId) {
+            return res.json({
+                success: false,
+                message: 'User ID is required'
+            });
+        }
+
+        // Find user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Generate temporary password (8 characters: letters + numbers)
+        const tempPassword = 'Temp' + Math.random().toString(36).substring(2, 10) + '!';
+
+        // Update user's password (will be hashed automatically by User model)
+        user.password = tempPassword;
+        await user.save();
+
+        // Log the action for security audit
+        console.log(`[ADMIN] Password reset for user: ${user.username} by admin: ${req.admin.username}`);
+
+        res.json({
+            success: true,
+            message: 'Password reset successfully',
+            temporaryPassword: tempPassword,
+            username: user.username,
+            fullName: user.fullName
+        });
+
+    } catch (error) {
+        console.error('Password reset error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to reset password'
+        });
+    }
+});
+
+// ========================================
 // GET ALL QUIZ ATTEMPTS (ADMIN ONLY)
 // ========================================
 app.get('/admin/attempts', protectAdmin, async (req, res) => {
