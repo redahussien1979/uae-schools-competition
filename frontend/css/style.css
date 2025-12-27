@@ -55,29 +55,35 @@ body[dir="rtl"] {
 
 /* ===== UAE Animated Balls ===== */
 .uae-balls-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    flex: 1;
-    padding: 0 20px;
+    gap: 15px;
+}
+
+.navbar .container {
+    position: relative;
 }
 
 .uae-ball {
-    width: 16px;
-    height: 16px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     animation: uaeBounce 1.5s ease-in-out infinite;
     position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
 .uae-ball::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
     border-radius: 50%;
     animation: uaeGlow 1.5s ease-in-out infinite;
 }
@@ -85,6 +91,7 @@ body[dir="rtl"] {
 .ball-green {
     background: linear-gradient(135deg, #00732F 0%, #00a844 100%);
     box-shadow: 0 0 10px rgba(0, 115, 47, 0.5);
+    border-color: #005522;
     animation-delay: 0s;
 }
 
@@ -96,7 +103,7 @@ body[dir="rtl"] {
 .ball-white {
     background: linear-gradient(135deg, #FFFFFF 0%, #f0f0f0 100%);
     box-shadow: 0 0 10px rgba(200, 200, 200, 0.5);
-    border: 1px solid #ddd;
+    border-color: #cccccc;
     animation-delay: 0.2s;
 }
 
@@ -108,6 +115,7 @@ body[dir="rtl"] {
 .ball-black {
     background: linear-gradient(135deg, #000000 0%, #333333 100%);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-color: #444444;
     animation-delay: 0.4s;
 }
 
@@ -119,6 +127,7 @@ body[dir="rtl"] {
 .ball-red {
     background: linear-gradient(135deg, #FF0000 0%, #cc0000 100%);
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    border-color: #aa0000;
     animation-delay: 0.6s;
 }
 
