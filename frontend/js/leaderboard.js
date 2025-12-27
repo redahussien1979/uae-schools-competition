@@ -228,10 +228,8 @@ function displayStudents(students) {
         const studentId = String(student.id || student._id || '');
         const isCurrentStudent = currentStudentId && studentId && currentStudentId === studentId;
 
-        // Debug: log first few students
-        if (index < 3) {
-            console.log(`Student ${index}: id=${studentId}, currentId=${currentStudentId}, match=${isCurrentStudent}`);
-        }
+        // Debug: log all students
+        console.log(`Student ${index}: name=${student.name}, id=${studentId}, currentId=${currentStudentId}, match=${isCurrentStudent}`);
 
         html += `
             <tr class="leaderboard-row${isCurrentStudent ? ' current-student' : ''}">
