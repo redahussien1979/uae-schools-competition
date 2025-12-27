@@ -944,7 +944,7 @@ app.get('/leaderboard/students', async (req, res) => {
             const percentage = Math.round((bestScore / maxScore) * 100);
 
             return {
-                id: student._id,
+                id: student._id.toString(),
                 rank: ((parseInt(page) - 1) * parseInt(limit)) + index + 1,
                 name: student.fullName,
                 grade: student.grade,
