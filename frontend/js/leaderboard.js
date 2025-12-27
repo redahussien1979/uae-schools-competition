@@ -212,7 +212,7 @@ function displayStudents(students) {
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
-            currentStudentId = user.id || user._id;
+            currentStudentId = String(user.id || user._id || '');
         }
     } catch (e) {
         console.error('Error parsing user data:', e);
@@ -222,7 +222,8 @@ function displayStudents(students) {
 
     students.forEach((student, index) => {
         const rankBadge = getRankBadge(student.rank);
-        const isCurrentStudent = currentStudentId && (student.id === currentStudentId || student._id === currentStudentId);
+        const studentId = String(student.id || student._id || '');
+        const isCurrentStudent = currentStudentId && studentId && currentStudentId === studentId;
 
         html += `
             <tr class="leaderboard-row${isCurrentStudent ? ' current-student' : ''}">
