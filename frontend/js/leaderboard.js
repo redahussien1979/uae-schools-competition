@@ -210,9 +210,12 @@ function displayStudents(students) {
     let currentStudentId = null;
     try {
         const userStr = localStorage.getItem('user');
+        console.log('User from localStorage:', userStr);
         if (userStr) {
             const user = JSON.parse(userStr);
+            console.log('Parsed user object:', user);
             currentStudentId = String(user.id || user._id || '');
+            console.log('Current student ID:', currentStudentId);
         }
     } catch (e) {
         console.error('Error parsing user data:', e);
@@ -224,6 +227,11 @@ function displayStudents(students) {
         const rankBadge = getRankBadge(student.rank);
         const studentId = String(student.id || student._id || '');
         const isCurrentStudent = currentStudentId && studentId && currentStudentId === studentId;
+
+        // Debug: log first few students
+        if (index < 3) {
+            console.log(`Student ${index}: id=${studentId}, currentId=${currentStudentId}, match=${isCurrentStudent}`);
+        }
 
         html += `
             <tr class="leaderboard-row${isCurrentStudent ? ' current-student' : ''}">
