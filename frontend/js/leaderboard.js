@@ -191,7 +191,7 @@ async function loadLeaderboard() {
 // Display students in table
 function displayStudents(students) {
     const tbody = document.getElementById('leaderboardBody');
-    
+
     if (!students || students.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -205,14 +205,27 @@ function displayStudents(students) {
         `;
         return;
     }
-    
+
+    // Get current student ID from localStorage
+    let currentStudentId = null;
+    try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            currentStudentId = user.id || user._id;
+        }
+    } catch (e) {
+        console.error('Error parsing user data:', e);
+    }
+
     let html = '';
-    
+
     students.forEach((student, index) => {
         const rankBadge = getRankBadge(student.rank);
-        
+        const isCurrentStudent = currentStudentId && (student.id === currentStudentId || student._id === currentStudentId);
+
         html += `
-            <tr class="leaderboard-row">
+            <tr class="leaderboard-row${isCurrentStudent ? ' current-student' : ''}">
                 <td class="px-4 py-4">
                     ${rankBadge}
                 </td>
