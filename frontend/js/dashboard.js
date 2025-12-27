@@ -55,11 +55,28 @@
    // Display user data on dashboard
    function displayUserData(user) {
        console.log('Displaying user data:', user);
-       
+
+       // Check if this is a new user (just registered)
+       const isNewUser = localStorage.getItem('isNewUser') === 'true';
+       const welcomeBackEl = document.getElementById('welcomeBack');
+       const welcomeNewEl = document.getElementById('welcomeNew');
+
+       if (isNewUser) {
+           // Show "Welcome" for new users
+           if (welcomeBackEl) welcomeBackEl.style.display = 'none';
+           if (welcomeNewEl) welcomeNewEl.style.display = 'inline';
+           // Clear the flag after displaying
+           localStorage.removeItem('isNewUser');
+       } else {
+           // Show "Welcome back" for returning users
+           if (welcomeBackEl) welcomeBackEl.style.display = 'inline';
+           if (welcomeNewEl) welcomeNewEl.style.display = 'none';
+       }
+
        // Update user info in header
        const fullNameEl = document.getElementById('userFullName');
        const infoEl = document.getElementById('userInfo');
-       
+
        if (fullNameEl) {
            fullNameEl.textContent = user.fullName;
        }

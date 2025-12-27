@@ -433,6 +433,8 @@ async function handleRegister(event) {
         }
         
         if (data.success) {
+            // Mark as new user for welcome message
+            localStorage.setItem('isNewUser', 'true');
             showAlert('success', currentLanguage === 'en' ? 'Registration successful! Redirecting to login...' : 'تم التسجيل بنجاح! جاري التحويل...');
             setTimeout(() => window.location.href = 'login.html', 2000);
         } else {
