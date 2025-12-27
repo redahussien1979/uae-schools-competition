@@ -181,6 +181,9 @@
         .rank-badge {
             width: 50px;
             height: 50px;
+            min-width: 50px;
+            min-height: 50px;
+            flex-shrink: 0;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -189,10 +192,27 @@
             font-size: 1.2rem;
             margin-right: 15px;
         }
-        
+
         [dir="rtl"] .rank-badge {
             margin-right: 0;
             margin-left: 15px;
+        }
+
+        /* Responsive rank badges for mobile */
+        @media (max-width: 576px) {
+            .rank-badge {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                min-height: 40px;
+                font-size: 1rem;
+                margin-right: 10px;
+            }
+
+            [dir="rtl"] .rank-badge {
+                margin-right: 0;
+                margin-left: 10px;
+            }
         }
         
         .rank-1 { 
