@@ -728,11 +728,16 @@
                             <h3 class="fw-bold mb-0">All Users</h3>
                             <small class="text-muted">Total: <span id="totalUsersCount" class="fw-bold text-primary">0</span> users</small>
                         </div>
-                        <div class="input-group" style="max-width: 300px;">
-                            <input type="text" class="form-control" placeholder="Search users..." id="userSearch" onkeyup="searchUsers()">
-                            <button class="btn btn-outline-secondary" onclick="searchUsers()">
-                                <i class="bi bi-search"></i>
+                        <div class="d-flex gap-2 align-items-center">
+                            <button class="btn btn-outline-danger btn-sm" onclick="openDeleteAllUsersModal()" title="Delete All Users">
+                                <i class="bi bi-trash me-1"></i>Delete All
                             </button>
+                            <div class="input-group" style="max-width: 300px;">
+                                <input type="text" class="form-control" placeholder="Search users..." id="userSearch" onkeyup="searchUsers()">
+                                <button class="btn btn-outline-secondary" onclick="searchUsers()">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -852,7 +857,35 @@
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- Delete All Users Confirmation Modal -->
+                <div class="modal fade" id="deleteAllUsersModal" tabindex="-1" aria-labelledby="deleteAllUsersModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="deleteAllUsersModalLabel">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Delete ALL Users
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-octagon me-2"></i>
+                                    <strong>WARNING:</strong> This will permanently delete ALL users and their quiz attempts!
+                                </div>
+                                <p>Type <code>DELETE_ALL_USERS</code> to confirm:</p>
+                                <input type="text" class="form-control" id="deleteAllConfirmText" placeholder="Type confirmation text here">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-danger" onclick="confirmDeleteAllUsers()">
+                                    <i class="bi bi-trash me-1"></i>Delete All Users
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Quiz Attempts Section -->
                 <div id="attempts-section" class="content-section">
                     <h3 class="fw-bold mb-4">Quiz Attempts</h3>

@@ -1307,20 +1307,42 @@ app.put('/admin/users/:id', protectAdmin, async (req, res) => {
 // ========================================
 app.delete('/admin/users/:id', protectAdmin, async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        const userId = req.params.id;
 
-        if (!user) {
+        // Validate ObjectId format
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            // Try to force delete by any matching criteria
+            const deleted = await User.deleteOne({ _id: userId });
+            if (deleted.deletedCount > 0) {
+                await QuizAttempt.deleteMany({ user: userId });
+                return res.json({
+                    success: true,
+                    message: 'User force deleted successfully'
+                });
+            }
             return res.json({
                 success: false,
-                message: 'User not found'
+                message: 'Invalid user ID format'
             });
         }
 
-        // Also delete user's quiz attempts
-        await QuizAttempt.deleteMany({ user: req.params.id });
+        const user = await User.findById(userId);
+
+        if (!user) {
+            // Try force delete anyway in case of orphaned data
+            await User.deleteOne({ _id: userId });
+            await QuizAttempt.deleteMany({ user: userId });
+            return res.json({
+                success: true,
+                message: 'User data cleaned up'
+            });
+        }
+
+        // Delete user's quiz attempts
+        await QuizAttempt.deleteMany({ user: userId });
 
         // Delete the user
-        await User.findByIdAndDelete(req.params.id);
+        await User.findByIdAndDelete(userId);
 
         res.json({
             success: true,
@@ -1331,7 +1353,41 @@ app.delete('/admin/users/:id', protectAdmin, async (req, res) => {
         console.error('Delete user error:', error);
         res.json({
             success: false,
-            message: 'Failed to delete user'
+            message: 'Failed to delete user: ' + error.message
+        });
+    }
+});
+
+// ========================================
+// FORCE DELETE ALL USERS (ADMIN ONLY) - USE WITH CAUTION
+// ========================================
+app.delete('/admin/users-delete-all', protectAdmin, async (req, res) => {
+    try {
+        const { confirm } = req.body;
+
+        if (confirm !== 'DELETE_ALL_USERS') {
+            return res.json({
+                success: false,
+                message: 'Confirmation required. Send { confirm: "DELETE_ALL_USERS" }'
+            });
+        }
+
+        // Delete all quiz attempts
+        const attemptsDeleted = await QuizAttempt.deleteMany({});
+
+        // Delete all users
+        const usersDeleted = await User.deleteMany({});
+
+        res.json({
+            success: true,
+            message: `Deleted ${usersDeleted.deletedCount} users and ${attemptsDeleted.deletedCount} quiz attempts`
+        });
+
+    } catch (error) {
+        console.error('Delete all users error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to delete all users'
         });
     }
 });

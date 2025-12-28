@@ -552,6 +552,8 @@ async function confirmDeleteUser() {
     const token = checkAdminAuth();
     const userId = document.getElementById('deleteUserId').value;
 
+    console.log('Deleting user with ID:', userId);
+
     try {
         const response = await fetch(`${API_URL}/admin/users/${userId}`, {
             method: 'DELETE',
@@ -561,6 +563,7 @@ async function confirmDeleteUser() {
         });
 
         const data = await response.json();
+        console.log('Delete response:', data);
 
         if (data.success) {
             // Close modal
@@ -570,13 +573,60 @@ async function confirmDeleteUser() {
             // Reload users list
             loadUsers(1);
 
-            alert('User deleted successfully!');
+            alert(data.message || 'User deleted successfully!');
         } else {
             alert(data.message || 'Failed to delete user');
         }
     } catch (error) {
         console.error('Delete user error:', error);
-        alert('Failed to delete user');
+        alert('Failed to delete user: ' + error.message);
+    }
+}
+
+// Open delete all users modal
+function openDeleteAllUsersModal() {
+    document.getElementById('deleteAllConfirmText').value = '';
+    const modal = new bootstrap.Modal(document.getElementById('deleteAllUsersModal'));
+    modal.show();
+}
+
+// Confirm delete all users
+async function confirmDeleteAllUsers() {
+    const token = checkAdminAuth();
+    const confirmText = document.getElementById('deleteAllConfirmText').value;
+
+    if (confirmText !== 'DELETE_ALL_USERS') {
+        alert('Please type DELETE_ALL_USERS to confirm');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/admin/users-delete-all`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ confirm: 'DELETE_ALL_USERS' })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAllUsersModal'));
+            modal.hide();
+
+            // Reload users list
+            loadUsers(1);
+
+            alert(data.message);
+        } else {
+            alert(data.message || 'Failed to delete all users');
+        }
+    } catch (error) {
+        console.error('Delete all users error:', error);
+        alert('Failed to delete all users');
     }
 }
 
