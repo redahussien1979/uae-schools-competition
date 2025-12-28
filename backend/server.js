@@ -1998,20 +1998,65 @@ app.get('/admin/mongodb-stats', protectAdmin, async (req, res) => {
 
         for (const coll of collections) {
             try {
-                const stats = await db.collection(coll.name).stats();
-                const indexes = await db.collection(coll.name).indexes();
+                const collection = db.collection(coll.name);
+
+                // Get document count
+                const count = await collection.countDocuments();
+
+                // Get indexes
+                const indexes = await collection.indexes();
+
+                // Try to get storage stats using $collStats aggregation (MongoDB 3.6+)
+                let storageStats = {
+                    size: 0,
+                    storageSize: 0,
+                    avgObjSize: 0,
+                    totalIndexSize: 0
+                };
+
+                try {
+                    const collStatsResult = await collection.aggregate([
+                        { $collStats: { storageStats: {} } }
+                    ]).toArray();
+
+                    if (collStatsResult.length > 0 && collStatsResult[0].storageStats) {
+                        const ss = collStatsResult[0].storageStats;
+                        storageStats = {
+                            size: ss.size || 0,
+                            storageSize: ss.storageSize || 0,
+                            avgObjSize: ss.avgObjSize || (count > 0 ? Math.round((ss.size || 0) / count) : 0),
+                            totalIndexSize: ss.totalIndexSize || 0
+                        };
+                    }
+                } catch (aggErr) {
+                    // $collStats might not work on some collections, try legacy stats
+                    try {
+                        const legacyStats = await db.command({ collStats: coll.name });
+                        storageStats = {
+                            size: legacyStats.size || 0,
+                            storageSize: legacyStats.storageSize || 0,
+                            avgObjSize: legacyStats.avgObjSize || 0,
+                            totalIndexSize: legacyStats.totalIndexSize || 0
+                        };
+                    } catch (legacyErr) {
+                        // Use estimated size based on count
+                        storageStats.avgObjSize = count > 0 ? 500 : 0; // Estimate 500 bytes per doc
+                        storageStats.size = count * storageStats.avgObjSize;
+                    }
+                }
 
                 collectionStats.push({
                     name: coll.name,
-                    count: stats.count || 0,
-                    size: stats.size || 0,
-                    storageSize: stats.storageSize || 0,
-                    avgObjSize: stats.avgObjSize || 0,
-                    nindexes: stats.nindexes || indexes.length,
-                    totalIndexSize: stats.totalIndexSize || 0,
-                    indexSizes: stats.indexSizes || {}
+                    count: count,
+                    size: storageStats.size,
+                    storageSize: storageStats.storageSize,
+                    avgObjSize: storageStats.avgObjSize,
+                    nindexes: indexes.length,
+                    totalIndexSize: storageStats.totalIndexSize,
+                    indexSizes: {}
                 });
             } catch (err) {
+                console.log(`Error getting stats for collection ${coll.name}:`, err.message);
                 // Some system collections might not have stats
                 collectionStats.push({
                     name: coll.name,
@@ -2033,6 +2078,15 @@ app.get('/admin/mongodb-stats', protectAdmin, async (req, res) => {
         const totalDocuments = collectionStats.reduce((sum, c) => sum + c.count, 0);
         const totalIndexes = collectionStats.reduce((sum, c) => sum + c.nindexes, 0);
 
+        // Calculate storage usage
+        // MongoDB Atlas free tier: 512 MB, M2: 2 GB, M5: 5 GB, etc.
+        // You can set MONGODB_STORAGE_LIMIT_MB in .env for your tier
+        const storageLimitMB = parseInt(process.env.MONGODB_STORAGE_LIMIT_MB) || 512; // Default to free tier (512 MB)
+        const storageLimitBytes = storageLimitMB * 1024 * 1024;
+        const usedStorage = dbStats.dataSize + dbStats.indexSize;
+        const availableStorage = Math.max(0, storageLimitBytes - usedStorage);
+        const usagePercentage = Math.round((usedStorage / storageLimitBytes) * 100 * 100) / 100;
+
         res.json({
             success: true,
             stats: {
@@ -2046,6 +2100,13 @@ app.get('/admin/mongodb-stats', protectAdmin, async (req, res) => {
                     avgObjSize: dbStats.avgObjSize || 0,
                     objects: dbStats.objects,
                     indexes: totalIndexes
+                },
+                storage: {
+                    used: usedStorage,
+                    limit: storageLimitBytes,
+                    available: availableStorage,
+                    usagePercentage: usagePercentage,
+                    limitMB: storageLimitMB
                 },
                 collections: collectionStats,
                 server: {
