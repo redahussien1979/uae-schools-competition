@@ -6,6 +6,157 @@
 // Use API_URL from config.js (set globally)
 //const API_URL = window.API_URL || 'http://localhost:5000';
 
+// ========================================
+// CUSTOM MODAL FUNCTIONS (replaces alert/confirm)
+// ========================================
+
+let quizModalInstance = null;
+let quizModalResolve = null;
+
+/**
+ * Initialize the quiz modal
+ */
+function initQuizModal() {
+    const modalEl = document.getElementById('quizModal');
+    if (modalEl && !quizModalInstance) {
+        quizModalInstance = new bootstrap.Modal(modalEl);
+    }
+}
+
+/**
+ * Show a custom alert modal (replaces native alert)
+ * @param {string} message - The message to display
+ * @param {string} type - 'info', 'warning', 'danger', or 'success'
+ * @param {string} title - Optional custom title
+ * @returns {Promise} - Resolves when user clicks OK
+ */
+function showQuizAlert(message, type = 'info', title = null) {
+    return new Promise((resolve) => {
+        initQuizModal();
+
+        const iconEl = document.getElementById('quizModalIcon');
+        const titleEl = document.getElementById('quizModalLabel');
+        const messageEl = document.getElementById('quizModalMessage');
+        const cancelBtn = document.getElementById('quizModalCancelBtn');
+        const okBtn = document.getElementById('quizModalOkBtn');
+        const closeBtn = document.getElementById('quizModalCloseBtn');
+
+        // Set icon based on type
+        iconEl.className = 'modal-icon me-3';
+        let iconClass = 'bi-info-circle-fill text-primary';
+        if (type === 'warning') {
+            iconEl.classList.add('warning');
+            iconClass = 'bi-exclamation-triangle-fill';
+        } else if (type === 'danger') {
+            iconEl.classList.add('danger');
+            iconClass = 'bi-x-circle-fill';
+        } else if (type === 'success') {
+            iconEl.classList.add('success');
+            iconClass = 'bi-check-circle-fill';
+        }
+        iconEl.innerHTML = `<i class="bi ${iconClass} fs-2"></i>`;
+
+        // Set title
+        const defaultTitles = {
+            'info': currentLanguage === 'ar' ? 'تنبيه' : 'Notice',
+            'warning': currentLanguage === 'ar' ? 'تحذير' : 'Warning',
+            'danger': currentLanguage === 'ar' ? 'خطأ' : 'Error',
+            'success': currentLanguage === 'ar' ? 'نجاح' : 'Success'
+        };
+        titleEl.textContent = title || defaultTitles[type] || defaultTitles['info'];
+
+        // Set message
+        messageEl.textContent = message;
+
+        // Hide cancel button, show OK only
+        cancelBtn.classList.add('d-none');
+        closeBtn.classList.add('d-none');
+        okBtn.querySelector('span').textContent = currentLanguage === 'ar' ? 'موافق' : 'OK';
+
+        // Handle OK click
+        const handleOk = () => {
+            okBtn.removeEventListener('click', handleOk);
+            quizModalInstance.hide();
+            resolve(true);
+        };
+        okBtn.addEventListener('click', handleOk);
+
+        quizModalInstance.show();
+    });
+}
+
+/**
+ * Show a custom confirm modal (replaces native confirm)
+ * @param {string} message - The message to display
+ * @param {string} type - 'info', 'warning', 'danger', or 'success'
+ * @param {string} title - Optional custom title
+ * @returns {Promise<boolean>} - Resolves with true (OK) or false (Cancel)
+ */
+function showQuizConfirm(message, type = 'warning', title = null) {
+    return new Promise((resolve) => {
+        initQuizModal();
+
+        const iconEl = document.getElementById('quizModalIcon');
+        const titleEl = document.getElementById('quizModalLabel');
+        const messageEl = document.getElementById('quizModalMessage');
+        const cancelBtn = document.getElementById('quizModalCancelBtn');
+        const okBtn = document.getElementById('quizModalOkBtn');
+        const closeBtn = document.getElementById('quizModalCloseBtn');
+
+        // Set icon based on type
+        iconEl.className = 'modal-icon me-3';
+        let iconClass = 'bi-question-circle-fill text-primary';
+        if (type === 'warning') {
+            iconEl.classList.add('warning');
+            iconClass = 'bi-exclamation-triangle-fill';
+        } else if (type === 'danger') {
+            iconEl.classList.add('danger');
+            iconClass = 'bi-x-circle-fill';
+        } else if (type === 'success') {
+            iconEl.classList.add('success');
+            iconClass = 'bi-check-circle-fill';
+        }
+        iconEl.innerHTML = `<i class="bi ${iconClass} fs-2"></i>`;
+
+        // Set title
+        const defaultTitle = currentLanguage === 'ar' ? 'تأكيد' : 'Confirm';
+        titleEl.textContent = title || defaultTitle;
+
+        // Set message
+        messageEl.textContent = message;
+
+        // Show cancel button
+        cancelBtn.classList.remove('d-none');
+        closeBtn.classList.add('d-none');
+        cancelBtn.querySelector('span').textContent = currentLanguage === 'ar' ? 'إلغاء' : 'Cancel';
+        okBtn.querySelector('span').textContent = currentLanguage === 'ar' ? 'موافق' : 'OK';
+
+        // Handle OK click
+        const handleOk = () => {
+            cleanup();
+            quizModalInstance.hide();
+            resolve(true);
+        };
+
+        // Handle Cancel click
+        const handleCancel = () => {
+            cleanup();
+            quizModalInstance.hide();
+            resolve(false);
+        };
+
+        const cleanup = () => {
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+        };
+
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+
+        quizModalInstance.show();
+    });
+}
+
 let currentQuizData = {
     subject: '',
     questions: [],
@@ -62,7 +213,7 @@ const MAX_HIDDEN_TIME = 60; // Maximum 60 seconds page can be hidden
 const MAX_FOCUS_LOSS = 3; // Maximum focus losses allowed
 
 // Start quiz when page loads
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', async function() {
     checkAuth();
     const urlParams = new URLSearchParams(window.location.search);
     const subject = urlParams.get('subject');
@@ -70,7 +221,10 @@ window.addEventListener('DOMContentLoaded', function() {
     if (subject) {
         loadQuiz(subject);
     } else {
-        alert('No subject selected');
+        await showQuizAlert(
+            currentLanguage === 'ar' ? 'لم يتم اختيار مادة' : 'No subject selected',
+            'warning'
+        );
         window.location.href = 'dashboard.html';
     }
 });
@@ -137,13 +291,19 @@ async function loadQuiz(subject) {
             lastActivityTime = Date.now();
 
         } else {
-            alert(data.message || 'Failed to load quiz');
+            await showQuizAlert(
+                data.message || (currentLanguage === 'ar' ? 'فشل في تحميل الاختبار' : 'Failed to load quiz'),
+                'danger'
+            );
             window.location.href = 'dashboard.html';
         }
     } catch (error) {
         showLoading(false);
         console.error('Load quiz error:', error);
-        alert('Failed to load quiz. Please try again.');
+        await showQuizAlert(
+            currentLanguage === 'ar' ? 'فشل في تحميل الاختبار. حاول مرة أخرى.' : 'Failed to load quiz. Please try again.',
+            'danger'
+        );
     }
 }
 
@@ -434,7 +594,10 @@ function startTimer(seconds) {
         // Warning when 1 minute left
         if (timeRemaining === 60) {
             timerEl.classList.add('timer-warning');
-            alert(currentLanguage === 'ar' ? 'دقيقة واحدة متبقية!' : 'Only 1 minute remaining!');
+            showQuizAlert(
+                currentLanguage === 'ar' ? 'دقيقة واحدة متبقية!' : 'Only 1 minute remaining!',
+                'warning'
+            );
         }
 
         timeRemaining--;
@@ -523,7 +686,7 @@ function startActivityMonitoring() {
     document.addEventListener('scroll', resetActivityTimer);
 
     // Check for idle every 30 seconds
-    idleCheckInterval = setInterval(() => {
+    idleCheckInterval = setInterval(async () => {
         const idleTime = Math.floor((Date.now() - lastActivityTime) / 1000);
 
         if (idleTime > MAX_IDLE_TIME) {
@@ -531,7 +694,7 @@ function startActivityMonitoring() {
             const msg = currentLanguage === 'ar'
                 ? 'تم إرسال الاختبار تلقائياً بسبب عدم النشاط'
                 : 'Quiz auto-submitted due to inactivity';
-            alert(msg);
+            await showQuizAlert(msg, 'warning');
             submitQuiz(true);
         } else if (idleTime > MAX_IDLE_TIME - 60) {
             // Warning 1 minute before auto-submit
@@ -566,7 +729,8 @@ async function submitQuiz(autoSubmit = false) {
             ? 'هل أنت متأكد من إنهاء الاختبار؟'
             : 'Are you sure you want to submit?';
 
-        if (!confirm(confirmMsg)) {
+        const confirmed = await showQuizConfirm(confirmMsg, 'info');
+        if (!confirmed) {
             isSubmitting = false; // Reset flag if cancelled
             return;
         }
@@ -622,12 +786,18 @@ async function submitQuiz(autoSubmit = false) {
             // Redirect to results page
             window.location.href = `results.html?subject=${currentQuizData.subject}`;
         } else {
-            alert(data.message || 'Failed to submit quiz');
+            await showQuizAlert(
+                data.message || (currentLanguage === 'ar' ? 'فشل في إرسال الاختبار' : 'Failed to submit quiz'),
+                'danger'
+            );
         }
     } catch (error) {
         showLoading(false);
         console.error('Submit quiz error:', error);
-        alert('Failed to submit quiz. Please try again.');
+        await showQuizAlert(
+            currentLanguage === 'ar' ? 'فشل في إرسال الاختبار. حاول مرة أخرى.' : 'Failed to submit quiz. Please try again.',
+            'danger'
+        );
     }
 }
 
@@ -665,8 +835,7 @@ document.addEventListener('visibilitychange', function() {
                 const msg = currentLanguage === 'ar'
                     ? 'تم إرسال الاختبار تلقائياً بسبب الوقت الطويل بعيداً عن الصفحة'
                     : 'Quiz auto-submitted due to excessive time away from page';
-                alert(msg);
-                submitQuiz(true);
+                showQuizAlert(msg, 'warning').then(() => submitQuiz(true));
             } else {
                 resumeQuizTimer();
                 const msg = currentLanguage === 'ar'
@@ -697,8 +866,7 @@ window.addEventListener('blur', function() {
         const msg = currentLanguage === 'ar'
             ? 'تم اكتشاف العديد من حالات فقدان التركيز. سيتم إرسال الاختبار تلقائياً'
             : 'Too many focus losses detected. Quiz will be auto-submitted';
-        alert(msg);
-        submitQuiz(true);
+        showQuizAlert(msg, 'danger').then(() => submitQuiz(true));
     } else {
         const msg = currentLanguage === 'ar'
             ? `تحذير: فقدان التركيز ${focusLostCount}/${MAX_FOCUS_LOSS} مرات`
