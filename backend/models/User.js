@@ -27,6 +27,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        default: ''
+    },
     // Best scores for each subject
     bestScores: {
         math: { type: Number, default: 0 },

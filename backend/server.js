@@ -1240,6 +1240,102 @@ app.get('/admin/users', protectAdmin, async (req, res) => {
 });
 
 // ========================================
+// UPDATE USER (ADMIN ONLY)
+// ========================================
+app.put('/admin/users/:id', protectAdmin, async (req, res) => {
+    try {
+        const { fullName, username, email, grade, school, password } = req.body;
+
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Check if new username is already taken by another user
+        if (username && username.toLowerCase() !== user.username) {
+            const existingUser = await User.findOne({
+                username: username.toLowerCase(),
+                _id: { $ne: req.params.id }
+            });
+            if (existingUser) {
+                return res.json({
+                    success: false,
+                    message: 'Username already taken'
+                });
+            }
+        }
+
+        // Update fields
+        if (fullName) user.fullName = fullName;
+        if (username) user.username = username.toLowerCase();
+        if (email !== undefined) user.email = email;
+        if (grade) user.grade = parseInt(grade);
+        if (school) user.school = school;
+        if (password && password.length >= 6) user.password = password;
+
+        await user.save();
+
+        res.json({
+            success: true,
+            message: 'User updated successfully',
+            user: {
+                _id: user._id,
+                fullName: user.fullName,
+                username: user.username,
+                email: user.email,
+                grade: user.grade,
+                school: user.school
+            }
+        });
+
+    } catch (error) {
+        console.error('Update user error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to update user'
+        });
+    }
+});
+
+// ========================================
+// DELETE USER (ADMIN ONLY)
+// ========================================
+app.delete('/admin/users/:id', protectAdmin, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Also delete user's quiz attempts
+        await QuizAttempt.deleteMany({ user: req.params.id });
+
+        // Delete the user
+        await User.findByIdAndDelete(req.params.id);
+
+        res.json({
+            success: true,
+            message: 'User deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Delete user error:', error);
+        res.json({
+            success: false,
+            message: 'Failed to delete user'
+        });
+    }
+});
+
+// ========================================
 // GET ALL QUIZ ATTEMPTS (ADMIN ONLY)
 // ========================================
 app.get('/admin/attempts', protectAdmin, async (req, res) => {
