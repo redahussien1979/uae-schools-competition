@@ -89,6 +89,8 @@ function showSection(section, event) {
         populateViewParagraphFilter();
     } else if (section === 'analytics') {
         loadAnalytics();
+    } else if (section === 'mongodb') {
+        loadMongoDBStats();
     }
 }
 
@@ -129,6 +131,226 @@ async function loadStatistics() {
     } catch (error) {
         console.error('Load stats error:', error);
     }
+}
+
+// ========================================
+// MONGODB STATISTICS
+// ========================================
+async function loadMongoDBStats() {
+    const token = checkAdminAuth();
+
+    try {
+        const response = await fetch(`${API_URL}/admin/mongodb-stats`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            displayMongoDBStats(data.stats);
+        } else {
+            console.error('Failed to load MongoDB stats:', data.message);
+            displayMongoDBError(data.message || 'Failed to load statistics');
+        }
+    } catch (error) {
+        console.error('Load MongoDB stats error:', error);
+        displayMongoDBError('Error connecting to server');
+    }
+}
+
+// Format bytes to human readable
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0 || bytes === undefined || isNaN(bytes)) return '0 B';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+// Format uptime
+function formatUptime(seconds) {
+    if (!seconds || seconds === 0) return 'N/A';
+
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    let result = '';
+    if (days > 0) result += `${days}d `;
+    if (hours > 0) result += `${hours}h `;
+    result += `${minutes}m`;
+
+    return result.trim();
+}
+
+// Display MongoDB statistics
+function displayMongoDBStats(stats) {
+    // Update overview cards
+    document.getElementById('mongo-db-size').textContent = formatBytes(stats.database.dataSize);
+    document.getElementById('mongo-storage-size').textContent = formatBytes(stats.database.storageSize);
+    document.getElementById('mongo-collections').textContent = stats.database.collections || 0;
+    document.getElementById('mongo-documents').textContent = (stats.database.objects || 0).toLocaleString();
+
+    // Update index info
+    document.getElementById('mongo-indexes').textContent = stats.database.indexes || 0;
+    document.getElementById('mongo-index-size').textContent = formatBytes(stats.database.indexSize);
+    document.getElementById('mongo-avg-obj-size').textContent = formatBytes(stats.database.avgObjSize);
+
+    // Display collections table
+    displayCollectionsTable(stats.collections);
+
+    // Display server info
+    displayServerInfo(stats.server);
+
+    // Display connection info
+    displayConnectionInfo(stats.connection);
+}
+
+// Display collections table
+function displayCollectionsTable(collections) {
+    const tbody = document.getElementById('mongoCollectionsTableBody');
+
+    if (!collections || collections.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                    No collections found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    let html = '';
+    collections.forEach(coll => {
+        html += `
+            <tr>
+                <td class="px-4 py-3">
+                    <i class="bi bi-collection text-success me-2"></i>
+                    ${coll.name}
+                </td>
+                <td class="px-4 py-3">
+                    <strong>${(coll.count || 0).toLocaleString()}</strong>
+                </td>
+                <td class="px-4 py-3">
+                    <span class="mongo-size-badge">${formatBytes(coll.size)}</span>
+                </td>
+                <td class="px-4 py-3">
+                    ${formatBytes(coll.storageSize)}
+                </td>
+                <td class="px-4 py-3">
+                    ${formatBytes(coll.avgObjSize)}
+                </td>
+                <td class="px-4 py-3">
+                    <span class="index-badge">${coll.nindexes}</span>
+                </td>
+                <td class="px-4 py-3">
+                    ${formatBytes(coll.totalIndexSize)}
+                </td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
+}
+
+// Display server info
+function displayServerInfo(server) {
+    const tbody = document.getElementById('mongoServerInfo');
+
+    tbody.innerHTML = `
+        <tr>
+            <td>MongoDB Version</td>
+            <td><span class="badge bg-success">${server.version || 'N/A'}</span></td>
+        </tr>
+        <tr>
+            <td>Host</td>
+            <td>${server.host || 'N/A'}</td>
+        </tr>
+        <tr>
+            <td>Uptime</td>
+            <td>${formatUptime(server.uptime)}</td>
+        </tr>
+        <tr>
+            <td>Server Time</td>
+            <td>${server.localTime ? new Date(server.localTime).toLocaleString() : 'N/A'}</td>
+        </tr>
+    `;
+}
+
+// Display connection info
+function displayConnectionInfo(connection) {
+    const tbody = document.getElementById('mongoConnectionInfo');
+
+    const statusColors = {
+        'Connected': 'success',
+        'Connecting': 'warning',
+        'Disconnected': 'danger',
+        'Disconnecting': 'warning'
+    };
+
+    const statusColor = statusColors[connection.readyStateText] || 'secondary';
+
+    tbody.innerHTML = `
+        <tr>
+            <td>Status</td>
+            <td><span class="badge bg-${statusColor}">${connection.readyStateText || 'Unknown'}</span></td>
+        </tr>
+        <tr>
+            <td>Database</td>
+            <td>${connection.databaseName || 'N/A'}</td>
+        </tr>
+        <tr>
+            <td>Host</td>
+            <td>${connection.host || 'N/A'}</td>
+        </tr>
+        <tr>
+            <td>Active Connections</td>
+            <td>${connection.current || 'N/A'}</td>
+        </tr>
+        <tr>
+            <td>Available Connections</td>
+            <td>${connection.available || 'N/A'}</td>
+        </tr>
+    `;
+}
+
+// Display error message
+function displayMongoDBError(message) {
+    // Update cards with error state
+    document.getElementById('mongo-db-size').textContent = '-';
+    document.getElementById('mongo-storage-size').textContent = '-';
+    document.getElementById('mongo-collections').textContent = '-';
+    document.getElementById('mongo-documents').textContent = '-';
+    document.getElementById('mongo-indexes').textContent = '-';
+    document.getElementById('mongo-index-size').textContent = '-';
+    document.getElementById('mongo-avg-obj-size').textContent = '-';
+
+    // Update collections table
+    document.getElementById('mongoCollectionsTableBody').innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center py-5 text-danger">
+                <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+                <p class="mt-3">${message}</p>
+            </td>
+        </tr>
+    `;
+
+    // Update server info
+    document.getElementById('mongoServerInfo').innerHTML = `
+        <tr><td colspan="2" class="text-center text-danger">${message}</td></tr>
+    `;
+
+    // Update connection info
+    document.getElementById('mongoConnectionInfo').innerHTML = `
+        <tr><td colspan="2" class="text-center text-danger">${message}</td></tr>
+    `;
 }
 
 // Display questions by subject
