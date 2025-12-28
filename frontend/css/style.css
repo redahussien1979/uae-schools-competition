@@ -49,11 +49,37 @@ body[dir="rtl"] {
 
 .navbar-brand {
     font-size: 1.2rem;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, color 0.3s ease;
+    cursor: pointer;
 }
 
 .navbar-brand:hover {
     transform: scale(1.05);
+}
+
+.navbar-brand span {
+    color: #212529;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.navbar-brand span::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.navbar-brand:hover span {
+    color: var(--primary-color);
+}
+
+.navbar-brand:hover span::after {
+    width: 100%;
 }
 
 /* ===== UAE Animated Balls ===== */
