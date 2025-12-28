@@ -202,6 +202,9 @@ function displayMongoDBStats(stats) {
     document.getElementById('mongo-index-size').textContent = formatBytes(stats.database.indexSize);
     document.getElementById('mongo-avg-obj-size').textContent = formatBytes(stats.database.avgObjSize);
 
+    // Display storage usage
+    displayStorageUsage(stats.storage);
+
     // Display collections table
     displayCollectionsTable(stats.collections);
 
@@ -210,6 +213,47 @@ function displayMongoDBStats(stats) {
 
     // Display connection info
     displayConnectionInfo(stats.connection);
+}
+
+// Display storage usage
+function displayStorageUsage(storage) {
+    if (!storage) return;
+
+    const usagePercent = storage.usagePercentage || 0;
+
+    // Update progress bar
+    const usageBar = document.getElementById('mongo-usage-bar');
+    usageBar.style.width = `${Math.min(usagePercent, 100)}%`;
+    usageBar.setAttribute('aria-valuenow', usagePercent);
+
+    // Change color based on usage
+    usageBar.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+    if (usagePercent >= 90) {
+        usageBar.classList.add('bg-danger');
+    } else if (usagePercent >= 70) {
+        usageBar.classList.add('bg-warning');
+    } else {
+        usageBar.classList.add('bg-success');
+    }
+
+    // Update text
+    document.getElementById('mongo-usage-percent').textContent = `${usagePercent}%`;
+    document.getElementById('mongo-usage-display').textContent = `${usagePercent}%`;
+
+    // Update usage display color
+    const usageDisplay = document.getElementById('mongo-usage-display');
+    if (usagePercent >= 90) {
+        usageDisplay.style.color = '#dc3545';
+    } else if (usagePercent >= 70) {
+        usageDisplay.style.color = '#ffc107';
+    } else {
+        usageDisplay.style.color = '#13aa52';
+    }
+
+    // Update sizes
+    document.getElementById('mongo-used-size').textContent = formatBytes(storage.used);
+    document.getElementById('mongo-available-size').textContent = formatBytes(storage.available);
+    document.getElementById('mongo-limit-size').textContent = `${storage.limitMB} MB`;
 }
 
 // Display collections table
