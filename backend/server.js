@@ -55,37 +55,38 @@ app.get('/', (req, res) => {
 // ========================================
 app.post('/register', async (req, res) => {
     try {
-        const { username, password, fullName, grade, school } = req.body;
-        
+        const { username, password, fullName, email, grade, school } = req.body;
+
         // Validation
         if (!username || !password || !fullName || !grade || !school) {
-            return res.json({ 
-                success: false, 
-                message: 'Please provide all fields' 
+            return res.json({
+                success: false,
+                message: 'Please provide all fields'
             });
         }
 
         if (password.length < 6) {
-            return res.json({ 
-                success: false, 
-                message: 'Password must be at least 6 characters' 
+            return res.json({
+                success: false,
+                message: 'Password must be at least 6 characters'
             });
         }
-        
+
         // Check if username already exists
         const existingUser = await User.findOne({ username: username.toLowerCase() });
         if (existingUser) {
-            return res.json({ 
-                success: false, 
-                message: 'Username already taken' 
+            return res.json({
+                success: false,
+                message: 'Username already taken'
             });
         }
-        
+
         // Create new user (password will be hashed automatically)
-        const user = await User.create({ 
+        const user = await User.create({
             username: username.toLowerCase(),
             password,
             fullName,
+            email: email || '',
             grade: parseInt(grade),
             school
         });
