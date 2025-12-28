@@ -284,30 +284,36 @@ function displayQuestionsBreakdown(data, arabicParagraphData) {
 async function loadUsers(page = 1) {
     const token = checkAdminAuth();
     const tbody = document.getElementById('usersTableBody');
-    
+
     // Show loading
     if (page === 1) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center py-4">
+                <td colspan="9" class="text-center py-4">
                     <div class="spinner-border text-primary" role="status"></div>
                 </td>
             </tr>
         `;
     }
-    
+
     try {
         const response = await fetch(`${API_URL}/admin/users?page=${page}&limit=50`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
-            displayUsers(data.users, page === 1);
-            
+            // Update total users count
+            const totalUsersCount = document.getElementById('totalUsersCount');
+            if (totalUsersCount) {
+                totalUsersCount.textContent = data.pagination.totalUsers;
+            }
+
+            displayUsers(data.users, page === 1, page);
+
             // Update load more button
             const loadMoreBtn = document.getElementById('loadMoreUsers');
             if (data.pagination.currentPage >= data.pagination.totalPages) {
@@ -315,14 +321,14 @@ async function loadUsers(page = 1) {
             } else {
                 loadMoreBtn.style.display = 'block';
             }
-            
+
             currentPage.users = page;
         }
     } catch (error) {
         console.error('Load users error:', error);
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center py-4 text-danger">
+                <td colspan="9" class="text-center py-4 text-danger">
                     Failed to load users
                 </td>
             </tr>
@@ -331,51 +337,76 @@ async function loadUsers(page = 1) {
 }
 
 // Display users
-function displayUsers(users, replace = true) {
+function displayUsers(users, replace = true, page = 1) {
     const tbody = document.getElementById('usersTableBody');
-    
+
     if (users.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center py-4 text-muted">
+                <td colspan="9" class="text-center py-4 text-muted">
                     No users found
                 </td>
             </tr>
         `;
         return;
     }
-    
+
     let html = '';
-    
-    users.forEach(user => {
+    const startSerial = (page - 1) * 50;
+
+    users.forEach((user, index) => {
         const joinDate = new Date(user.createdAt).toLocaleDateString();
         const percentage = Math.round((user.totalBestScore / 40) * 100);
-        
+        const serialNumber = startSerial + index + 1;
+        const email = user.email || '-';
+        const userDataStr = encodeURIComponent(JSON.stringify({
+            _id: user._id,
+            fullName: user.fullName,
+            username: user.username,
+            email: user.email || '',
+            grade: user.grade,
+            school: user.school
+        }));
+
         html += `
             <tr>
-                <td class="px-4 py-3">
+                <td class="px-3 py-3 text-muted">
+                    ${serialNumber}
+                </td>
+                <td class="px-3 py-3">
                     <strong>${user.fullName}</strong>
                 </td>
-                <td class="px-4 py-3">
+                <td class="px-3 py-3">
                     <code>${user.username}</code>
                 </td>
-                <td class="px-4 py-3">
+                <td class="px-3 py-3">
+                    <small>${email}</small>
+                </td>
+                <td class="px-3 py-3">
                     <span class="badge bg-primary">Grade ${user.grade}</span>
                 </td>
-                <td class="px-4 py-3">
+                <td class="px-3 py-3">
                     ${user.school}
                 </td>
-                <td class="px-4 py-3">
+                <td class="px-3 py-3">
                     <strong class="text-success">${percentage}%</strong>
                     <small class="text-muted">(${user.totalBestScore}/40)</small>
                 </td>
-                <td class="px-4 py-3">
+                <td class="px-3 py-3">
                     <small class="text-muted">${joinDate}</small>
+                </td>
+                <td class="px-3 py-3 text-center">
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUserModal('${userDataStr}')" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="openDeleteUserModal('${user._id}', '${user.fullName.replace(/'/g, "\\'")}')" title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </td>
             </tr>
         `;
     });
-    
+
     if (replace) {
         tbody.innerHTML = html;
     } else {
@@ -402,29 +433,150 @@ function searchUsers() {
 async function loadUsersWithSearch(search) {
     const token = checkAdminAuth();
     const tbody = document.getElementById('usersTableBody');
-    
+
     tbody.innerHTML = `
         <tr>
-            <td colspan="6" class="text-center py-4">
+            <td colspan="9" class="text-center py-4">
                 <div class="spinner-border text-primary" role="status"></div>
             </td>
         </tr>
     `;
-    
+
     try {
         const response = await fetch(`${API_URL}/admin/users?search=${search}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
-            displayUsers(data.users);
+            // Update total users count for search results
+            const totalUsersCount = document.getElementById('totalUsersCount');
+            if (totalUsersCount) {
+                totalUsersCount.textContent = data.pagination.totalUsers;
+            }
+            displayUsers(data.users, true, 1);
         }
     } catch (error) {
         console.error('Search users error:', error);
+    }
+}
+
+// ========================================
+// USER MANAGEMENT FUNCTIONS (EDIT/DELETE)
+// ========================================
+
+// Open edit user modal
+function openEditUserModal(userDataStr) {
+    const userData = JSON.parse(decodeURIComponent(userDataStr));
+
+    document.getElementById('editUserId').value = userData._id;
+    document.getElementById('editFullName').value = userData.fullName;
+    document.getElementById('editUsername').value = userData.username;
+    document.getElementById('editEmail').value = userData.email || '';
+    document.getElementById('editGrade').value = userData.grade;
+    document.getElementById('editSchool').value = userData.school;
+    document.getElementById('editPassword').value = '';
+
+    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+    modal.show();
+}
+
+// Save user changes
+async function saveUserChanges() {
+    const token = checkAdminAuth();
+    const userId = document.getElementById('editUserId').value;
+    const fullName = document.getElementById('editFullName').value.trim();
+    const username = document.getElementById('editUsername').value.trim();
+    const email = document.getElementById('editEmail').value.trim();
+    const grade = document.getElementById('editGrade').value;
+    const school = document.getElementById('editSchool').value.trim();
+    const password = document.getElementById('editPassword').value;
+
+    if (!fullName || !username || !grade || !school) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    const updateData = { fullName, username, email, grade, school };
+    if (password && password.length >= 6) {
+        updateData.password = password;
+    } else if (password && password.length > 0 && password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updateData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+            modal.hide();
+
+            // Reload users list
+            loadUsers(1);
+
+            alert('User updated successfully!');
+        } else {
+            alert(data.message || 'Failed to update user');
+        }
+    } catch (error) {
+        console.error('Update user error:', error);
+        alert('Failed to update user');
+    }
+}
+
+// Open delete user modal
+function openDeleteUserModal(userId, fullName) {
+    document.getElementById('deleteUserId').value = userId;
+    document.getElementById('deleteUserName').textContent = fullName;
+
+    const modal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
+    modal.show();
+}
+
+// Confirm delete user
+async function confirmDeleteUser() {
+    const token = checkAdminAuth();
+    const userId = document.getElementById('deleteUserId').value;
+
+    try {
+        const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteUserModal'));
+            modal.hide();
+
+            // Reload users list
+            loadUsers(1);
+
+            alert('User deleted successfully!');
+        } else {
+            alert(data.message || 'Failed to delete user');
+        }
+    } catch (error) {
+        console.error('Delete user error:', error);
+        alert('Failed to delete user');
     }
 }
 
