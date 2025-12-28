@@ -1965,6 +1965,122 @@ app.post('/admin/paragraph-probability', protectAdmin, (req, res) => {
 
 
 // ========================================
+// MONGODB STATISTICS (ADMIN ONLY)
+// ========================================
+app.get('/admin/mongodb-stats', protectAdmin, async (req, res) => {
+    try {
+        const db = mongoose.connection.db;
+        const admin = db.admin();
+
+        // Get database statistics
+        const dbStats = await db.stats();
+
+        // Get server status (for connection info)
+        let serverStatus = {};
+        try {
+            serverStatus = await admin.serverStatus();
+        } catch (err) {
+            // serverStatus may not be available on all MongoDB instances (e.g., Atlas free tier)
+            console.log('serverStatus not available:', err.message);
+        }
+
+        // Get build info
+        let buildInfo = {};
+        try {
+            buildInfo = await admin.buildInfo();
+        } catch (err) {
+            console.log('buildInfo not available:', err.message);
+        }
+
+        // Get all collections with their stats
+        const collections = await db.listCollections().toArray();
+        const collectionStats = [];
+
+        for (const coll of collections) {
+            try {
+                const stats = await db.collection(coll.name).stats();
+                const indexes = await db.collection(coll.name).indexes();
+
+                collectionStats.push({
+                    name: coll.name,
+                    count: stats.count || 0,
+                    size: stats.size || 0,
+                    storageSize: stats.storageSize || 0,
+                    avgObjSize: stats.avgObjSize || 0,
+                    nindexes: stats.nindexes || indexes.length,
+                    totalIndexSize: stats.totalIndexSize || 0,
+                    indexSizes: stats.indexSizes || {}
+                });
+            } catch (err) {
+                // Some system collections might not have stats
+                collectionStats.push({
+                    name: coll.name,
+                    count: 0,
+                    size: 0,
+                    storageSize: 0,
+                    avgObjSize: 0,
+                    nindexes: 0,
+                    totalIndexSize: 0,
+                    indexSizes: {}
+                });
+            }
+        }
+
+        // Sort collections by size (largest first)
+        collectionStats.sort((a, b) => b.size - a.size);
+
+        // Calculate totals
+        const totalDocuments = collectionStats.reduce((sum, c) => sum + c.count, 0);
+        const totalIndexes = collectionStats.reduce((sum, c) => sum + c.nindexes, 0);
+
+        res.json({
+            success: true,
+            stats: {
+                database: {
+                    name: dbStats.db,
+                    collections: dbStats.collections,
+                    dataSize: dbStats.dataSize,
+                    storageSize: dbStats.storageSize,
+                    indexSize: dbStats.indexSize,
+                    totalSize: dbStats.dataSize + dbStats.indexSize,
+                    avgObjSize: dbStats.avgObjSize || 0,
+                    objects: dbStats.objects,
+                    indexes: totalIndexes
+                },
+                collections: collectionStats,
+                server: {
+                    version: buildInfo.version || 'N/A',
+                    gitVersion: buildInfo.gitVersion ? buildInfo.gitVersion.substring(0, 10) : 'N/A',
+                    platform: buildInfo.allocator || 'N/A',
+                    host: serverStatus.host || mongoose.connection.host || 'N/A',
+                    uptime: serverStatus.uptime || 0,
+                    uptimeEstimate: serverStatus.uptimeEstimate || 0,
+                    localTime: serverStatus.localTime || new Date()
+                },
+                connection: {
+                    current: serverStatus.connections?.current || 'N/A',
+                    available: serverStatus.connections?.available || 'N/A',
+                    totalCreated: serverStatus.connections?.totalCreated || 'N/A',
+                    readyState: mongoose.connection.readyState,
+                    readyStateText: ['Disconnected', 'Connected', 'Connecting', 'Disconnecting'][mongoose.connection.readyState],
+                    host: mongoose.connection.host,
+                    port: mongoose.connection.port,
+                    databaseName: mongoose.connection.name
+                }
+            }
+        });
+    } catch (error) {
+        console.error('MongoDB stats error:', error);
+        res.json({
+            success: false,
+            message: 'Error fetching MongoDB statistics',
+            error: error.message
+        });
+    }
+});
+
+
+// ========================================
 // MIGRATE GRADE TO GRADES (ADMIN ONLY) - ONE-TIME MIGRATION
 // ========================================
 app.post('/admin/migrate-grades', protectAdmin, async (req, res) => {

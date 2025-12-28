@@ -512,6 +512,85 @@
     font-size: 1.1rem;
 }
 
+/* ========================================
+   MONGODB STATS STYLES
+   ======================================== */
+
+/* MongoDB Card Styling */
+.mongodb-card {
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+}
+
+.mongodb-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(19, 170, 82, 0.15) !important;
+}
+
+/* MongoDB Section Header */
+#mongodb-section h3 {
+    color: #13aa52;
+}
+
+/* Collections Table */
+#mongoCollectionsTableBody tr:hover {
+    background-color: rgba(19, 170, 82, 0.08);
+}
+
+#mongodb-section .table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: #13aa52;
+    background-color: rgba(19, 170, 82, 0.05);
+}
+
+/* Server Info Tables */
+#mongoServerInfo tr:nth-child(odd),
+#mongoConnectionInfo tr:nth-child(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+#mongoServerInfo td:first-child,
+#mongoConnectionInfo td:first-child {
+    font-weight: 600;
+    color: #495057;
+    width: 40%;
+}
+
+#mongoServerInfo td:last-child,
+#mongoConnectionInfo td:last-child {
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+}
+
+/* MongoDB Size Badges */
+.mongo-size-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    background: linear-gradient(135deg, #13aa52 0%, #00684a 100%);
+    color: white;
+}
+
+/* Collection Name Styling */
+#mongoCollectionsTableBody td:first-child {
+    font-weight: 600;
+    color: #13aa52;
+}
+
+/* Index Count Badge */
+.index-badge {
+    background: linear-gradient(135deg, #6c8eff 0%, #8e7cc3 100%);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+}
+
     </style>
 </head>
 <body>
@@ -551,6 +630,10 @@
                         <a class="nav-link" href="#" onclick="showSection('viewquestions', event)">
                             <i class="bi bi-eye me-2"></i>
                             View Questions
+                        </a>
+                        <a class="nav-link" href="#" onclick="showSection('mongodb', event)">
+                            <i class="bi bi-database me-2"></i>
+                            MongoDB Stats
                         </a>
                         <hr class="bg-white">
                         <a class="nav-link" href="#" onclick="adminLogout()">
@@ -1300,7 +1383,197 @@
     </div>
 </div>
 
+<!-- MongoDB Stats Section -->
+<div id="mongodb-section" class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">
+            <i class="bi bi-database me-2"></i>
+            MongoDB Statistics
+        </h3>
+        <button class="btn btn-outline-primary" onclick="loadMongoDBStats()">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Refresh Stats
+        </button>
+    </div>
 
+    <!-- Database Overview -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card stat-card border-0 shadow-sm mongodb-card" style="border-color: #13aa52 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Database Size</p>
+                            <h3 class="fw-bold mb-0" id="mongo-db-size">-</h3>
+                        </div>
+                        <i class="bi bi-hdd-fill text-success" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card stat-card border-0 shadow-sm mongodb-card" style="border-color: #00684a !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Storage Size</p>
+                            <h3 class="fw-bold mb-0" id="mongo-storage-size">-</h3>
+                        </div>
+                        <i class="bi bi-device-hdd-fill" style="font-size: 2.5rem; color: #00684a;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card stat-card border-0 shadow-sm mongodb-card" style="border-color: #116149 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Collections</p>
+                            <h3 class="fw-bold mb-0" id="mongo-collections">-</h3>
+                        </div>
+                        <i class="bi bi-collection-fill" style="font-size: 2.5rem; color: #116149;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card stat-card border-0 shadow-sm mongodb-card" style="border-color: #3d8c61 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Documents</p>
+                            <h3 class="fw-bold mb-0" id="mongo-documents">-</h3>
+                        </div>
+                        <i class="bi bi-file-earmark-text-fill" style="font-size: 2.5rem; color: #3d8c61;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Index Info -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-4">
+            <div class="card stat-card border-0 shadow-sm mongodb-card" style="border-color: #6c8eff !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Indexes</p>
+                            <h3 class="fw-bold mb-0" id="mongo-indexes">-</h3>
+                        </div>
+                        <i class="bi bi-list-nested text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+            <div class="card stat-card border-0 shadow-sm mongodb-card" style="border-color: #8e7cc3 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Index Size</p>
+                            <h3 class="fw-bold mb-0" id="mongo-index-size">-</h3>
+                        </div>
+                        <i class="bi bi-bar-chart-steps" style="font-size: 2.5rem; color: #8e7cc3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+            <div class="card stat-card border-0 shadow-sm mongodb-card" style="border-color: #f39c12 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Avg Object Size</p>
+                            <h3 class="fw-bold mb-0" id="mongo-avg-obj-size">-</h3>
+                        </div>
+                        <i class="bi bi-rulers text-warning" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collections Table -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-success text-white py-3">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-table me-2"></i>
+                Collections Details
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3">Collection Name</th>
+                            <th class="px-4 py-3">Documents</th>
+                            <th class="px-4 py-3">Data Size</th>
+                            <th class="px-4 py-3">Storage Size</th>
+                            <th class="px-4 py-3">Avg Doc Size</th>
+                            <th class="px-4 py-3">Indexes</th>
+                            <th class="px-4 py-3">Index Size</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mongoCollectionsTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <div class="spinner-border text-success" role="status"></div>
+                                <p class="mt-3">Loading MongoDB statistics...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Info -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-server me-2"></i>
+                        Server Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tbody id="mongoServerInfo">
+                            <tr><td colspan="2" class="text-center text-muted">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-speedometer2 me-2"></i>
+                        Connection Info
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tbody id="mongoConnectionInfo">
+                            <tr><td colspan="2" class="text-center text-muted">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
