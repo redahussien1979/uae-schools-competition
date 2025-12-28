@@ -32,6 +32,9 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     transition: all 0.3s ease;
+    /* Sticky footer: flex container pushes footer to bottom */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Arabic Font */
@@ -247,6 +250,8 @@ body[dir="rtl"] {
 footer {
     background-color: rgba(255, 255, 255, 0.95) !important;
     border-top: 2px solid var(--primary-color);
+    /* Sticky footer: push to bottom when content is short */
+    margin-top: auto;
 }
 
 /* ===== Animations ===== */
