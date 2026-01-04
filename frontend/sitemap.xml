@@ -3,116 +3,141 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
-    <!-- Homepage - Highest Priority -->
+    <!--
+        مسابقة المدارس الإماراتية - UAE Schools Competition Sitemap
+        خريطة موقع مسابقة المدارس الإماراتية
+        Last Updated: 2026-01-04
+    -->
+
+    <!-- الصفحة الرئيسية | Homepage - Highest Priority -->
     <url>
         <loc>https://www.uaeschoolcup.com/</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/"/>
+        <image:image>
+            <image:loc>https://www.uaeschoolcup.com/images/logo.png</image:loc>
+            <image:title>مسابقة المدارس الإماراتية | UAE Schools Competition Logo</image:title>
+        </image:image>
+        <image:image>
+            <image:loc>https://www.uaeschoolcup.com/images/flag3.png</image:loc>
+            <image:title>علم الإمارات | UAE Flag - Educational Competition</image:title>
+        </image:image>
     </url>
 
-    <!-- Registration Page - High Priority (Conversion) -->
+    <!-- صفحة التسجيل | Registration Page - High Priority (Conversion) -->
     <url>
         <loc>https://www.uaeschoolcup.com/register.html</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/register.html?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/register.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/register.html"/>
     </url>
 
-    <!-- Leaderboard - High Priority (Engagement) -->
+    <!-- لوحة المتصدرين | Leaderboard - High Priority (Engagement) -->
     <url>
         <loc>https://www.uaeschoolcup.com/leaderboard.html</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>hourly</changefreq>
         <priority>0.9</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/leaderboard.html?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/leaderboard.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/leaderboard.html"/>
     </url>
 
-    <!-- Login Page - Medium Priority -->
+    <!-- صفحة الاختبارات | Quiz Page - High Priority -->
+    <url>
+        <loc>https://www.uaeschoolcup.com/quiz.html</loc>
+        <lastmod>2026-01-04</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/quiz.html?lang=en"/>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/quiz.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/quiz.html"/>
+    </url>
+
+    <!-- صفحة تسجيل الدخول | Login Page - Medium Priority -->
     <url>
         <loc>https://www.uaeschoolcup.com/login.html</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/login.html?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/login.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/login.html"/>
     </url>
 
-    <!-- Quiz Page - Medium Priority (Requires Login) -->
+    <!-- اتصل بنا | Contact Page - Good Priority -->
     <url>
-        <loc>https://www.uaeschoolcup.com/quiz.html</loc>
-        <lastmod>2026-01-03</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/quiz.html?lang=en"/>
-        <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/quiz.html?lang=ar"/>
+        <loc>https://www.uaeschoolcup.com/contact.html</loc>
+        <lastmod>2026-01-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.75</priority>
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/contact.html?lang=en"/>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/contact.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/contact.html"/>
     </url>
 
-    <!-- Dashboard - Low Priority (User-Specific Content) -->
+    <!-- لوحة التحكم | Dashboard - Low Priority (User-Specific Content) -->
     <url>
         <loc>https://www.uaeschoolcup.com/dashboard.html</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/dashboard.html?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/dashboard.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/dashboard.html"/>
     </url>
 
-    <!-- Results Page - Low Priority (User-Specific Content) -->
+    <!-- نتائج الاختبار | Results Page - Low Priority (User-Specific Content) -->
     <url>
         <loc>https://www.uaeschoolcup.com/results.html</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.5</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/results.html?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/results.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/results.html"/>
     </url>
 
-    <!-- Legal Pages - Important for Trust & Compliance -->
+    <!-- الصفحات القانونية | Legal Pages - Important for Trust & Compliance -->
 
-    <!-- Privacy Policy -->
+    <!-- سياسة الخصوصية | Privacy Policy -->
     <url>
         <loc>https://www.uaeschoolcup.com/privacy-policy.html</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/privacy-policy.html?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/privacy-policy.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/privacy-policy.html"/>
     </url>
 
-    <!-- Terms of Service -->
+    <!-- شروط الخدمة | Terms of Service -->
     <url>
         <loc>https://www.uaeschoolcup.com/terms-of-service.html</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/terms-of-service.html?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/terms-of-service.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/terms-of-service.html"/>
     </url>
 
-    <!-- Cookie Policy -->
+    <!-- سياسة ملفات تعريف الارتباط | Cookie Policy -->
     <url>
         <loc>https://www.uaeschoolcup.com/cookie-policy.html</loc>
-        <lastmod>2026-01-03</lastmod>
+        <lastmod>2026-01-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
         <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/cookie-policy.html?lang=en"/>
         <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/cookie-policy.html?lang=ar"/>
-    </url>
-
-    <!-- Contact Page -->
-    <url>
-        <loc>https://www.uaeschoolcup.com/contact.html</loc>
-        <lastmod>2026-01-03</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-        <xhtml:link rel="alternate" hreflang="en" href="https://www.uaeschoolcup.com/contact.html?lang=en"/>
-        <xhtml:link rel="alternate" hreflang="ar" href="https://www.uaeschoolcup.com/contact.html?lang=ar"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.uaeschoolcup.com/cookie-policy.html"/>
     </url>
 
 </urlset>
